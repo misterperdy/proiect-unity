@@ -20,4 +20,4 @@ Un joc de tip RPG, bazat pe nivele tip dungeon-uri, fiecare cu o tema (ex. Steam
 2022.3.62f2
 
 ## Link Feedback:
-*De adaugat
+kipppkattt@gmail.com
