@@ -2,10 +2,15 @@
 
 # Membrii echipei:
 Eftimie Traian, gr 342 - team leader
+
 Matei Alexandru-Antonie, gr 342 - senior coder
+
 Ditoiu Stefan, gr 342
+
 Alexandru Octav Andrei, gr 344
+
 Jitescu Silviu-Cristian, gr 333
+
 Miroiu Alexandru, gr 344
 
 ## Idee joc:
