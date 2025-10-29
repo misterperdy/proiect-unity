@@ -1,4 +1,5 @@
-# Proiect pentru Introducere in Programarea Jocurilor pe Calculator, FMI Unibuc 2025, profesor dl. Popescu S.
+# Teleporters of Time
+Proiect pentru Introducere in Programarea Jocurilor pe Calculator, FMI Unibuc 2025, profesor dl. Popescu S.
 
 # Membrii echipei:
 Eftimie Traian, gr 342 - team leader
