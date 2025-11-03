@@ -38,4 +38,4 @@ Note: dacă pare că jucătorul nu se mișcă, continuă să mergi într-o direc
 2022.3.62f2
 
 ## Link Feedback:
-kipppkattt@gmail.com
+traian.eftimie@s.unibuc.ro
