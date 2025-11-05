@@ -35,6 +35,9 @@ public class HealthBarUI : MonoBehaviour
 
     void Update()
     {
-        slider.value = playerHealth.currentHealth;
+        if (slider != null && playerHealth != null)
+        {
+            slider.value = playerHealth.currentHealth;
+        }
     }
 }
