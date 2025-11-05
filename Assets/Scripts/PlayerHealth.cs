@@ -13,6 +13,7 @@ public class PlayerHealth : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        damage = Mathf.Max(0, damage);
         currentHealth -= damage;
 
         if (currentHealth <= 0)
