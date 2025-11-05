@@ -169,9 +169,9 @@ public class EnemyAI : MonoBehaviour
         agent.SetDestination(hit.position);
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int amount)
     {
-        currentHealth -= damage;
+        currentHealth -= amount;
         if (currentHealth <= 0)
         {
             Die();
