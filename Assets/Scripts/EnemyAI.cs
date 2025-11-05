@@ -165,8 +165,14 @@ public class EnemyAI : MonoBehaviour
         Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
         randomDirection += transform.position;
         NavMeshHit hit;
-        NavMesh.SamplePosition(randomDirection, out hit, patrolRadius, 1);
-        agent.SetDestination(hit.position);
+        if (NavMesh.SamplePosition(randomDirection, out hit, patrolRadius, 1))
+        {
+            agent.SetDestination(hit.position);
+        }
+        else
+        {
+            Debug.LogWarning("EnemyAI: Failed to find a valid NavMesh position for patrol destination.");
+        }
     }
 
     public void TakeDamage(int amount)
