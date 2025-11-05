@@ -83,12 +83,9 @@ public class EnemyAI : MonoBehaviour
 
         Vector3 directionToPlayer = (player.position - transform.position).normalized;
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, directionToPlayer, out hit, sightRange))
+        if (Physics.Raycast(transform.position, directionToPlayer, out hit, sightRange) && hit.transform == player)
         {
-            if (hit.transform == player)
-            {
-                return true;
-            }
+            return true;
         }
         return false;
     }
