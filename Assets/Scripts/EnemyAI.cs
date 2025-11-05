@@ -24,8 +24,15 @@ public class EnemyAI : MonoBehaviour
     {
         currentHealth = maxHealth;
         agent = GetComponent<NavMeshAgent>();
-        player = GameObject.FindGameObjectWithTag("Player").transform;
-        playerHealth = player.GetComponent<PlayerHealth>();
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj == null)
+        {
+            Debug.LogError("No GameObject with tag 'Player' found in the scene. EnemyAI requires a Player to function.");
+            Destroy(gameObject);
+            return;
+        }
+        player = playerObj.transform;
+        playerHealth = playerObj.GetComponent<PlayerHealth>();
 
         // Ensure the agent is on the NavMesh
         if (!agent.isOnNavMesh)
