@@ -35,6 +35,5 @@ public class PlayerMovement : MonoBehaviour
     {
         //move the rigidbody of the player
         rb.MovePosition(rb.position + moveVector * movementSpeed * Time.fixedDeltaTime);
-        Debug.Log(rb.position + moveVector * movementSpeed * Time.fixedDeltaTime);
     }
 }
