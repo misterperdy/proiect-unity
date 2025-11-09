@@ -16,6 +16,11 @@ public class ItemSO : ScriptableObject
     public GameObject itemPrefab; // for rendering
 
     public float damage = 10f;
+
+    [Tooltip("The base time in seconds between attacks for this weapon.")]
+    public float attackCooldown = 0.5f;
+
+
     public float sizeMultiplier = 1f; //for melee
     public float fireRateMultiplier = 1f; //for ranged/magic
 }
