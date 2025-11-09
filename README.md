@@ -17,6 +17,9 @@ Miroiu Alexandru, gr 344
 ## Idee joc:
 Un joc de tip RPG, bazat pe nivele tip dungeon-uri, fiecare cu o tema (ex. Steampunk, Fantasy, Sci-fi), scopul fiind parcurgerea completa a fiecarui dungeon, te spawnezi pe un teleporter si termini nivelul cand urci pe celalalt teleporter.
 
+## Recent update:
+Pe jos se afla doua tipuri de arme: una ranged si una melee care trebuie echipate din inventar. Click = attack.
+
 ## How to play
 În acest moment nu există o versiune compilată a jocului. Pentru a-l rula:
 
@@ -32,7 +35,9 @@ Un joc de tip RPG, bazat pe nivele tip dungeon-uri, fiecare cu o tema (ex. Steam
 
 - Shift – dash (sprint scurt pentru evitarea atacurilor sau deplasare rapidă)
 
-Note: dacă pare că jucătorul nu se mișcă, continuă să mergi într-o direcție câteva secunde (vei ajunge la marginea hărții)
+- Click - Attack (melee/ranged)
+
+- 1 si 2 - Echipare arma/item din inventar
 
 ## Versiune Unity:
 2022.3.62f2
