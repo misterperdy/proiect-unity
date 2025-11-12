@@ -9,11 +9,12 @@ public class TeleporterBoss : MonoBehaviour
     public float teleportCooldown = 1f;//Timpul de cooldown 
 
     private bool playerInZone = false; 
+    private bool isTeleporting = false;
 
     private void Update()
     {
         //Verificare pentru teleportare
-        if (playerInZone  && Input.GetButtonDown("Teleport"))
+        if (playerInZone  && Input.GetButtonDown("Teleport") && !isTeleporting)
         {
             StartCoroutine(TeleportPlayer());
         }
@@ -39,6 +40,7 @@ public class TeleporterBoss : MonoBehaviour
     
     private IEnumerator TeleportPlayer()
     {
+        isTeleporting = true;
         //Oprirea collider pentru a nu te teleporta din greseala la loc de unde ai plecat
         if (receiver != null)
         {
@@ -65,6 +67,7 @@ public class TeleporterBoss : MonoBehaviour
         }
 
         Debug.Log("Teleport ready again!");
+        isTeleporting = false;
     }
 }
 

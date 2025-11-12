@@ -7,11 +7,11 @@ public class Teleport : MonoBehaviour
     public Transform player, destination,receiver;// Player, Destinatie si portalul la care ajunge
     public float teleportCooldown = 1f; //Timpul de cooldown 
 
-    
+    private bool isTeleporting = false;
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") )
+        if (other.CompareTag("Player") && !isTeleporting)
         {
             Debug.Log("Teleport triggered!");
             StartCoroutine(TeleportPlayer());
@@ -20,6 +20,7 @@ public class Teleport : MonoBehaviour
 
     private IEnumerator TeleportPlayer()
     {
+        isTeleporting = true;
         //Oprirea collider pentru a nu te teleporta din greseala la loc de unde ai plecat
         if (receiver != null)
         {
@@ -44,8 +45,7 @@ public class Teleport : MonoBehaviour
                 Debug.Log($"{receiver.name}: Collider ENABLED");
             }
         }
-
-
+        isTeleporting = false;
     }
 }
  
