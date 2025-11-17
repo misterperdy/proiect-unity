@@ -10,6 +10,7 @@ public class EnemyAI : MonoBehaviour
     public float attackCooldown = 1f;
     public float sightRange = 20f;
     public float patrolRadius = 10f;
+  
 
     private NavMeshAgent agent;
     private Transform player;

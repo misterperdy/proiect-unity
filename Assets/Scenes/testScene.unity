@@ -141,7 +141,7 @@ GameObject:
   - component: {fileID: 51373947}
   - component: {fileID: 51373946}
   - component: {fileID: 51373948}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: SwordSwipeVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -809,7 +809,7 @@ GameObject:
   - component: {fileID: 545215141}
   - component: {fileID: 545215142}
   - component: {fileID: 545215143}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -1099,6 +1099,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   currentHealth: 0
+  canTakeDamage: 1
 --- !u!114 &545215143
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2262,7 +2263,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1704091270}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: BowHolder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2295,7 +2296,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1801380790}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ArrowSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2471,7 +2472,7 @@ GameObject:
   - component: {fileID: 1879500846}
   - component: {fileID: 1879500845}
   - component: {fileID: 1879500844}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: BowVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2573,7 +2574,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1901983280}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: MeleeAttackPivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
