@@ -33,6 +33,7 @@ public class PlayerHealth : MonoBehaviour
 
     public void Update()
     {
+
         if (transform.position.y < -50f) 
         {
             currentHealth = 0;

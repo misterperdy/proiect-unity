@@ -11,7 +11,7 @@ public class Medkit : MonoBehaviour
         if (player != null)
         {
             player.Heal(healAmount);
-            Destroy(gameObject); // remove medkit after use
+            Destroy(gameObject); 
         }
     }
 }
