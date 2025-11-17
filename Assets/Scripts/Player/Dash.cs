@@ -11,7 +11,7 @@ public class Dash : MonoBehaviour
 
 
     [Header("Dashing")]
-    [SerializeField] private float _dashVelocity = 1.2f;
+    [SerializeField] private float _dashVelocity = 30f;
     [SerializeField] private float _dashingTime = 0.2f;
     [SerializeField] private float _dashCooldown = 1f;
     private Vector3 _dashingDir;
