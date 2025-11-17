@@ -55,6 +55,13 @@ public class Dash : MonoBehaviour
             StartCoroutine(StopDashing());
         }
 
+        
+    }
+
+    void FixedUpdate()
+    {
+        if (PauseManager.IsPaused) return;
+
         if (_isDashing)
         {
             Physics.IgnoreLayerCollision(7, 8, true);
@@ -63,7 +70,6 @@ public class Dash : MonoBehaviour
             _rigidBody.MovePosition(_rigidBody.position + _dashingDir.normalized * _dashVelocity * Time.fixedDeltaTime);
             return;
         }
-
     }
 
     private IEnumerator StopDashing()
