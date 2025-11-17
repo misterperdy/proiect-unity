@@ -47,7 +47,7 @@ public class PlayerHealth : MonoBehaviour
         if (isDead) return;
         isDead = true;
         Debug.Log("Player has died!");
-        MonoBehaviour[] allScripts = GetComponents<MonoBehaviour>();
+        MonoBehaviour[] allScripts = GetComponentsInChildren<MonoBehaviour>();
 
         foreach (MonoBehaviour script in allScripts)
         {
@@ -56,8 +56,15 @@ public class PlayerHealth : MonoBehaviour
                 script.enabled = false;
             }
         }
-        GetComponent<TeleporterBoss>().enabled = false;
-        GetComponent<Medkit>().enabled = false;
+
+        TeleporterBoss teleporter = GetComponent<TeleporterBoss>();
+        if (teleporter != null)
+            teleporter.enabled = false;
+
+        Medkit medkit = GetComponent<Medkit>();
+        if (medkit != null)
+            medkit.enabled = false;
+
 
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null)
