@@ -66,6 +66,8 @@ public class PlayerAttack : MonoBehaviour
 
     private void Update()
     {
+        if (PauseManager.IsPaused) return;
+
         if (Input.GetButton("Fire1"))
         {
             if (currentItem == null)

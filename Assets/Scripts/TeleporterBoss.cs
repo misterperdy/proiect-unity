@@ -13,6 +13,8 @@ public class TeleporterBoss : MonoBehaviour
 
     private void Update()
     {
+        if (PauseManager.IsPaused) return;
+        
         //Verificare pentru teleportare
         if (playerInZone  && Input.GetButtonDown("Teleport") && !isTeleporting)
         {
