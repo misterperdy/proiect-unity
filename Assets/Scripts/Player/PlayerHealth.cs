@@ -13,6 +13,13 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = maxHealth;
     }
 
+    public void Heal(int amount)
+    {
+        amount = Mathf.Max(0, amount);
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+    }
+
+
     public void TakeDamage(int damage)
     {
         damage = Mathf.Max(0, damage);
