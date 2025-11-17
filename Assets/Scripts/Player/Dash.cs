@@ -11,7 +11,7 @@ public class Dash : MonoBehaviour
 
 
     [Header("Dashing")]
-    [SerializeField] private float _dashVelocity = 20f;
+    [SerializeField] private float _dashVelocity = 1.2f;
     [SerializeField] private float _dashingTime = 0.2f;
     [SerializeField] private float _dashCooldown = 1f;
     private Vector3 _dashingDir;
@@ -54,13 +54,6 @@ public class Dash : MonoBehaviour
 
             StartCoroutine(StopDashing());
         }
-
-        
-    }
-
-    void FixedUpdate()
-    {
-        if (PauseManager.IsPaused) return;
 
         if (_isDashing)
         {
