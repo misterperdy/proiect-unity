@@ -30,6 +30,8 @@ public class Dash : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (PauseManager.IsPaused) return;
+
         var dashInput = Input.GetButtonDown("Dash");
 
         if (dashInput && _canDash)
@@ -51,7 +53,7 @@ public class Dash : MonoBehaviour
 
         if (_isDashing)
         {
-            _rigidBody.MovePosition(_rigidBody.position + _dashingDir.normalized * _dashVelocity * Time.fixedDeltaTime);
+            _rigidBody.MovePosition(_rigidBody.position + _dashingDir.normalized * _dashVelocity * Time.deltaTime);
             return;
         }
 
