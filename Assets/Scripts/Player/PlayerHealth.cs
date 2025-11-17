@@ -47,10 +47,18 @@ public class PlayerHealth : MonoBehaviour
         if (isDead) return;
         isDead = true;
         Debug.Log("Player has died!");
-        GetComponent<PlayerMovement>().enabled = false;
-        GetComponent<PlayerAttack>().enabled = false;
-        GetComponent<PlayerLookAtCursor>().enabled = false;
-        
+        MonoBehaviour[] allScripts = GetComponents<MonoBehaviour>();
+
+        foreach (MonoBehaviour script in allScripts)
+        {
+            if (script != this) 
+            {
+                script.enabled = false;
+            }
+        }
+        GetComponent<TeleporterBoss>().enabled = false;
+        GetComponent<Medkit>().enabled = false;
+
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null)
             rb.isKinematic = false;
