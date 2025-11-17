@@ -60,7 +60,7 @@ public class Dash : MonoBehaviour
             Physics.IgnoreLayerCollision(7, 8, true);
             _playerHealth.canTakeDamage = false;
 
-            _rigidBody.MovePosition(_rigidBody.position + _dashingDir.normalized * _dashVelocity * Time.deltaTime);
+            _rigidBody.MovePosition(_rigidBody.position + _dashingDir.normalized * _dashVelocity * Time.fixedDeltaTime);
             return;
         }
 
