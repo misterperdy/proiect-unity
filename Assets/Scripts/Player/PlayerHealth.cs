@@ -6,6 +6,8 @@ public class PlayerHealth : MonoBehaviour
 {
     public int maxHealth = 100;
     public int currentHealth;
+    public bool canTakeDamage = true;
+
     private bool isDead = false;
 
     void Start()
@@ -22,12 +24,17 @@ public class PlayerHealth : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        damage = Mathf.Max(0, damage);
-        currentHealth -= damage;
-
-        if (currentHealth <= 0)
+        if (canTakeDamage)
         {
-            Die();
+
+            damage = Mathf.Max(0, damage);
+            currentHealth -= damage;
+
+            if (currentHealth <= 0)
+            {
+                Die();
+            }
+
         }
     }
 
