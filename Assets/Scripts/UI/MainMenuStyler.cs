@@ -170,7 +170,7 @@ public class MainMenuStyler : MonoBehaviour
                 else helpText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
 
                 ContentSizeFitter csf = textObj.AddComponent<ContentSizeFitter>();
-                csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+                csf.verticalFit = ContentSizeFitter.FitMode.Unconstrained; // User wants fixed height
                 csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
             }
         }
@@ -180,10 +180,23 @@ public class MainMenuStyler : MonoBehaviour
             // Usually we want a child object.
         }
 
-        // Ensure Text is at the top
+        // Ensure Text is at the top and has correct height
         if (textObj != null)
         {
             textObj.transform.SetAsFirstSibling();
+            
+            RectTransform rt = textObj.GetComponent<RectTransform>();
+            if (rt != null)
+            {
+                rt.sizeDelta = new Vector2(rt.sizeDelta.x, 250);
+            }
+            
+            // Also update ContentSizeFitter if it exists on an existing object
+            ContentSizeFitter csf = textObj.GetComponent<ContentSizeFitter>();
+            if (csf != null)
+            {
+                csf.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
+            }
         }
 
         // Style the Back Button
