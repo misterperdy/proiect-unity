@@ -113,12 +113,16 @@ public class PlayerAttack : MonoBehaviour
         float finalCooldown = currentItem.attackCooldown / currentItem.fireRateMultiplier;
         slotCooldownEndTimes[activeSlot] = Time.time + finalCooldown;
 
-        GameObject arrowGO = Instantiate(arrowPrefab, arrowSpawnPoint.position, arrowSpawnPoint.rotation);
+        GameObject arrowGO = BulletPool.Instance.GetBullet();
+
+        arrowGO.transform.position = arrowSpawnPoint.position;
+        arrowGO.transform.rotation = arrowSpawnPoint.rotation;
+
         Arrow arrow = arrowGO.GetComponent<Arrow>();
+
         if (arrow != null)
         {
-            arrow.damage = currentItem.damage;
-            arrow.speed = this.arrowSpeed;
+            arrow.Fire(currentItem.damage, this.arrowSpeed);
         }
     }
 
