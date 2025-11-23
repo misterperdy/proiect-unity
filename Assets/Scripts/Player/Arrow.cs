@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class Arrow : MonoBehaviour
 {
@@ -9,15 +10,30 @@ public class Arrow : MonoBehaviour
     private Rigidbody rb;
     private float lifeTime = 5f; // Arrow will destroy itself after 5 seconds if it hits nothing
 
-    void Start()
+    void Awake()
     {
         rb = GetComponent<Rigidbody>();
+    }
 
-        // Give the arrow its initial forward velocity
+    void OnEnable()
+    {
+        //reset speed
+        if( rb != null)
+        {
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+    }
+
+    public void Fire(float bulletSpeed, float bulletDamage)
+    {
+        speed = bulletSpeed;
+        damage = bulletDamage;
+
+        //apply speed
         rb.velocity = transform.forward * speed;
 
-        // Destroy the arrow after a set time to clean up the scene
-        Destroy(gameObject, lifeTime);
+        StartCoroutine(DeactivateAfterTime()); //timer until deactivation
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -32,7 +48,18 @@ public class Arrow : MonoBehaviour
             enemy.TakeDamage((int)damage);
         }
 
-        // Destroy the arrow as soon as it hits anything (enemy, wall, floor, etc.)
-        Destroy(gameObject);
+        // se the arrow as  returned soon as it hits anything (enemy, wall, floor, etc.)
+        BulletPool.Instance.ReturnBullet(gameObject);
+    }
+
+    private IEnumerator DeactivateAfterTime()
+    {
+        yield return new WaitForSeconds(lifeTime);
+        BulletPool.Instance.ReturnBullet(gameObject); // return bullet
+    }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
     }
 }
