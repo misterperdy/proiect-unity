@@ -39,6 +39,8 @@ Pe jos se afla doua tipuri de arme: una ranged si una melee care trebuie echipat
 
 - 1 si 2 - Echipare arma/item din inventar
 
+- P - pauza
+
 ## Versiune Unity:
 2022.3.62f2
 
