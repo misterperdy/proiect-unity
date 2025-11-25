@@ -1921,17 +1921,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridSize: 25
   tileSize: 9.5
+  player: {fileID: 0}
+  startRoomPrefab: {fileID: 8068108429544898594, guid: 86108281dbd8f6d4db021d83dcee2438, type: 3}
+  startRoomWidth: 5
+  startRoomHeight: 2
+  startRoomDoorOffset: {x: 2, y: 1}
+  largeRoomPrefab: {fileID: 8068108429544898594, guid: 141e4ebaac0444c4eba4175c1e2c8d43, type: 3}
   numberOfRooms: 20
   roomWidthInTiles: 2
   roomHeightInTiles: 2
   roomVisualNudgeX: 0
   roomVisualNudgeZ: 0
-  doorOffset: {x: 1, y: 1}
+  standardDoorOffset: {x: 1, y: 1}
   straightHallway: {fileID: 8068108429544898594, guid: 7030f736914c67b4abbd84d354cf0e18, type: 3}
   cornerHallway: {fileID: 8068108429544898594, guid: 06b17de2cd5658a40845c77ede2d6d17, type: 3}
   tJunction: {fileID: 8068108429544898594, guid: b60a1c414440c6443b6e4110c0059406, type: 3}
   crossIntersection: {fileID: 8068108429544898594, guid: 77a3b03f6fe1a63489f82dfb236ae64b, type: 3}
-  largeRoom: {fileID: 8068108429544898594, guid: 141e4ebaac0444c4eba4175c1e2c8d43, type: 3}
   dungeonContainer: {fileID: 1808893742}
 --- !u!4 &1352424734
 Transform:

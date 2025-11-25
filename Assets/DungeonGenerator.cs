@@ -5,31 +5,44 @@ using UnityEngine;
 public class DungeonGenerator : MonoBehaviour
 {
     [Header("Grid Settings")]
-    public int gridSize = 25;
+    public int gridSize = 60;
     public float tileSize = 10f;
 
-    [Header("Room Settings")]
-    public int numberOfRooms = 8;
-    public int roomWidthInTiles = 2;
-    public int roomHeightInTiles = 2;
-    public float roomVisualNudgeX = 0f;
-    public float roomVisualNudgeZ = 0f;
+    [Header("Player")]
+    public Transform player;
 
-    [Header("Door Logic")]
-    public Vector2Int doorOffset = new Vector2Int(1, -1);
+    [Header("Start Room")]
+    public GameObject startRoomPrefab;
+    public int startRoomWidth = 5;
+    public int startRoomHeight = 2; // Updated to 2 per your request
+    // Your specific offset: X=2 (Middle), Y=1 (Top Row/Edge)
+    public Vector2Int startRoomDoorOffset = new Vector2Int(2, 1);
+
+    [Header("Standard Rooms")]
+    public GameObject largeRoomPrefab;
+    public int numberOfRooms = 6;
+    public int roomWidthInTiles = 4;
+    public int roomHeightInTiles = 2; // Updated to 2 per your request
+    public float roomVisualNudgeX = 5.0f;
+    public float roomVisualNudgeZ = 0f;
+    // Your specific offset: X=1, Y=1
+    public Vector2Int standardDoorOffset = new Vector2Int(1, 1);
 
     [Header("Prefabs")]
     public GameObject straightHallway;
     public GameObject cornerHallway;
-    public GameObject tJunction;      
-    public GameObject crossIntersection; 
-    public GameObject largeRoom;
+    public GameObject tJunction;
+    public GameObject crossIntersection;
 
     [Header("Container")]
     public Transform dungeonContainer;
 
+    // 0=Void, 1=Room, 2=Hallway, 3=DoorStep, 4=Padding
     private int[,] grid;
     private List<Vector2Int> roomConnectionPoints = new List<Vector2Int>();
+
+    // Debug Lists
+    private List<Vector2Int> debugPath = new List<Vector2Int>();
 
     void Start()
     {
@@ -40,63 +53,114 @@ public class DungeonGenerator : MonoBehaviour
     {
         grid = new int[gridSize, gridSize];
         roomConnectionPoints.Clear();
+        debugPath.Clear();
 
         if (dungeonContainer != null)
             foreach (Transform child in dungeonContainer) Destroy(child.gameObject);
 
-        PlaceRooms();
+        // 1. Place Rooms
+        PlaceStartRoom();
+        PlaceRandomRooms();
+
+        // 2. Sort to find nearest neighbors
+        SortConnectionPointsByDistance();
+
+        // 3. Connect
         ConnectRoomsWithAStar();
         SpawnWorld();
     }
 
-    void PlaceRooms()
+    void OnDrawGizmos()
+    {
+        if (roomConnectionPoints == null) return;
+        Gizmos.color = Color.red;
+        foreach (var p in roomConnectionPoints)
+        {
+            Vector3 pos = new Vector3(p.x * tileSize, 2, p.y * tileSize);
+            Gizmos.DrawSphere(pos, 2f);
+        }
+    }
+
+    void SortConnectionPointsByDistance()
+    {
+        if (roomConnectionPoints.Count < 2) return;
+        List<Vector2Int> sorted = new List<Vector2Int>();
+        List<Vector2Int> pool = new List<Vector2Int>(roomConnectionPoints);
+
+        Vector2Int current = pool[0]; // Start Room
+        sorted.Add(current);
+        pool.RemoveAt(0);
+
+        while (pool.Count > 0)
+        {
+            Vector2Int closest = Vector2Int.zero;
+            float minDst = float.MaxValue;
+            int closestIndex = -1;
+
+            for (int i = 0; i < pool.Count; i++)
+            {
+                float dst = Vector2Int.Distance(current, pool[i]);
+                if (dst < minDst)
+                {
+                    minDst = dst;
+                    closest = pool[i];
+                    closestIndex = i;
+                }
+            }
+            sorted.Add(closest);
+            current = closest;
+            pool.RemoveAt(closestIndex);
+        }
+        roomConnectionPoints = sorted;
+    }
+
+    void PlaceStartRoom()
+    {
+        // --- RANDOM START POSITION ---
+        // We define a range that keeps the room away from the very edge of the map
+        int x = Random.Range(5, gridSize - startRoomWidth - 5);
+        int y = Random.Range(5, gridSize - startRoomHeight - 5);
+
+        MarkPadding(x, y, startRoomWidth, startRoomHeight);
+        MarkRoom(x, y, startRoomWidth, startRoomHeight);
+
+        Vector2Int doorPos = new Vector2Int(x + startRoomDoorOffset.x, y + startRoomDoorOffset.y);
+        grid[doorPos.x, doorPos.y] = 3;
+        roomConnectionPoints.Add(doorPos);
+
+        ClearEntryPoint(doorPos, startRoomDoorOffset);
+
+        float centerOffsetX = ((startRoomWidth - 1) * tileSize) / 2f;
+        float centerOffsetY = ((startRoomHeight - 1) * tileSize) / 2f;
+        Vector3 finalPos = new Vector3((x * tileSize) + centerOffsetX, 0, (y * tileSize) + centerOffsetY);
+
+        Instantiate(startRoomPrefab, finalPos, Quaternion.identity, dungeonContainer);
+
+        if (player != null) player.position = finalPos + new Vector3(0, 1, 0);
+    }
+
+    void PlaceRandomRooms()
     {
         int roomsPlaced = 0;
         int attempts = 0;
 
-        while (roomsPlaced < numberOfRooms && attempts < 100)
+        while (roomsPlaced < numberOfRooms - 1 && attempts < 20000)
         {
             attempts++;
-            int x = Random.Range(3, gridSize - roomWidthInTiles - 3);
-            int y = Random.Range(3, gridSize - roomHeightInTiles - 3);
+            int x = Random.Range(4, gridSize - roomWidthInTiles - 4);
+            int y = Random.Range(4, gridSize - roomHeightInTiles - 4);
 
             if (IsAreaClear(x, y, roomWidthInTiles, roomHeightInTiles))
             {
-                // 1. PADDING
-                for (int i = -1; i <= roomWidthInTiles; i++)
-                {
-                    for (int j = -1; j <= roomHeightInTiles; j++)
-                    {
-                        if (x + i >= 0 && x + i < gridSize && y + j >= 0 && y + j < gridSize)
-                            grid[x + i, y + j] = 4;
-                    }
-                }
+                MarkPadding(x, y, roomWidthInTiles, roomHeightInTiles);
+                MarkRoom(x, y, roomWidthInTiles, roomHeightInTiles);
 
-                // 2. ROOM
-                for (int i = 0; i < roomWidthInTiles; i++)
-                {
-                    for (int j = 0; j < roomHeightInTiles; j++)
-                    {
-                        grid[x + i, y + j] = 1;
-                    }
-                }
-
-                // 3. DOOR STEP
-                Vector2Int doorPos = new Vector2Int(x + doorOffset.x, y + doorOffset.y);
+                Vector2Int doorPos = new Vector2Int(x + standardDoorOffset.x, y + standardDoorOffset.y);
                 grid[doorPos.x, doorPos.y] = 3;
                 roomConnectionPoints.Add(doorPos);
 
-                // 4. CLEAR ENTRY
-                Vector2Int entryPoint = doorPos;
-                if (doorOffset.y < 0) entryPoint.y -= 1;
-                else if (doorOffset.y > 0) entryPoint.y += 1;
-                else if (doorOffset.x < 0) entryPoint.x -= 1;
-                else if (doorOffset.x > 0) entryPoint.x += 1;
+                ClearEntryPoint(doorPos, standardDoorOffset);
 
-                if (grid[entryPoint.x, entryPoint.y] == 4)
-                    grid[entryPoint.x, entryPoint.y] = 0;
-
-                // 5. VISUALS
                 float centerOffsetX = ((roomWidthInTiles - 1) * tileSize) / 2f;
                 float centerOffsetY = ((roomHeightInTiles - 1) * tileSize) / 2f;
                 Vector3 finalPos = new Vector3(
@@ -104,9 +168,48 @@ public class DungeonGenerator : MonoBehaviour
                     0,
                     (y * tileSize) + centerOffsetY + roomVisualNudgeZ
                 );
-                Instantiate(largeRoom, finalPos, Quaternion.identity, dungeonContainer);
+
+                Instantiate(largeRoomPrefab, finalPos, Quaternion.identity, dungeonContainer);
                 roomsPlaced++;
             }
+        }
+    }
+
+    void MarkPadding(int x, int y, int w, int h)
+    {
+        for (int i = -1; i <= w; i++)
+        {
+            for (int j = -1; j <= h; j++)
+            {
+                if (x + i >= 0 && x + i < gridSize && y + j >= 0 && y + j < gridSize)
+                    grid[x + i, y + j] = 4;
+            }
+        }
+    }
+
+    void MarkRoom(int x, int y, int w, int h)
+    {
+        for (int i = 0; i < w; i++)
+        {
+            for (int j = 0; j < h; j++)
+            {
+                grid[x + i, y + j] = 1;
+            }
+        }
+    }
+
+    void ClearEntryPoint(Vector2Int doorPos, Vector2Int offset)
+    {
+        Vector2Int entry = doorPos;
+        // Since Y=1 usually means "Up/Top", we clear the tile ABOVE.
+        if (offset.y > 0) entry.y += 1;
+        else if (offset.y < 0) entry.y -= 1;
+        else if (offset.x > 0) entry.x += 1;
+        else if (offset.x < 0) entry.x -= 1;
+
+        if (entry.x >= 0 && entry.x < gridSize && entry.y >= 0 && entry.y < gridSize)
+        {
+            if (grid[entry.x, entry.y] == 4) grid[entry.x, entry.y] = 0;
         }
     }
 
@@ -129,14 +232,16 @@ public class DungeonGenerator : MonoBehaviour
         {
             Vector2Int start = roomConnectionPoints[i];
             Vector2Int end = roomConnectionPoints[i + 1];
-
             List<Vector2Int> path = FindPath(start, end);
             if (path != null)
             {
                 foreach (Vector2Int pos in path)
                 {
                     if (grid[pos.x, pos.y] != 3)
+                    {
                         grid[pos.x, pos.y] = 2;
+                        debugPath.Add(pos);
+                    }
                 }
             }
         }
@@ -153,11 +258,10 @@ public class DungeonGenerator : MonoBehaviour
         bool found = false;
         int safetyBreak = 0;
 
-        while (queue.Count > 0 && safetyBreak < 5000)
+        while (queue.Count > 0 && safetyBreak < 10000)
         {
             safetyBreak++;
             Vector2Int current = queue.Dequeue();
-
             if (current == target) { found = true; break; }
 
             Vector2Int[] neighbors = { new Vector2Int(0, 1), new Vector2Int(0, -1), new Vector2Int(1, 0), new Vector2Int(-1, 0) };
@@ -178,7 +282,6 @@ public class DungeonGenerator : MonoBehaviour
                 }
             }
         }
-
         if (found)
         {
             Vector2Int curr = target;
@@ -194,61 +297,37 @@ public class DungeonGenerator : MonoBehaviour
         {
             for (int y = 0; y < gridSize; y++)
             {
-                if (grid[x, y] == 2 || grid[x, y] == 3)
-                {
-                    SpawnTile(x, y);
-                }
+                if (grid[x, y] == 2 || grid[x, y] == 3) SpawnTile(x, y);
             }
         }
     }
 
     void SpawnTile(int x, int y)
     {
+        if (grid[x, y] == 3) return; // Leave door OPEN
+
         bool n = IsPath(x, y + 1);
         bool s = IsPath(x, y - 1);
         bool e = IsPath(x + 1, y);
         bool w = IsPath(x - 1, y);
 
-        if (grid[x, y] == 3) // DoorStep special handling
-        {
-            if (grid[x, y + 1] == 1) n = true;
-            if (grid[x, y - 1] == 1) s = true;
-            if (grid[x + 1, y] == 1) e = true;
-            if (grid[x - 1, y] == 1) w = true;
-        }
-
         GameObject prefab = null;
         float rotation = 0;
         int count = (n ? 1 : 0) + (s ? 1 : 0) + (e ? 1 : 0) + (w ? 1 : 0);
 
-        
-        if (count == 4)
+        if (count >= 3)
         {
-            // 4-Way Intersection: Needs 0 walls
-            prefab = crossIntersection;
+            prefab = (count == 4) ? crossIntersection : tJunction;
+            if (count == 3)
+            {
+                if (!n) rotation = 0;
+                else if (!e) rotation = 90;
+                else if (!s) rotation = 180;
+                else if (!w) rotation = 270;
+            }
         }
-        else if (count == 3)
-        {
-            // 3-Way T-Junction: Needs 1 wall
-            prefab = tJunction;
-
-            // Logic: Rotate the wall to face the "missing" neighbor
-            // Assumes your prefab has the wall on the NORTH side by default
-            if (!n) rotation = 0;     // Missing North -> Wall North
-            else if (!e) rotation = 90; // Missing East -> Wall East
-            else if (!s) rotation = 180;// Missing South -> Wall South
-            else if (!w) rotation = 270;// Missing West -> Wall West
-        }
-        else if (n && s)
-        {
-            prefab = straightHallway;
-            rotation = 0;
-        }
-        else if (e && w)
-        {
-            prefab = straightHallway;
-            rotation = 90;
-        }
+        else if (n && s) { prefab = straightHallway; rotation = 0; }
+        else if (e && w) { prefab = straightHallway; rotation = 90; }
         else
         {
             prefab = cornerHallway;
