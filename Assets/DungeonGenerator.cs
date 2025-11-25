@@ -21,8 +21,8 @@ public class DungeonGenerator : MonoBehaviour
     [Header("Prefabs")]
     public GameObject straightHallway;
     public GameObject cornerHallway;
-    public GameObject tJunction;       // <--- NEW: Drag your 1-Wall Prefab here
-    public GameObject crossIntersection; // Rename of 'tIntersection' (No Walls)
+    public GameObject tJunction;      
+    public GameObject crossIntersection; 
     public GameObject largeRoom;
 
     [Header("Container")]
@@ -221,7 +221,7 @@ public class DungeonGenerator : MonoBehaviour
         float rotation = 0;
         int count = (n ? 1 : 0) + (s ? 1 : 0) + (e ? 1 : 0) + (w ? 1 : 0);
 
-        // --- NEW LOGIC FOR INTERSECTIONS ---
+        
         if (count == 4)
         {
             // 4-Way Intersection: Needs 0 walls
