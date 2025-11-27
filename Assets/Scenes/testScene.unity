@@ -801,7 +801,7 @@ GameObject:
   - component: {fileID: 545215136}
   - component: {fileID: 545215135}
   - component: {fileID: 545215134}
-  - component: {fileID: 545215133}
+  - component: {fileID: 545215144}
   - component: {fileID: 545215137}
   - component: {fileID: 545215138}
   - component: {fileID: 545215139}
@@ -816,27 +816,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!65 &545215133
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 545215132}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &545215134
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -928,9 +907,9 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
+  m_Interpolate: 1
+  m_Constraints: 112
+  m_CollisionDetection: 1
 --- !u!114 &545215138
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1148,6 +1127,29 @@ MonoBehaviour:
   arrowPrefab: {fileID: 5124060890674046994, guid: cd895943ee12c554697b924aa2e7daa3, type: 3}
   arrowSpawnPoint: {fileID: 1801380790}
   arrowSpeed: 30
+--- !u!136 &545215144
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 545215132}
+  m_Material: {fileID: 13400000, guid: 7b5643f16f76f5d489c4a714900fe179, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.93
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &572218483
 GameObject:
   m_ObjectHideFlags: 0
@@ -1921,7 +1923,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridSize: 25
   tileSize: 9.5
-  player: {fileID: 0}
+  player: {fileID: 545215136}
   startRoomPrefab: {fileID: 8068108429544898594, guid: 86108281dbd8f6d4db021d83dcee2438, type: 3}
   startRoomWidth: 5
   startRoomHeight: 2

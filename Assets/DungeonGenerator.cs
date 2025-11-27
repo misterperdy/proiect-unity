@@ -136,7 +136,22 @@ public class DungeonGenerator : MonoBehaviour
 
         Instantiate(startRoomPrefab, finalPos, Quaternion.identity, dungeonContainer);
 
-        if (player != null) player.position = finalPos + new Vector3(0, 1, 0);
+        if (player != null)
+        {
+            
+            player.position = finalPos + new Vector3(0, 2, 0); 
+
+            
+            Rigidbody playerRb = player.GetComponent<Rigidbody>();
+            if (playerRb != null)
+            {
+                playerRb.velocity = Vector3.zero;
+                playerRb.position = player.position; 
+            }
+
+            
+            player.rotation = Quaternion.identity;
+        }
     }
 
     void PlaceRandomRooms()
