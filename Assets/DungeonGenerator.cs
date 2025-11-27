@@ -18,7 +18,6 @@ public class DungeonGenerator : MonoBehaviour
     public GameObject startRoomPrefab;
     public int startRoomWidth = 5;
     public int startRoomHeight = 2;
-    // Start Room is fixed size, so we keep this specific offset
     public Vector2Int startRoomDoorOffset = new Vector2Int(2, 2);
 
     [Header("Standard Rooms")]
@@ -27,14 +26,11 @@ public class DungeonGenerator : MonoBehaviour
     public int minRoomSize = 3;
     public int maxRoomSize = 6;
 
-    // We don't use standardDoorOffset anymore for random rooms.
-    // The door will now be calculated dynamically (Center of wall).
 
     [Header("Generation Logic")]
     [Range(0f, 1f)] public float layerSpawnChance = 0.5f;
 
     [Header("Rotation Logic")]
-    // Since your door is at y=1 on a height-2 room (Top), keep this Top.
     public DoorSide prefabDefaultDoorSide = DoorSide.Top;
     [Range(0, 270)] public int globalRotationFix = 0;
 
@@ -122,7 +118,6 @@ public class DungeonGenerator : MonoBehaviour
                 playerRb.position = player.position; // Sync physics position
             }
 
-            // 3. Optional: Rotate player to face the room center
             player.rotation = Quaternion.identity;
         }
     }
@@ -238,10 +233,6 @@ public class DungeonGenerator : MonoBehaviour
         return false;
     }
 
-    // ... (The rest of the Math and Helper functions remain the same as the previous fixed version) ...
-    // Copy GetRotatedDoorInfo, CalculateRotationTowardsStart, CalculateClearanceDir etc. from previous response.
-
-    // --- COPY PASTE START ---
     DoorInfo GetRotatedDoorInfo(int x, int y, int w, int h, float rotation, Vector2Int localDoor)
     {
         int rot = Mathf.RoundToInt(rotation) % 360;
