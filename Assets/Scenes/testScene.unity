@@ -2053,7 +2053,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: edc6b844edc2e9d49874f17b35b74db3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridSize: 25
+  gridSize: 60
   tileSize: 9.5
   player: {fileID: 545215136}
   startRoomPrefab: {fileID: 8068108429544898594, guid: 86108281dbd8f6d4db021d83dcee2438, type: 3}
@@ -2061,12 +2061,14 @@ MonoBehaviour:
   startRoomHeight: 2
   startRoomDoorOffset: {x: 2, y: 1}
   largeRoomPrefab: {fileID: 8068108429544898594, guid: 141e4ebaac0444c4eba4175c1e2c8d43, type: 3}
-  numberOfRooms: 20
+  numberOfRooms: 25
   roomWidthInTiles: 2
   roomHeightInTiles: 2
-  roomVisualNudgeX: 0
+  roomVisualNudgeX: 5
   roomVisualNudgeZ: 0
   standardDoorOffset: {x: 1, y: 1}
+  layerSpawnChance: 0.388
+  prefabDefaultDoorSide: 1
   straightHallway: {fileID: 8068108429544898594, guid: 7030f736914c67b4abbd84d354cf0e18, type: 3}
   cornerHallway: {fileID: 8068108429544898594, guid: 06b17de2cd5658a40845c77ede2d6d17, type: 3}
   tJunction: {fileID: 8068108429544898594, guid: b60a1c414440c6443b6e4110c0059406, type: 3}
