@@ -2060,15 +2060,15 @@ MonoBehaviour:
   startRoomWidth: 5
   startRoomHeight: 2
   startRoomDoorOffset: {x: 2, y: 1}
-  largeRoomPrefab: {fileID: 8068108429544898594, guid: 141e4ebaac0444c4eba4175c1e2c8d43, type: 3}
-  numberOfRooms: 25
-  roomWidthInTiles: 2
-  roomHeightInTiles: 2
-  roomVisualNudgeX: 5
-  roomVisualNudgeZ: 0
-  standardDoorOffset: {x: 1, y: 1}
+  roomGeneratorPrefab: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+  numberOfRooms: 40
+  minRoomSize: 3
+  maxRoomSize: 15
   layerSpawnChance: 0.388
-  prefabDefaultDoorSide: 1
+  prefabDefaultDoorSide: 0
+  globalRotationFix: 0
+  roomVisualNudgeX: 0
+  roomVisualNudgeZ: 0
   straightHallway: {fileID: 8068108429544898594, guid: 7030f736914c67b4abbd84d354cf0e18, type: 3}
   cornerHallway: {fileID: 8068108429544898594, guid: 06b17de2cd5658a40845c77ede2d6d17, type: 3}
   tJunction: {fileID: 8068108429544898594, guid: b60a1c414440c6443b6e4110c0059406, type: 3}
@@ -2486,6 +2486,71 @@ Transform:
   - {fileID: 1801380790}
   m_Father: {fileID: 545215136}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1774129426
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4150119800187642966, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 356.47342
+      objectReference: {fileID: 0}
+    - target: {fileID: 4150119800187642966, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 299.73013
+      objectReference: {fileID: 0}
+    - target: {fileID: 4150119800187642966, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 105.77079
+      objectReference: {fileID: 0}
+    - target: {fileID: 4150119800187642966, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4150119800187642966, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4150119800187642966, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4150119800187642966, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4150119800187642966, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4150119800187642966, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4150119800187642966, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4459428071053549290, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: m_Name
+      value: Procedural_Room_Base
+      objectReference: {fileID: 0}
+    - target: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: pillarInset
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: wallPrefabWidth
+      value: 4.9
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
 --- !u!1 &1801380789
 GameObject:
   m_ObjectHideFlags: 0
@@ -3364,3 +3429,4 @@ SceneRoots:
   - {fileID: 1352424734}
   - {fileID: 1808893742}
   - {fileID: 234021740}
+  - {fileID: 1774129426}
