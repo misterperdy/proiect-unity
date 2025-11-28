@@ -8,9 +8,6 @@ public class PlayerMovement : MonoBehaviour
     public float movementSpeed = 8f;
     
     private Rigidbody rb;
-
-    private float moveX;
-    private float moveZ;
     private Vector3 moveVector;
 
 
@@ -27,13 +24,13 @@ public class PlayerMovement : MonoBehaviour
         float moveZ = Input.GetAxis("Vertical"); // W,S keys or up,down arrows
 
         //create a vector with the inputs from the 2 axis
-        moveVector = new Vector3(moveX, 0f, moveZ).normalized; // we don't move on Y yet
+        moveVector = new Vector3(moveX, 0f, moveZ).normalized;
     }
 
     //function to handle physics that runs constantly
     void FixedUpdate()
     {
         //move the rigidbody of the player
-        rb.MovePosition(rb.position + moveVector * movementSpeed * Time.fixedDeltaTime);
+        rb.velocity = new Vector3(moveVector.x * movementSpeed, rb.velocity.y, moveVector.z * movementSpeed);
     }
 }
