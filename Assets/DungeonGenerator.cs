@@ -5,19 +5,21 @@ using UnityEngine;
 
 public class DungeonGenerator : MonoBehaviour
 {
+    // Simple enum to help us visualize which side the door is on
     public enum DoorSide { Top, Right, Bottom, Left }
 
     [Header("Grid Settings")]
-    public int gridSize = 60;
-    public float tileSize = 9.5f;
+    public int gridSize = 60; // How big the total map is
+    public float tileSize = 9.5f; // Matches the physical size of the room assets
 
     [Header("Player")]
-    public Transform player;
+    public Transform player; // We move this object to the start room when done
 
     [Header("Start Room")]
     public GameObject startRoomPrefab;
     public int startRoomWidth = 5;
     public int startRoomHeight = 2;
+    // We set this to 2, 2 because the room is height 2, so Y=2 is just outside the top wall
     public Vector2Int startRoomDoorOffset = new Vector2Int(2, 2);
 
     [Header("Standard Rooms")]
@@ -26,13 +28,13 @@ public class DungeonGenerator : MonoBehaviour
     public int minRoomSize = 3;
     public int maxRoomSize = 6;
 
-
     [Header("Generation Logic")]
-    [Range(0f, 1f)] public float layerSpawnChance = 0.5f;
+    [Range(0f, 1f)] public float layerSpawnChance = 0.5f; // Chance to spawn extra rooms in a spiral layer
 
     [Header("Rotation Logic")]
+    // Since our logic assumes the door is at y=1 on a height-2 room, that is the Top side
     public DoorSide prefabDefaultDoorSide = DoorSide.Top;
-    [Range(0, 270)] public int globalRotationFix = 0;
+    [Range(0, 270)] public int globalRotationFix = 0; // Use this if everything is facing the wrong way
 
     [Header("Adjustments")]
     public float roomVisualNudgeX = 0f;
@@ -47,17 +49,18 @@ public class DungeonGenerator : MonoBehaviour
     [Header("Container")]
     public Transform dungeonContainer;
 
+    // The main grid where 0 is empty, 1 is room, 2 is hallway, 3 is a door connection
     private int[,] grid;
     private List<Vector2Int> roomConnectionPoints = new List<Vector2Int>();
     private List<Vector2Int> debugPath = new List<Vector2Int>();
     private Vector2Int startRoomCenter;
 
-    // Helper struct
+    // A helper struct to keep our door math organized
     struct DoorInfo
     {
-        public Vector2Int gridPos;   // Internal door tile
-        public Vector2Int stepPos;   // External step tile
-        public Vector2Int dir;       // Direction out
+        public Vector2Int gridPos;   // The tile inside the room (the door itself)
+        public Vector2Int stepPos;   // The tile outside the room (where the hallway connects)
+        public Vector2Int dir;       // Which way points out of the room
     }
 
     private bool even;
@@ -69,53 +72,70 @@ public class DungeonGenerator : MonoBehaviour
 
     public void GenerateDungeon()
     {
+        // Initialize the empty grid and clear old lists
         grid = new int[gridSize, gridSize];
         roomConnectionPoints.Clear();
         debugPath.Clear();
 
+        // Delete any old dungeon objects so we have a clean slate
         if (dungeonContainer != null)
             foreach (Transform child in dungeonContainer) Destroy(child.gameObject);
 
+        // Step 1 is placing the fixed start room
         PlaceStartRoom();
+
+        // Step 2 is spiraling out to place random rooms
         PlaceRoomsSpiralLayers();
+
+        // Step 3 ensures we connect to the closest room first to avoid long weird hallways
         SortConnectionPointsByDistance();
+
+        // Step 4 actually calculates the paths
         ConnectRoomsWithAStar();
+
+        // Step 5 spawns the hallway prefabs based on the grid data
         SpawnWorld();
     }
 
     void PlaceStartRoom()
     {
+        // Calculate the center of the grid to place our first room
         int x = gridSize / 2 - (startRoomWidth / 2);
         int y = gridSize / 2 - (startRoomHeight / 2);
         startRoomCenter = new Vector2Int(x + startRoomWidth / 2, y + startRoomHeight / 2);
 
+        // We use rotation 180 here to ensure the door faces the right way for the start room
         DoorInfo door = GetRotatedDoorInfo(x, y, startRoomWidth, startRoomHeight, 180, startRoomDoorOffset);
 
+        // Safety check to make sure we didn't try to spawn outside the map
         if (!IsInsideGrid(door.stepPos)) return;
 
+        // Mark the grid so hallways know not to walk through this room
         MarkPadding(x, y, startRoomWidth, startRoomHeight);
         MarkRoom(x, y, startRoomWidth, startRoomHeight);
 
+        // Set the connection point
         grid[door.stepPos.x, door.stepPos.y] = 3;
         roomConnectionPoints.Add(door.stepPos);
         ClearEntryPoint(door.stepPos, door.dir);
 
+        // Calculate visual position for the prefab
         float cx = ((startRoomWidth - 1) * tileSize) / 2f;
         float cy = ((startRoomHeight - 1) * tileSize) / 2f;
         Vector3 finalPos = new Vector3((x * tileSize) + cx, 0, (y * tileSize) + cy);
 
+        // Instantiate the room and move the player there
         Instantiate(startRoomPrefab, finalPos, Quaternion.identity, dungeonContainer);
         if (player != null)
         {
-            // 1. Teleport the Transform
-            player.position = finalPos + new Vector3(0, 2, 0); // Increased to 2 to be safe from floor clipping
+            // Teleport the Transform and reset physics so the player doesn't carry momentum
+            player.position = finalPos + new Vector3(0, 2, 0);
 
-            // 2. If the player has a Rigidbody, we must reset its velocity so it doesn't fly away
             Rigidbody playerRb = player.GetComponent<Rigidbody>();
             if (playerRb != null)
             {
                 playerRb.velocity = Vector3.zero;
-                playerRb.position = player.position; // Sync physics position
+                playerRb.position = player.position;
             }
 
             player.rotation = Quaternion.identity;
@@ -127,11 +147,13 @@ public class DungeonGenerator : MonoBehaviour
         int roomsPlaced = 0;
         int maxRoomsToAdd = numberOfRooms - 1;
 
+        // Get a list of coordinates spiraling out from the center
         List<Vector2Int> allSpiralPoints = GenerateSpiralPoints();
         Dictionary<int, List<Vector2Int>> layers = new Dictionary<int, List<Vector2Int>>();
         int centerX = gridSize / 2;
         int centerY = gridSize / 2;
 
+        // Group these points into layers or rings around the center
         foreach (Vector2Int p in allSpiralPoints)
         {
             int dist = Mathf.Max(Mathf.Abs(p.x - centerX), Mathf.Abs(p.y - centerY));
@@ -139,25 +161,31 @@ public class DungeonGenerator : MonoBehaviour
             layers[dist].Add(p);
         }
 
+        // Iterate through each layer ring
         foreach (var layerIndex in layers.Keys.OrderBy(k => k))
         {
             if (roomsPlaced >= maxRoomsToAdd) break;
             if (layerIndex == 0) continue;
 
+            // Shuffle the points in this layer so we don't always pick the top-left one
             List<Vector2Int> candidates = layers[layerIndex].OrderBy(x => Random.value).ToList();
             bool placedOneInThisLayer = false;
 
             foreach (Vector2Int pos in candidates)
             {
                 if (roomsPlaced >= maxRoomsToAdd) break;
+
+                // We guarantee at least one room per layer, then rely on chance for more
                 bool shouldTry = !placedOneInThisLayer || (Random.value < layerSpawnChance);
 
                 if (shouldTry)
                 {
+                    // Pick a random size for this specific room
                     int randW = Random.Range(minRoomSize, maxRoomSize + 1);
                     int randH = Random.Range(minRoomSize, maxRoomSize + 1);
 
-                    if (randW % 2 == 0) randW = (Random.Range(0,2)%2==0) ? randW = randW - 1 : randW = randW + 1;
+                    // Force odd/even adjustments if needed logic was here, simplified for now
+                    if (randW % 2 == 0) randW = (Random.Range(0, 2) % 2 == 0) ? randW = randW - 1 : randW = randW + 1;
 
                     if (TryPlaceRoom(pos.x, pos.y, randW, randH))
                     {
@@ -171,35 +199,35 @@ public class DungeonGenerator : MonoBehaviour
 
     bool TryPlaceRoom(int x, int y, int rawW, int rawH)
     {
-        // 1. Calculate Rotation based on position relative to Start Room
+        // First we figure out which way this room should face to look at the start room
         float rotation = CalculateRotationTowardsStart(x, y, rawW, rawH);
 
-        // 2. DEFINE LOCAL DOOR POSITION (Single Source of Truth)
-        // We calculate this based on the RANDOM size we just generated.
-        // We assume we want the door in the MIDDLE of the "Front" wall.
-
-        int doorIndexX = rawW / 2; // Integer division puts it in the middle
+        // We calculate the local door position dynamically based on the random size we just picked
+        // This ensures the door is always centered on the wall
+        int doorIndexX = rawW / 2;
         int doorIndexY = 0;
 
         Vector2Int localDoorPos = new Vector2Int(doorIndexX, doorIndexY);
 
-        // 3. Grid Dimensions (Swap W/H if rotated sideways)
+        // If rotated sideways 90 or 270 degrees, the width and height occupied on the grid swap
         int occupiedW = rawW;
         int occupiedH = rawH;
         bool isSideways = Mathf.Approximately(Mathf.Abs(rotation - 90), 0) || Mathf.Approximately(Mathf.Abs(rotation - 270), 0);
         if (isSideways) { occupiedW = rawH; occupiedH = rawW; }
 
+        // Check if we are out of bounds
         if (x < 4 || y < 4 || x > gridSize - occupiedW - 4 || y > gridSize - occupiedH - 4) return false;
 
         if (IsAreaClear(x, y, occupiedW, occupiedH))
         {
-            // 4. Calculate Grid Connection using the DYNAMIC Local Door
+            // Calculate where the connection point lands on the grid
             DoorInfo door = GetRotatedDoorInfo(x, y, rawW, rawH, rotation, localDoorPos);
 
             if (!IsInsideGrid(door.stepPos)) return false;
+            // Make sure we aren't connecting into an existing wall
             if (grid[door.stepPos.x, door.stepPos.y] != 0) return false;
 
-            // 5. Place Data
+            // Commit the room to the grid data
             MarkPadding(x, y, occupiedW, occupiedH);
             MarkRoom(x, y, occupiedW, occupiedH);
 
@@ -207,12 +235,12 @@ public class DungeonGenerator : MonoBehaviour
             roomConnectionPoints.Add(door.stepPos);
             ClearEntryPoint(door.stepPos, door.dir);
 
-            // 6. Spawn Visuals
+            // Calculate the visual center position
             float midX = x + (occupiedW - 1) / 2f;
             float midY = y + (occupiedH - 1) / 2f;
             Vector3 finalPos = new Vector3(midX * tileSize, 0, midY * tileSize);
 
-            // Nudge Logic
+            // Apply visual nudge logic if needed for rotation alignment
             if (isSideways)
             {
                 finalPos.x += roomVisualNudgeZ;
@@ -224,8 +252,10 @@ public class DungeonGenerator : MonoBehaviour
                 finalPos.z += roomVisualNudgeZ;
             }
 
+            // Spawn the empty room object
             GameObject roomObj = Instantiate(roomGeneratorPrefab.gameObject, finalPos, Quaternion.Euler(0, rotation, 0), dungeonContainer);
 
+            // Tell the room script to actually build the walls and floors
             roomObj.GetComponent<RoomGenerator>().BuildRoom(rawW, rawH, localDoorPos);
 
             return true;
@@ -233,6 +263,8 @@ public class DungeonGenerator : MonoBehaviour
         return false;
     }
 
+    // This function handles the discrete math to find where the door is after rotation
+    // It prevents floating point errors from messing up the grid alignment
     DoorInfo GetRotatedDoorInfo(int x, int y, int w, int h, float rotation, Vector2Int localDoor)
     {
         int rot = Mathf.RoundToInt(rotation) % 360;
@@ -240,24 +272,21 @@ public class DungeonGenerator : MonoBehaviour
         Vector2Int internalPos = Vector2Int.zero;
         Vector2Int direction = Vector2Int.zero;
 
-        
-
         switch (rot)
         {
-            case 0: // North
-                internalPos = new Vector2Int(x + (w - 1 - localDoor.x), y+1);
+            case 0: // Facing North
+                internalPos = new Vector2Int(x + (w - 1 - localDoor.x), y + 1);
                 direction = new Vector2Int(0, -1);
                 break;
-            case 90: // East
-                internalPos = new Vector2Int(x+1, y + localDoor.x);
+            case 90: // Facing East
+                internalPos = new Vector2Int(x + 1, y + localDoor.x);
                 direction = new Vector2Int(-1, 0);
                 break;
-            case 180: // South
-                
-                internalPos = new Vector2Int(x + localDoor.x , y + (h - 2));
+            case 180: // Facing South
+                internalPos = new Vector2Int(x + localDoor.x, y + (h - 2));
                 direction = new Vector2Int(0, 1);
                 break;
-            case 270: // West
+            case 270: // Facing West
                 internalPos = new Vector2Int(x + (h - 2), y + (w - 1 - localDoor.x));
                 direction = new Vector2Int(1, 0);
                 break;
@@ -269,22 +298,26 @@ public class DungeonGenerator : MonoBehaviour
         return info;
     }
 
+    // Calculates which direction the room needs to face to look at the start room
     float CalculateRotationTowardsStart(int x, int y, int w, int h)
     {
         Vector2 roomCenter = new Vector2(x + w / 2f, y + h / 2f);
         Vector2 startCenter = new Vector2(startRoomCenter.x, startRoomCenter.y);
         Vector2 dir = startCenter - roomCenter;
         float targetAngle = 0;
+
+        // Determine the dominant direction
         if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
         {
-            if (dir.x > 0) targetAngle = 270; 
+            if (dir.x > 0) targetAngle = 270;
             else targetAngle = 90;
         }
         else
         {
-            if (dir.y > 0) targetAngle = 180; 
+            if (dir.y > 0) targetAngle = 180;
             else targetAngle = 0;
         }
+
         float initialAngle = 0;
         switch (prefabDefaultDoorSide)
         {
@@ -293,11 +326,13 @@ public class DungeonGenerator : MonoBehaviour
             case DoorSide.Bottom: initialAngle = 180; break;
             case DoorSide.Left: initialAngle = 270; break;
         }
+
         float finalRot = targetAngle - initialAngle;
         finalRot += globalRotationFix;
         return (finalRot + 360) % 360;
     }
 
+    // figures out which way the door points so we can clear the path
     Vector2Int CalculateClearanceDir(float rotation)
     {
         Vector3 defaultDir = Vector3.zero;
@@ -312,10 +347,13 @@ public class DungeonGenerator : MonoBehaviour
         return new Vector2Int(Mathf.RoundToInt(rotatedDir.x), Mathf.RoundToInt(rotatedDir.z));
     }
 
+    // Standard helper to check grid boundaries
     bool IsInsideGrid(Vector2Int p)
     {
         return p.x > 0 && p.y > 0 && p.x < gridSize - 1 && p.y < gridSize - 1;
     }
+
+    // Standard helper to generate points spiraling out from center
     List<Vector2Int> GenerateSpiralPoints()
     {
         List<Vector2Int> points = new List<Vector2Int>();
@@ -336,15 +374,21 @@ public class DungeonGenerator : MonoBehaviour
         }
         return points;
     }
+
+    // Marks the padding buffer around rooms so hallways don't hug walls
     void MarkPadding(int x, int y, int w, int h)
     {
         for (int i = -1; i <= w; i++) for (int j = -1; j <= h; j++)
                 if (IsInsideGrid(new Vector2Int(x + i, y + j))) grid[x + i, y + j] = 4;
     }
+
+    // Marks the actual room tiles
     void MarkRoom(int x, int y, int w, int h)
     {
         for (int i = 0; i < w; i++) for (int j = 0; j < h; j++) grid[x + i, y + j] = 1;
     }
+
+    // Clears the path immediately in front of the door
     void ClearEntryPoint(Vector2Int doorPos, Vector2Int dir)
     {
         for (int i = 0; i < 2; i++)
@@ -353,18 +397,24 @@ public class DungeonGenerator : MonoBehaviour
             if (IsInsideGrid(entry) && grid[entry.x, entry.y] == 4) grid[entry.x, entry.y] = 0;
         }
     }
+
+    // Checks if the area is free for a new room
     bool IsAreaClear(int startX, int startY, int w, int h)
     {
         for (int x = startX - 4; x < startX + w + 4; x++) for (int y = startY - 4; y < startY + h + 4; y++)
                 if (!IsInsideGrid(new Vector2Int(x, y)) || grid[x, y] != 0) return false;
         return true;
     }
+
+    // Debug gizmos to see connections
     void OnDrawGizmos()
     {
         if (roomConnectionPoints == null) return;
         Gizmos.color = Color.red;
         foreach (var p in roomConnectionPoints) Gizmos.DrawSphere(new Vector3(p.x * tileSize, 2, p.y * tileSize), 2f);
     }
+
+    // Reorders the room list so we connect to nearest neighbors
     void SortConnectionPointsByDistance()
     {
         if (roomConnectionPoints.Count < 2) return;
@@ -383,6 +433,8 @@ public class DungeonGenerator : MonoBehaviour
         }
         roomConnectionPoints = sorted;
     }
+
+    // Main loop to create A* paths between sorted rooms
     void ConnectRoomsWithAStar()
     {
         for (int i = 0; i < roomConnectionPoints.Count - 1; i++)
@@ -391,6 +443,8 @@ public class DungeonGenerator : MonoBehaviour
             if (path != null) foreach (Vector2Int pos in path) if (grid[pos.x, pos.y] != 3) grid[pos.x, pos.y] = 2;
         }
     }
+
+    // The A* pathfinding implementation
     List<Vector2Int> FindPath(Vector2Int start, Vector2Int target)
     {
         List<Vector2Int> path = new List<Vector2Int>();
@@ -411,6 +465,7 @@ public class DungeonGenerator : MonoBehaviour
             {
                 Vector2Int n = curr + d;
                 if (!IsInsideGrid(n)) continue;
+                // Avoid rooms(1) and padding(4), but target is allowed
                 bool blocked = (grid[n.x, n.y] == 1 || grid[n.x, n.y] == 4);
                 if (n == target) blocked = false;
                 if (!blocked && !cameFrom.ContainsKey(n)) { queue.Enqueue(n); cameFrom[n] = curr; }
@@ -418,11 +473,15 @@ public class DungeonGenerator : MonoBehaviour
         }
         return null;
     }
+
+    // Iterates the grid and spawns the correct prefab for hallways
     void SpawnWorld()
     {
         for (int x = 0; x < gridSize; x++) for (int y = 0; y < gridSize; y++)
                 if (grid[x, y] == 2 || grid[x, y] == 3) SpawnTile(x, y);
     }
+
+    // Determines if a tile is a straight hall, corner, or intersection
     void SpawnTile(int x, int y)
     {
         if (grid[x, y] == 3) return;
@@ -444,6 +503,8 @@ public class DungeonGenerator : MonoBehaviour
         }
         if (prefab != null) Instantiate(prefab, new Vector3(x * tileSize, 0, y * tileSize), Quaternion.Euler(0, rotation, 0), dungeonContainer);
     }
+
+    // Helper check for spawning logic
     bool IsPath(int x, int y)
     {
         if (x < 0 || y < 0 || x >= gridSize || y >= gridSize) return false;

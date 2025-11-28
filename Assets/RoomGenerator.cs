@@ -99,11 +99,12 @@ public class RoomGenerator : MonoBehaviour
         float roomMinZ = (-offset) - centeringZ;
         float roomMaxZ = ((height - 1) * tileSize + offset) - centeringZ;
 
-        SpawnProp(cornerColumn, new Vector3(roomMinX, 0, roomMinZ), 0);
-        SpawnProp(cornerColumn, new Vector3(roomMaxX, 0, roomMinZ), 0);
-        SpawnProp(cornerColumn, new Vector3(roomMinX, 0, roomMaxZ), 0);
-        SpawnProp(cornerColumn, new Vector3(roomMaxX, 0, roomMaxZ), 0);
+        SpawnProp(cornerColumn, new Vector3(roomMinX, 0.268489f, roomMinZ), 0);
+        SpawnProp(cornerColumn, new Vector3(roomMaxX, 0.268489f, roomMinZ), 0);
+        SpawnProp(cornerColumn, new Vector3(roomMinX, 0.268489f, roomMaxZ), 0);
+        SpawnProp(cornerColumn, new Vector3(roomMaxX, 0.268489f, roomMaxZ), 0);
 
+        CleanupDuplicateWalls();
         CleanupDuplicateWalls();
     }
 
@@ -142,7 +143,8 @@ public class RoomGenerator : MonoBehaviour
                 break;
             }
 
-            Vector3 currentPos = buildStartPos + (rightDir * myPos);
+            Vector3 height = new Vector3(0f, 0.268489f, 0);
+            Vector3 currentPos = buildStartPos + height + (rightDir * myPos);
 
             Vector3 worldPos = transform.TransformPoint(currentPos);
             Quaternion worldRot = transform.rotation * rotation;
@@ -162,7 +164,6 @@ public class RoomGenerator : MonoBehaviour
             }
         }
 
-        // --- GAP FILLER ---
         // If we stopped early due to a boundary (Pillar or Door), fill the gap from the back.
         if (gapExists)
         {
@@ -171,7 +172,8 @@ public class RoomGenerator : MonoBehaviour
             // if endIsDoor, fillBuffer remains 0 (Align perfectly to edge)
 
             // Calculate exact end position to back up from
-            Vector3 fillPos = rawEndPos - (rightDir * (fillBuffer + wallPrefabWidth / 2f));
+            Vector3 height = new Vector3(0f, 0.268489f, 0);
+            Vector3 fillPos = rawEndPos + height - (rightDir * (fillBuffer + wallPrefabWidth / 2f));
 
             Vector3 worldPos = transform.TransformPoint(fillPos);
             Quaternion worldRot = transform.rotation * rotation;
@@ -182,7 +184,10 @@ public class RoomGenerator : MonoBehaviour
     void PlaceDecorations(Vector3 localPos)
     {
         if (Random.value > decorationDensity) return;
-        SpawnProp(GetRandom(centerProps), localPos, Random.Range(0, 4) * 90);
+        Vector3 height = new Vector3 (0, 0.2525f, 0);
+        Vector3 randomXZ = new Vector3(Random.Range(0f, 4f), 0, Random.Range(0f, 4f));
+        localPos = localPos + height + randomXZ;
+        SpawnProp(GetRandom(centerProps), localPos , Random.Range(0, 4) * 90);
     }
 
     void SpawnProp(GameObject prefab, Vector3 localPos, float rotY)

@@ -2062,8 +2062,8 @@ MonoBehaviour:
   startRoomDoorOffset: {x: 2, y: 1}
   roomGeneratorPrefab: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
   numberOfRooms: 40
-  minRoomSize: 3
-  maxRoomSize: 15
+  minRoomSize: 4
+  maxRoomSize: 8
   layerSpawnChance: 0.388
   prefabDefaultDoorSide: 0
   globalRotationFix: 0
@@ -2546,6 +2546,50 @@ PrefabInstance:
       propertyPath: wallPrefabWidth
       value: 4.9
       objectReference: {fileID: 0}
+    - target: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: decorationDensity
+      value: 0.256
+      objectReference: {fileID: 0}
+    - target: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: wallProps.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: centerProps.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: cornerProps.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: wallProps.Array.data[1]
+      value: 
+      objectReference: {fileID: 2157335988112527113, guid: c0b6670604b282847a0f26cf98f36820, type: 3}
+    - target: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: centerProps.Array.data[0]
+      value: 
+      objectReference: {fileID: 6967361487159559488, guid: c533c10f37d12c941bf5dfea26e26cac, type: 3}
+    - target: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: centerProps.Array.data[1]
+      value: 
+      objectReference: {fileID: 4302944737786620945, guid: d429c8a2280208c43ace747d82fa1864, type: 3}
+    - target: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: centerProps.Array.data[2]
+      value: 
+      objectReference: {fileID: 4377933626515690895, guid: a1834b6441f5f964186d094e8fd881e5, type: 3}
+    - target: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: centerProps.Array.data[3]
+      value: 
+      objectReference: {fileID: 556515823571614727, guid: 2908a19ef1a7b3a49bfc9a55bf645e69, type: 3}
+    - target: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: centerProps.Array.data[4]
+      value: 
+      objectReference: {fileID: 836683784093283753, guid: 237f7219ddf7c064e85f5158a48f6bbc, type: 3}
+    - target: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+      propertyPath: centerProps.Array.data[5]
+      value: 
+      objectReference: {fileID: 4710245704244623678, guid: 566ca9ac4aee88e47906121eaa705eb1, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
