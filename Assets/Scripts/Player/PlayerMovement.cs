@@ -12,22 +12,31 @@ public class PlayerMovement : MonoBehaviour
     private float moveX;
     private float moveZ;
     private Vector3 moveVector;
+    private PlayerAnimation anim;
+
 
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        anim = GetComponent<PlayerAnimation>();
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        Debug.Log("moveVector = " + moveVector + " | speed = " + moveVector.magnitude);
+
         float moveX = Input.GetAxis("Horizontal"); // A,D keys or left,right arrows
         float moveZ = Input.GetAxis("Vertical"); // W,S keys or up,down arrows
 
         //create a vector with the inputs from the 2 axis
         moveVector = new Vector3(moveX, 0f, moveZ).normalized; // we don't move on Y yet
+
+        anim.UpdateMovementAnimations(moveVector);
+
     }
 
     //function to handle physics that runs constantly
