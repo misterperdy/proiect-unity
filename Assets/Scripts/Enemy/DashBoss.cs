@@ -255,6 +255,24 @@ public class DashBoss : MonoBehaviour
         Destroy(gameObject);
     }
 
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(contactDamage);
+            }
+
+            //knobkback
+            Rigidbody playerRb = collision.gameObject.GetComponent<Rigidbody>();
+            if (playerRb != null)
+            {
+                Vector3 pushDirection = (collision.transform.position - transform.position).normalized;
+                playerRb.AddForce(pushDirection * 5f, ForceMode.Force);
+            }
+        }
+    }
 
     //for editor to see his range.
     void OnDrawGizmosSelected()
