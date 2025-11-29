@@ -50,6 +50,13 @@ public class Arrow : MonoBehaviour
                 enemy.TakeDamage((int)damage);
             }
 
+            //also chjeck if its a boss
+            DashBoss boss = collision.gameObject.GetComponent<DashBoss>();
+            if (boss != null)
+            {
+                boss.TakeDamage((int)damage);
+            }
+
             // se the arrow as  returned soon as it hits anything (enemy, wall, floor, etc.)
             BulletPool.Instance.ReturnBullet(gameObject);
         }

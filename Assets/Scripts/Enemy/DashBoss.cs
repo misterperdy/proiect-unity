@@ -219,6 +219,23 @@ public class DashBoss : MonoBehaviour
         }
     }
 
+    public void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        Debug.Log("Boss Defeated!");
+        Destroy(gameObject);
+    }
+
+
     //for editor to see his range.
     void OnDrawGizmosSelected()
     {
