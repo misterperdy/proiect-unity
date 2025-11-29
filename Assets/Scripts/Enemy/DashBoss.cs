@@ -130,9 +130,6 @@ public class DashBoss : MonoBehaviour
         agent.isStopped = true;
         agent.ResetPath(); // reset current path so it doesn't interfere
 
-        // save position of player in the moment of locking in
-        Vector3 lockPosition = player.position;
-
         //charge time + visual cue
         lineRenderer.enabled = true;
         float timer = 0f;
@@ -141,13 +138,15 @@ public class DashBoss : MonoBehaviour
         {
             timer += Time.deltaTime;
 
-            transform.LookAt(new Vector3(lockPosition.x, transform.position.y, lockPosition.z));
+            SmoothLookAt(player.position); // smooth rotation
 
             lineRenderer.SetPosition(0, transform.position);
-            lineRenderer.SetPosition(1, lockPosition);
+            lineRenderer.SetPosition(1, player.position);
 
             yield return null;
         }
+
+        Vector3 finalAttackPosition = player.position;
 
         //execute dash
         lineRenderer.enabled = false;
@@ -157,7 +156,7 @@ public class DashBoss : MonoBehaviour
         agent.speed = dashSpeed;
         agent.acceleration = 1000f;
         agent.isStopped = false;
-        agent.SetDestination(lockPosition); // go to where he remembers the plyaer to be
+        agent.SetDestination(finalAttackPosition); // go to where he remembers the plyaer to be
 
         yield return null; //wait 1 frame
 
@@ -208,7 +207,19 @@ public class DashBoss : MonoBehaviour
         }
     }
 
-    //for editor
+    void SmoothLookAt(Vector3 target)
+    {
+        Vector3 direction = (target - transform.position).normalized;
+        direction.y = 0;
+
+        if(direction!= Vector3.zero)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 10f);
+        }
+    }
+
+    //for editor to see his range.
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
