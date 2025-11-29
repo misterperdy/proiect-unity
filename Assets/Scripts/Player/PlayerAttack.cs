@@ -153,6 +153,13 @@ public class PlayerAttack : MonoBehaviour
         {
             enemy.TakeDamage((int)currentDamage);
         }
+
+        //also chjeck if its a boss
+        DashBoss boss = enemyCollider.GetComponent<DashBoss>();
+        if (boss != null)
+        {
+            boss.TakeDamage((int)currentDamage);
+        }
     }
 
     // Animates the visual swing of the melee weapon over the attackDuration.

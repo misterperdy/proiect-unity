@@ -33,6 +33,9 @@ public class DashBoss : MonoBehaviour
     public enum BossState { Idle, Chasing, ChargingDash, Dashing, Recovering }
     public BossState currentState;
 
+    [Header("UI")]
+    public BossBarSlider bossHealthBar;
+
     void Start()
     {
         currentHealth = maxHealth;
@@ -60,6 +63,12 @@ public class DashBoss : MonoBehaviour
         }
 
         currentState = BossState.Idle;
+
+        if(bossHealthBar != null)
+        {
+            bossHealthBar.SetMaxHealth(maxHealth);
+            bossHealthBar.ToggleBar(true);
+        }
     }
 
     void Update()
@@ -223,6 +232,11 @@ public class DashBoss : MonoBehaviour
     {
         currentHealth -= damage;
 
+        //update UI
+        if (bossHealthBar != null) {
+            bossHealthBar.SetHealth(currentHealth);
+        }
+
         if (currentHealth <= 0)
         {
             Die();
@@ -232,6 +246,12 @@ public class DashBoss : MonoBehaviour
     void Die()
     {
         Debug.Log("Boss Defeated!");
+
+        if(bossHealthBar != null)
+        {
+            bossHealthBar.ToggleBar(false); // hide boss bar
+        }
+
         Destroy(gameObject);
     }
 
