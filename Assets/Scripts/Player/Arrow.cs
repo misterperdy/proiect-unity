@@ -38,18 +38,21 @@ public class Arrow : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        // Try to get the EnemyAI component from the object we hit
-        EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
-
-        // If the object has an EnemyAI component, it's an enemy
-        if (enemy != null)
+        if (collision.gameObject.tag != "Player") // so it doesnt collide with the player itself
         {
-            // Deal damage
-            enemy.TakeDamage((int)damage);
-        }
+            // Try to get the EnemyAI component from the object we hit
+            EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
 
-        // se the arrow as  returned soon as it hits anything (enemy, wall, floor, etc.)
-        BulletPool.Instance.ReturnBullet(gameObject);
+            // If the object has an EnemyAI component, it's an enemy
+            if (enemy != null)
+            {
+                // Deal damage
+                enemy.TakeDamage((int)damage);
+            }
+
+            // se the arrow as  returned soon as it hits anything (enemy, wall, floor, etc.)
+            BulletPool.Instance.ReturnBullet(gameObject);
+        }
     }
 
     private IEnumerator DeactivateAfterTime()

@@ -863,6 +863,7 @@ GameObject:
   m_Component:
   - component: {fileID: 823479010}
   - component: {fileID: 823479009}
+  - component: {fileID: 823479011}
   m_Layer: 0
   m_Name: _manager
   m_TagString: Untagged
@@ -900,6 +901,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &823479011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 823479008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fce086ce979f00d4fadf85d3abc1d54f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  arrowPrefab: {fileID: 5124060890674046994, guid: cd895943ee12c554697b924aa2e7daa3, type: 3}
+  defaultCapacity: 20
+  maxCapacity: 100
 --- !u!1 &977015471
 GameObject:
   m_ObjectHideFlags: 0
