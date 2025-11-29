@@ -30,8 +30,8 @@ public class DashBoss : MonoBehaviour
     private float defaultAcceleration;
     private bool isAttacking = false;
 
-    private enum BossState { Idle, Chasing, ChargingDash, Dashing, Recovering }
-    private BossState currentState;
+    public enum BossState { Idle, Chasing, ChargingDash, Dashing, Recovering }
+    public BossState currentState;
 
     void Start()
     {
@@ -82,6 +82,8 @@ public class DashBoss : MonoBehaviour
                 ChaseAndDecide();
                 break;
         }
+
+        
     }
 
     bool CanSeePlayer()
@@ -156,6 +158,13 @@ public class DashBoss : MonoBehaviour
         agent.acceleration = 1000f;
         agent.isStopped = false;
         agent.SetDestination(lockPosition); // go to where he remembers the plyaer to be
+
+        yield return null; //wait 1 frame
+
+        while (agent.pathPending)
+        {
+            yield return null; // wait for path to get set on agent
+        }
 
         //let him arrive
         float dashTimer = 0f;

@@ -981,6 +981,7 @@ MonoBehaviour:
   dashDuration: 0.5
   attackCooldown: 3
   lineRenderer: {fileID: 0}
+  currentState: 0
 --- !u!4 &508404574
 Transform:
   m_ObjectHideFlags: 0
@@ -990,7 +991,7 @@ Transform:
   m_GameObject: {fileID: 508404566}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.53, y: 1.32, z: -6.68}
+  m_LocalPosition: {x: 9.53, y: 1.27, z: -6.68}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
