@@ -11,6 +11,8 @@ public class TeleporterBoss : MonoBehaviour
     private bool playerInZone = false; 
     private bool isTeleporting = false;
 
+    private static float nextTeleportTime = 0f;
+
     private void Update()
     {
         if (PauseManager.IsPaused) return;
@@ -18,7 +20,14 @@ public class TeleporterBoss : MonoBehaviour
         //Verificare pentru teleportare
         if (playerInZone  && Input.GetButtonDown("Teleport") && !isTeleporting)
         {
-            StartCoroutine(TeleportPlayer());
+            if (Time.time >= nextTeleportTime)
+            {
+                StartCoroutine(TeleportPlayer());
+            }
+            else
+            {
+                Debug.Log("Teleport is on cooldown!");
+            }
         }
     }
 
@@ -43,6 +52,8 @@ public class TeleporterBoss : MonoBehaviour
     private IEnumerator TeleportPlayer()
     {
         isTeleporting = true;
+        nextTeleportTime = Time.time + teleportCooldown;
+
         //Oprirea collider pentru a nu te teleporta din greseala la loc de unde ai plecat
         if (receiver != null)
         {
