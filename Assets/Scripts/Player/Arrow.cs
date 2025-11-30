@@ -57,6 +57,13 @@ public class Arrow : MonoBehaviour
                 boss.TakeDamage((int)damage);
             }
 
+            // Check for ShooterEnemy
+            ShooterEnemy shooter = collision.gameObject.GetComponent<ShooterEnemy>();
+            if (shooter != null)
+            {
+                shooter.TakeDamage((int)damage);
+            }
+
             // se the arrow as  returned soon as it hits anything (enemy, wall, floor, etc.)
             BulletPool.Instance.ReturnBullet(gameObject);
         }

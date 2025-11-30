@@ -148,6 +148,7 @@ public class PlayerAttack : MonoBehaviour
         enemiesHitThisSwing.Add(enemyCollider);
 
         float currentDamage = (currentItem != null) ? currentItem.damage : 10f;
+        
         EnemyAI enemy = enemyCollider.GetComponent<EnemyAI>();
         if (enemy != null)
         {
@@ -159,6 +160,13 @@ public class PlayerAttack : MonoBehaviour
         if (boss != null)
         {
             boss.TakeDamage((int)currentDamage);
+        }
+
+        // Check for ShooterEnemy
+        ShooterEnemy shooter = enemyCollider.GetComponent<ShooterEnemy>();
+        if (shooter != null)
+        {
+            shooter.TakeDamage((int)currentDamage);
         }
     }
 
