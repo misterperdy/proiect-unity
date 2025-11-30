@@ -10,24 +10,18 @@ public class TeleporterBoss : MonoBehaviour
 
     private bool playerInZone = false;
     private bool isTeleporting = false;
-    private float cooldownTimer = 0f;
 
     private void Update()
     {
         if (PauseManager.IsPaused) return;
 
-        // Update local cooldown timer
-        if (cooldownTimer > 0)
-        {
-            cooldownTimer -= Time.deltaTime;
-        }
-        
         //Verificare pentru teleportare
         if (playerInZone  && Input.GetButtonDown("Teleport") && !isTeleporting)
         {
-            if (cooldownTimer <= 0)
+            PlayerMovement pm = player.GetComponent<PlayerMovement>();
+            if (pm != null && pm.CanTeleport())
             {
-                StartCoroutine(TeleportPlayer());
+                StartCoroutine(TeleportPlayer(pm));
             }
             else
             {
@@ -53,36 +47,11 @@ public class TeleporterBoss : MonoBehaviour
             playerInZone = false;
         }
     }
-
-    // Called by other teleporters when they send a player here
-    public void TriggerCooldown()
-    {
-        cooldownTimer = teleportCooldown;
-    }
     
-    private IEnumerator TeleportPlayer()
+    private IEnumerator TeleportPlayer(PlayerMovement pm)
     {
         isTeleporting = true;
-        cooldownTimer = teleportCooldown; // Set local cooldown
-
-        // Notify the receiver teleporter to also start its cooldown
-        if (receiver != null)
-        {
-            TeleporterBoss receiverScript = receiver.GetComponent<TeleporterBoss>();
-            if (receiverScript != null)
-            {
-                receiverScript.TriggerCooldown();
-            }
-            // Fallback: Try to find it in children if the receiver transform is just a container
-            else 
-            {
-                 receiverScript = receiver.GetComponentInChildren<TeleporterBoss>();
-                 if (receiverScript != null)
-                 {
-                     receiverScript.TriggerCooldown();
-                 }
-            }
-        }
+        pm.RegisterTeleport(); // Register cooldown on the player
 
         //Oprirea collider pentru a nu te teleporta din greseala la loc de unde ai plecat
         if (receiver != null)

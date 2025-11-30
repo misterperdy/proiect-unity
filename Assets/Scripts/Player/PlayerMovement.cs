@@ -33,4 +33,18 @@ public class PlayerMovement : MonoBehaviour
         //move the rigidbody of the player
         rb.velocity = new Vector3(moveVector.x * movementSpeed, rb.velocity.y, moveVector.z * movementSpeed);
     }
+
+    // Teleport Cooldown Logic
+    private float lastTeleportTime = -999f;
+    public float globalTeleportCooldown = 1.0f;
+
+    public bool CanTeleport()
+    {
+        return Time.time >= lastTeleportTime + globalTeleportCooldown;
+    }
+
+    public void RegisterTeleport()
+    {
+        lastTeleportTime = Time.time;
+    }
 }
