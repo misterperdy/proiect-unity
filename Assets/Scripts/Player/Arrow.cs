@@ -38,8 +38,10 @@ public class Arrow : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag != "Player") // so it doesnt collide with the player itself
+        
+        if (collision.gameObject.tag != "Player" && collision.gameObject.tag != "Projectile") // so it doesnt collide with the player itself
         {
+            Debug.Log("Arrow collided with: " + collision.gameObject.name);
             // Try to get the EnemyAI component from the object we hit
             EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
 

@@ -108,24 +108,38 @@ public class PlayerAttack : MonoBehaviour
     private void PerformRangedAttack()
     {
         int activeSlot = InventoryManager.Instance.activeSlotIndex;
-
-        // Calculate the cooldown using the ItemSO's properties and set the end time for this specific slot.
         float finalCooldown = currentItem.attackCooldown / currentItem.fireRateMultiplier;
         slotCooldownEndTimes[activeSlot] = Time.time + finalCooldown;
 
-        GameObject arrowGO = BulletPool.Instance.GetBullet();
+        int projectiles = Mathf.Max(1, currentItem.projectilesPerShot);
+        float spread = currentItem.spreadAngle;
 
-        arrowGO.transform.position = arrowSpawnPoint.position;
-        arrowGO.transform.rotation = arrowSpawnPoint.rotation;
-
-        Arrow arrow = arrowGO.GetComponent<Arrow>();
-
-        if (arrow != null)
+        for (int i = 0; i < projectiles; i++)
         {
-            arrow.Fire(currentItem.damage, this.arrowSpeed);
+            float angleOffset = 0f;
+
+            if (projectiles > 1)
+            {
+                float totalGapAngle = spread;
+                float anglePerProjectile = totalGapAngle / (projectiles - 1);
+                float offsetFromStart = anglePerProjectile * i;
+
+                angleOffset = offsetFromStart - (spread / 2f);
+            }
+
+            GameObject arrowGO = BulletPool.Instance.GetBullet();
+
+            arrowGO.transform.position = arrowSpawnPoint.position;
+            arrowGO.transform.rotation = arrowSpawnPoint.rotation * Quaternion.Euler(0, angleOffset, 0);
+
+            Arrow arrow = arrowGO.GetComponent<Arrow>();
+
+            if (arrow != null)
+            {
+                arrow.Fire(this.arrowSpeed, currentItem.damage);
+            }
         }
     }
-
     private void PerformMeleeAttack()
     {
         int activeSlot = InventoryManager.Instance.activeSlotIndex;
