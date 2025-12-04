@@ -410,6 +410,7 @@ MonoBehaviour:
   canTakeDamage: 1
   invincibilityDuration: 2
   flashInterval: 0.15
+  gameOverManager: {fileID: 0}
 --- !u!114 &471382648
 MonoBehaviour:
   m_ObjectHideFlags: 0
