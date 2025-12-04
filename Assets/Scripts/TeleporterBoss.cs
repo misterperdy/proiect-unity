@@ -11,7 +11,7 @@ public class TeleporterBoss : MonoBehaviour
     private bool playerInZone = false; 
     private bool isTeleporting = false;
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (PauseManager.IsPaused) return;
         
