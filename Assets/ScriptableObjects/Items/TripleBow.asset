@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemType: 2
   itemIcon: {fileID: 0}
-  itemPrefab: {fileID: 0}
+  itemPrefab: {fileID: 4589121465221483655, guid: 0d241ebf06aadb848813387c9b9131d4, type: 3}
   damage: 5
   attackCooldown: 0.5
   sizeMultiplier: 1
   fireRateMultiplier: 1
   projectilesPerShot: 3
   spreadAngle: 10
+  maxBounces: 0

@@ -123,6 +123,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 0
   speed: 30
+  maxBounces: 0
 --- !u!54 &3041818305632994876
 Rigidbody:
   m_ObjectHideFlags: 0

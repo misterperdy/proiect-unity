@@ -114,6 +114,8 @@ public class PlayerAttack : MonoBehaviour
         int projectiles = Mathf.Max(1, currentItem.projectilesPerShot);
         float spread = currentItem.spreadAngle;
 
+        int bounces = currentItem.maxBounces;
+
         for (int i = 0; i < projectiles; i++)
         {
             float angleOffset = 0f;
@@ -136,7 +138,7 @@ public class PlayerAttack : MonoBehaviour
 
             if (arrow != null)
             {
-                arrow.Fire(this.arrowSpeed, currentItem.damage);
+                arrow.Fire(this.arrowSpeed, currentItem.damage , bounces);
             }
         }
     }
