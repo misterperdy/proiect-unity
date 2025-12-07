@@ -162,6 +162,14 @@ public class PlayerAttack : MonoBehaviour
             boss.TakeDamage((int)currentDamage);
         }
 
+        //also check if it's explosive enemy
+        KamikazeEnemyAI explosive = enemyCollider.GetComponent<KamikazeEnemyAI>();
+        if (explosive != null)
+        {
+            explosive.TakeDamage((int)currentDamage);
+        }
+
+
         // Check for ShooterEnemy
         ShooterEnemy shooter = enemyCollider.GetComponent<ShooterEnemy>();
         if (shooter != null)
