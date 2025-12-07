@@ -8,7 +8,7 @@ public class MainMenuManager : MonoBehaviour
     public GameObject helpPanel;
 
     [Header("Scene To Load")]
-    public string gameSceneName = "GameScene"; // The name of your actual game scene
+    public string gameSceneName = "GameScene"; 
 
     private void Start()
     {
@@ -19,14 +19,13 @@ public class MainMenuManager : MonoBehaviour
     public void PlayGame()
     {
         // Load the game scene
-        // Make sure to add the Game Scene to the Build Settings!
         SceneManager.LoadScene(gameSceneName);
     }
 
     public void QuitGame()
     {
         Application.Quit();
-        Debug.Log("Quit Game"); // Visible in Editor
+        Debug.Log("Quit Game"); 
     }
 
     public void ShowHelp()
