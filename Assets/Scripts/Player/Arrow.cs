@@ -64,6 +64,13 @@ public class Arrow : MonoBehaviour
                 shooter.TakeDamage((int)damage);
             }
 
+            //also check if it's explosive enemy
+            KamikazeEnemyAI explosive = collision.gameObject.GetComponent<KamikazeEnemyAI>();
+            if (explosive != null)
+            {
+                explosive.TakeDamage((int)damage);
+            }
+
             // se the arrow as  returned soon as it hits anything (enemy, wall, floor, etc.)
             BulletPool.Instance.ReturnBullet(gameObject);
         }
