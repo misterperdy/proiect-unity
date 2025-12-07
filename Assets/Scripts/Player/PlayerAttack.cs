@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +21,9 @@ public class PlayerAttack : MonoBehaviour
     public GameObject arrowPrefab;
     public Transform arrowSpawnPoint;
     public float arrowSpeed = 30f;
+
+    public GameObject explosionPrefab; 
+    public KeyCode abilityKey = KeyCode.E;
 
     // Instead of a single boolean, we track the cooldown end time for each inventory slot individually.
     private float[] slotCooldownEndTimes;
@@ -66,6 +69,11 @@ public class PlayerAttack : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetButtonDown("Fire1"))
+        {
+            UseExplosionAbility();
+        }
+
         if (PauseManager.IsPaused) return;
 
         if (Input.GetButton("Fire1"))
@@ -153,6 +161,43 @@ public class PlayerAttack : MonoBehaviour
         enemiesHitThisSwing = new List<Collider>();
         initialAttackRotation = transform.rotation;
         StartCoroutine(AnimateMeleeSwing());
+    }
+
+    void UseExplosionAbility()
+    {
+        ItemSO currentItem = InventoryManager.Instance.GetActiveItem();
+
+        if (currentItem != null && currentItem.itemType == ItemType.Magic)
+        {
+
+            if (currentItem.itemPrefab == null)
+            {
+                return;
+            }
+
+            GameObject explosionGO = Instantiate(
+                currentItem.itemPrefab,
+                transform.position,
+                Quaternion.identity
+            );
+
+            ExplosionHandler handler = explosionGO.GetComponent<ExplosionHandler>();
+
+            if (handler != null)
+            {
+                handler.damage = currentItem.explosionDamage;
+                handler.radius = currentItem.explosionRadius;
+                handler.delay = currentItem.explosionDelay;
+
+                handler.StartExplosion();
+            }
+            else
+            {
+                Debug.LogError("[DEBUG FLOW 3] FATAL: ExplosionHandler NU A FOST GĂSIT pe Prefab. Explozia nu pornește.");
+            }
+
+        }
+        
     }
 
     // Public method called by the SwordHitbox script when its trigger collides with something on the enemy layer.

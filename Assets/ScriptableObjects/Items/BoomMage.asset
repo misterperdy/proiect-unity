@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a0435c8136addaa40882bad7c70f6a20, type: 3}
-  m_Name: Shotgun
+  m_Name: BoomMage
   m_EditorClassIdentifier: 
-  itemType: 2
+  itemType: 3
   itemIcon: {fileID: 0}
-  itemPrefab: {fileID: 4589121465221483655, guid: 0d241ebf06aadb848813387c9b9131d4, type: 3}
+  itemPrefab: {fileID: 69741677329645539, guid: 89ff69063cad3ff4599ee5315d572263, type: 3}
   damage: 5
-  attackCooldown: 1
+  attackCooldown: 0.5
   sizeMultiplier: 1
   fireRateMultiplier: 1
-  projectilesPerShot: 7
-  spreadAngle: 5
+  projectilesPerShot: 1
+  spreadAngle: 0
   maxBounces: 0
   explosionDamage: 40
-  explosionRadius: 4
+  explosionRadius: 10
   explosionDelay: 1
-  explosionForce: 1000
+  explosionForce: 10000
