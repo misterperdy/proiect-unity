@@ -17,8 +17,14 @@ Miroiu Alexandru, gr 344
 ## Idee joc:
 Un joc de tip RPG, bazat pe nivele tip dungeon-uri, fiecare cu o tema (ex. Steampunk, Fantasy, Sci-fi), scopul fiind parcurgerea completa a fiecarui dungeon, te spawnezi pe un teleporter si termini nivelul cand urci pe celalalt teleporter.
 
-## Recent update:
-Pe jos se afla doua tipuri de arme: una ranged si una melee care trebuie echipate din inventar. Click = attack.
+## Informatii pentru reviewers (Sprint 4)
+- Scena testScene (din branchul main) - genereaza procedural un dungeon si adauga postprocessing fx
+- Scena RnD (din branchul main) - existenta boss-ului numit The Dasher (DashBoss) si inamicul Kamikaze (in branchul kamikazeEnemy) (nu e mergeuit inca in main)
+- Scena shooterEnemyTest (din branchul main) - existenta inamicilor melee si range si teleporterele (in colturi)
+- Scena MainMenu (din branchul main) - pentru main menu
+- Scena Gameover (din branchul gameover+weapons) - Death sceneul cand playerul moare
+- Scena WeaponTest1 (din branchul gameover+weapons) - testeaza noile arme adaugate gen bow-urile care trag diferit
+- Branchul assets2 - Asset pe player si o mini animatie
 
 ## How to play
 În acest moment nu există o versiune compilată a jocului. Pentru a-l rula:
@@ -30,6 +36,8 @@ Pe jos se afla doua tipuri de arme: una ranged si una melee care trebuie echipat
 🎮 Controale
 
 - W / A / S / D – deplasare (sus, stânga, jos, dreapta)
+
+- G - drop weapon/item (doar pe branchul gameover+weapons)
 
 - Mouse – rotirea playerului în direcția cursorului
 
@@ -45,6 +53,5 @@ Pe jos se afla doua tipuri de arme: una ranged si una melee care trebuie echipat
 2022.3.62f2
 
 ## Link Feedback:
-traian.eftimie@s.unibuc.ro
 
-Metoda preferata pentru trimiterea recenziilor: pe teams catre Traian Eftimie
+Metoda preferata pentru trimiterea recenziilor: pe teams catre [Traian Eftimie](mailto:traian.eftimie@s.unibuc.ro)
