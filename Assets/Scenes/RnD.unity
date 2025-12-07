@@ -122,6 +122,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!95 &8288382 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 6292022428554794608, guid: b32a827e8fe65db4294eb3694c2cb632, type: 3}
+  m_PrefabInstance: {fileID: 529883782156340556}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &9674762
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2399,6 +2404,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1919285898272750851, guid: b32a827e8fe65db4294eb3694c2cb632, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 8288382}
     - target: {fileID: 2001432429122068684, guid: b32a827e8fe65db4294eb3694c2cb632, type: 3}
       propertyPath: m_Name
       value: dashBoss
@@ -2409,7 +2418,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6953181500530117074, guid: b32a827e8fe65db4294eb3694c2cb632, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.27
+      value: 0.21
       objectReference: {fileID: 0}
     - target: {fileID: 6953181500530117074, guid: b32a827e8fe65db4294eb3694c2cb632, type: 3}
       propertyPath: m_LocalPosition.z
