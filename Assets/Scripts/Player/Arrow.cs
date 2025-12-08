@@ -42,23 +42,20 @@ public class Arrow : MonoBehaviour
         {
             // Try to get the EnemyAI component from the object we hit
             EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
+            DashBoss dashBoss = collision.gameObject.GetComponent<DashBoss>();
+            SlimeBoss slimeBoss = collision.gameObject.GetComponent<SlimeBoss>();
+            ShooterEnemy shooter = collision.gameObject.GetComponent<ShooterEnemy>();
 
+            bool isEnemyHit = (enemy != null) || (dashBoss != null) || (slimeBoss != null) || (shooter != null);
             // If the object has an EnemyAI component, it's an enemy
             if (enemy != null)
             {
-                // Deal damage
-                enemy.TakeDamage((int)damage);
+                if (enemy != null) enemy.TakeDamage((int)damage);
             }
 
-            //also chjeck if its a boss
-            DashBoss boss = collision.gameObject.GetComponent<DashBoss>();
-            if (boss != null)
-            {
-                boss.TakeDamage((int)damage);
-            }
+            if (dashBoss != null) dashBoss.TakeDamage((int)damage);
+            if (slimeBoss != null) slimeBoss.TakeDamage((int)damage);
 
-            // Check for ShooterEnemy
-            ShooterEnemy shooter = collision.gameObject.GetComponent<ShooterEnemy>();
             if (shooter != null)
             {
                 shooter.TakeDamage((int)damage);
