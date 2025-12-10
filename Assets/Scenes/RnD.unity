@@ -2713,6 +2713,10 @@ PrefabInstance:
       value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 6758654103555686226, guid: bbfd7877e303be9449fd901555bbfd26, type: 3}
+      propertyPath: p1_spiralSpeed
+      value: 0.11
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758654103555686226, guid: bbfd7877e303be9449fd901555bbfd26, type: 3}
       propertyPath: p2_spiralCount
       value: 50
       objectReference: {fileID: 0}
@@ -2743,6 +2747,10 @@ PrefabInstance:
     - target: {fileID: 6758654103555686226, guid: bbfd7877e303be9449fd901555bbfd26, type: 3}
       propertyPath: healPercentPerSecond
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758654103555686226, guid: bbfd7877e303be9449fd901555bbfd26, type: 3}
+      propertyPath: p1_spiralRotationStep
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 6758654103555686226, guid: bbfd7877e303be9449fd901555bbfd26, type: 3}
       propertyPath: p2_spiralRotationStep

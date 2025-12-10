@@ -14,33 +14,33 @@ public class LichBoss : MonoBehaviour
     private bool isSurvivePhase = false; // Phase 3
 
     [Header("Detection")]
-    public float sightRange = 15f;
+    public float sightRange = 10f;
     public Transform castPoint;
     [Header("Spiral Attack (Shared)")]
     public GameObject projectilePrefab;
 
     [Header("Spiral Phase 1")]
     public int p1_spiralCount = 30;
-    public float p1_spiralSpeed = 0.1f;
+    public float p1_spiralSpeed = 0.11f;
     [Range(1, 10)] public int p1_spiralArms = 4;
-    public float p1_spiralRotationStep = 10f;
+    public float p1_spiralRotationStep = 9f;
 
     [Header("Spiral Phase 2 & 3")]
     public int p2_spiralCount = 50; // Used in P2
-    public float p2_spiralSpeed = 0.08f;
-    [Range(1, 10)] public int p2_spiralArms = 6;
-    public float p2_spiralRotationStep = 12f;
+    public float p2_spiralSpeed = 0.12f;
+    [Range(1, 10)] public int p2_spiralArms = 5;
+    public float p2_spiralRotationStep = 7f;
     public int p2_reverseAfterWaves = 15;
 
     [Header("Zone Attack (Active - Phase 1)")]
     public GameObject zonePrefabP1;
-    public int p1_zoneCount = 5;
-    public float p1_zoneSpawnRadius = 10f;
+    public int p1_zoneCount = 25;
+    public float p1_zoneSpawnRadius = 20f;
 
     [Header("Zone Attack (Passive - Phase 2)")]
     public GameObject zonePrefabP2;
     public int p2_passiveZoneCount = 5;
-    public float p2_passiveZoneInterval = 1.0f;
+    public float p2_passiveZoneInterval = 1.5f;
 
     [Header("Zone Attack (Targeted - Phase 3)")]
     public float p3_targetedZoneInterval = 0.5f; // How fast zones spawn on player
@@ -49,7 +49,7 @@ public class LichBoss : MonoBehaviour
     public List<GameObject> minionPrefabs;
     public int trans_minionsPerWave = 3;
     public float trans_waveInterval = 5f;
-    public float healPercentPerSecond = 2f;
+    public float healPercentPerSecond = 5f;
 
     [Header("Summon (Phase 2 Active)")]
     public float p2_summonCooldown = 15f;
@@ -57,7 +57,7 @@ public class LichBoss : MonoBehaviour
     private float p2_summonTimer = 0f;
 
     [Header("Survive Phase (Phase 3)")]
-    public float p3_decayPercentPerSecond = 2f; 
+    public float p3_decayPercentPerSecond = 1.5f; 
 
     [Header("Visuals")]
     public GameObject invulnShieldPrefabPhase2;
