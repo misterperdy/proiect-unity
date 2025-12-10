@@ -42,9 +42,11 @@ public class Arrow : MonoBehaviour
         {
             // Try to get the EnemyAI component from the object we hit
             EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
+            ShooterEnemy shooter = collision.gameObject.GetComponent<ShooterEnemy>();
+
             DashBoss dashBoss = collision.gameObject.GetComponent<DashBoss>();
             SlimeBoss slimeBoss = collision.gameObject.GetComponent<SlimeBoss>();
-            ShooterEnemy shooter = collision.gameObject.GetComponent<ShooterEnemy>();
+            LichBoss lichBoss = collision.gameObject.GetComponent<LichBoss>();
 
             bool isEnemyHit = (enemy != null) || (dashBoss != null) || (slimeBoss != null) || (shooter != null);
             // If the object has an EnemyAI component, it's an enemy
@@ -55,6 +57,7 @@ public class Arrow : MonoBehaviour
 
             if (dashBoss != null) dashBoss.TakeDamage((int)damage);
             if (slimeBoss != null) slimeBoss.TakeDamage((int)damage);
+            if (lichBoss != null) lichBoss.TakeDamage((int)damage);
 
             if (shooter != null)
             {
