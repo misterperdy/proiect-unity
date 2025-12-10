@@ -6,7 +6,7 @@ public class LichBoss : MonoBehaviour
 {
     [Header("General Stats")]
     public int maxHealth = 1500;
-    public float currentHealth; // Changed to float for smooth decay
+    public float currentHealth; 
     public int contactDamage = 15;
     private bool isInvulnerable = false;
     private bool hasTriggeredPhaseTwo = false;
@@ -16,10 +16,6 @@ public class LichBoss : MonoBehaviour
     [Header("Detection")]
     public float sightRange = 15f;
     public Transform castPoint;
-
-    // ---------------------------------------------------------
-    // ATTACK: SPIRAL
-    // ---------------------------------------------------------
     [Header("Spiral Attack (Shared)")]
     public GameObject projectilePrefab;
 
@@ -36,9 +32,6 @@ public class LichBoss : MonoBehaviour
     public float p2_spiralRotationStep = 12f;
     public int p2_reverseAfterWaves = 15;
 
-    // ---------------------------------------------------------
-    // ATTACK: ZONES
-    // ---------------------------------------------------------
     [Header("Zone Attack (Active - Phase 1)")]
     public GameObject zonePrefabP1;
     public int p1_zoneCount = 5;
@@ -52,9 +45,6 @@ public class LichBoss : MonoBehaviour
     [Header("Zone Attack (Targeted - Phase 3)")]
     public float p3_targetedZoneInterval = 0.5f; // How fast zones spawn on player
 
-    // ---------------------------------------------------------
-    // ATTACK: SUMMON & TRANSITIONS
-    // ---------------------------------------------------------
     [Header("Summon (Transition Phase)")]
     public List<GameObject> minionPrefabs;
     public int trans_minionsPerWave = 3;
@@ -67,16 +57,13 @@ public class LichBoss : MonoBehaviour
     private float p2_summonTimer = 0f;
 
     [Header("Survive Phase (Phase 3)")]
-    public float p3_decayPercentPerSecond = 2f; // Damage boss takes per second
+    public float p3_decayPercentPerSecond = 2f; 
 
     [Header("Visuals")]
     public GameObject invulnShieldPrefabPhase2;
     public GameObject invulnShieldPrefabSurvivePhase;
     private GameObject activeShield;
 
-    // ---------------------------------------------------------
-    // REFERENCES
-    // ---------------------------------------------------------
     [Header("References")]
     public Animator animator;
     public BossBarSlider bossHealthBar;
@@ -127,7 +114,6 @@ public class LichBoss : MonoBehaviour
         }
 
         // 2. Check for Phase 3 (Survive) Transition (20% HP)
-        // FIX: We stop all previous logic (P2 zones, active attacks) BEFORE starting the new phase
         if (!isSurvivePhase && hasTriggeredPhaseTwo && currentHealth <= maxHealth * 0.20f)
         {
             StopAllCoroutines(); // Kill P2 background stuff
@@ -173,7 +159,6 @@ public class LichBoss : MonoBehaviour
     {
         if (player == null) return;
 
-        // --- PHASE 2 SUMMON CHECK ---
         if (isPhaseTwo && p2_summonTimer <= 0)
         {
             StartCoroutine(PerformPhase2QuickSummon());
@@ -183,7 +168,6 @@ public class LichBoss : MonoBehaviour
         if (isPhaseTwo)
         {
             // In Phase 2, we ONLY do Spiral (with the passive zones running in background).
-            // We do NOT do the Phase 1 Active Zone attack.
             StartCoroutine(PerformSpiralAttack());
         }
         else
@@ -195,7 +179,7 @@ public class LichBoss : MonoBehaviour
         }
     }
 
-    // --- ATTACK 1: SPIRAL BULLET HELL ---
+    // ATTACK 1: SPIRAL BULLET HELL
     IEnumerator PerformSpiralAttack()
     {
         isAttacking = true;
@@ -243,7 +227,7 @@ public class LichBoss : MonoBehaviour
         currentState = BossState.Chasing;
     }
 
-    // --- ATTACK 2: LIGHTNING ZONES (P1 Only) ---
+    // ATTACK 2: LIGHTNING ZONES (P1 Only) 
     IEnumerator PerformZoneAttack()
     {
         isAttacking = true;
@@ -270,7 +254,7 @@ public class LichBoss : MonoBehaviour
         currentState = BossState.Chasing;
     }
 
-    // --- ATTACK 3: SUMMON (PHASE 2 START) ---
+    // ATTACK 3: SUMMON (PHASE 2 START) 
     IEnumerator PerformSummonTransition()
     {
         hasTriggeredPhaseTwo = true;
@@ -329,7 +313,7 @@ public class LichBoss : MonoBehaviour
         currentState = BossState.Chasing;
     }
 
-    // --- PHASE 3: SURVIVE ---
+    // PHASE 3: SURVIVE
     IEnumerator PerformSurvivePhase()
     {
 
@@ -359,11 +343,11 @@ public class LichBoss : MonoBehaviour
         // 2. Infinite Loop until Death
         while (currentHealth > 0)
         {
-            // --- A. HEALTH DECAY ---
+            // HEALTH DECAY 
             currentHealth -= (maxHealth * (p3_decayPercentPerSecond / 100f)) * Time.deltaTime;
             if (bossHealthBar != null) bossHealthBar.SetHealth((int)currentHealth);
 
-            // --- B. CONTINUOUS SPIRAL ---
+            // CONTINUOUS SPIRAL
             spiralTimer -= Time.deltaTime;
             if (spiralTimer <= 0)
             {
@@ -389,7 +373,7 @@ public class LichBoss : MonoBehaviour
                 spiralTimer = p2_spiralSpeed; // Reset shot timer
             }
 
-            // --- C. TARGETED ZONES ---
+            // TARGETED ZONES 
             zoneTimer -= Time.deltaTime;
             if (zoneTimer <= 0)
             {
@@ -410,7 +394,7 @@ public class LichBoss : MonoBehaviour
         Die();
     }
 
-    // --- PHASE 2 PASSIVE ---
+    // PHASE 2 PASSIVE
     IEnumerator ConstantZoneSpawner()
     {
         while (true)
@@ -429,7 +413,7 @@ public class LichBoss : MonoBehaviour
         }
     }
 
-    // --- HELPERS ---
+    // HELPERS 
 
     void SpawnWave(int count)
     {
