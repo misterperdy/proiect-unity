@@ -23,4 +23,14 @@ public class ItemSO : ScriptableObject
 
     public float sizeMultiplier = 1f; //for melee
     public float fireRateMultiplier = 1f; //for ranged/magic
+    public int projectilesPerShot = 1;
+    public float spreadAngle = 0f;
+    public int maxBounces = 0;
+
+    [Header("Explosion Ability Settings")]
+    public int explosionDamage = 40;
+    public float explosionRadius = 4f;
+    public float explosionDelay = 1.0f;
+    public float explosionForce = 1000f;
+
 }

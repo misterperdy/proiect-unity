@@ -22,6 +22,7 @@ public class DashBoss : MonoBehaviour
 
     [Header("References")]
     public LineRenderer lineRenderer;
+    public Animator animator;
 
     private NavMeshAgent agent;
     private Transform player;
@@ -73,6 +74,13 @@ public class DashBoss : MonoBehaviour
 
     void Update()
     {
+        if (animator != null)
+        {
+            // Check if agent has a path and is moving effectively
+            bool isMoving = agent.velocity.magnitude > 0.1f;
+            animator.SetBool("isMoving", isMoving);
+        }
+
         if (isAttacking) return; // skip frame if he's attaciong
 
         //State Machine
@@ -160,6 +168,11 @@ public class DashBoss : MonoBehaviour
         //execute dash
         lineRenderer.enabled = false;
         currentState = BossState.Dashing;
+
+        if (animator != null)
+        {
+            animator.SetTrigger("attack");
+        }
 
         //set huge speed on dash
         agent.speed = dashSpeed;

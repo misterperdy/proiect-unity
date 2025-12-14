@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0435c8136addaa40882bad7c70f6a20, type: 3}
+  m_Name: Shotgun
+  m_EditorClassIdentifier: 
+  itemType: 2
+  itemIcon: {fileID: 0}
+  itemPrefab: {fileID: 4589121465221483655, guid: 0d241ebf06aadb848813387c9b9131d4, type: 3}
+  damage: 5
+  attackCooldown: 1
+  sizeMultiplier: 1
+  fireRateMultiplier: 1
+  projectilesPerShot: 7
+  spreadAngle: 5
+  maxBounces: 0
+  explosionDamage: 40
+  explosionRadius: 4
+  explosionDelay: 1
+  explosionForce: 1000

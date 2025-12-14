@@ -1,7 +1,8 @@
 
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Collections;
+using static GameOverManager;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class PlayerHealth : MonoBehaviour
 
     private bool isDead = false;
     private Renderer[] modelRenderers;
+    public GameOverManager gameOverManager;
+
 
     void Start()
     {
@@ -124,11 +127,13 @@ public class PlayerHealth : MonoBehaviour
         if (rb != null)
             rb.isKinematic = false;
 
-        Invoke(nameof(ReloadLevel), 2f);
+        Invoke(nameof(LoadGameOverScene), 1.5f);
+
     }
-    void ReloadLevel()
+    void LoadGameOverScene()
     {
-        Scene scene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(scene.buildIndex);
+        GameOverState.previousScene = SceneManager.GetActiveScene().name;
+        SceneManager.LoadScene("GameOver");
     }
+
 }

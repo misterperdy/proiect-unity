@@ -122,6 +122,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!95 &8288382 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 6292022428554794608, guid: b32a827e8fe65db4294eb3694c2cb632, type: 3}
+  m_PrefabInstance: {fileID: 529883782156340556}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &9674762
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -343,6 +348,7 @@ GameObject:
   - component: {fileID: 471382648}
   - component: {fileID: 471382647}
   - component: {fileID: 471382646}
+  - component: {fileID: 471382657}
   m_Layer: 7
   m_Name: player
   m_TagString: Player
@@ -415,6 +421,7 @@ MonoBehaviour:
   canTakeDamage: 1
   invincibilityDuration: 2
   flashInterval: 0.15
+  gameOverManager: {fileID: 0}
 --- !u!114 &471382648
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -686,6 +693,21 @@ Transform:
   - {fileID: 483037233}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &471382657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 471382645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0de1fa2d5f5d6a4488641ee70cdf9d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zoomSpeed: 40
+  minZoom: 9
+  maxZoom: 14
 --- !u!1 &483037232
 GameObject:
   m_ObjectHideFlags: 0
@@ -2535,6 +2557,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1919285898272750851, guid: b32a827e8fe65db4294eb3694c2cb632, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 8288382}
     - target: {fileID: 2001432429122068684, guid: b32a827e8fe65db4294eb3694c2cb632, type: 3}
       propertyPath: m_Name
       value: dashBoss
@@ -2549,7 +2575,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6953181500530117074, guid: b32a827e8fe65db4294eb3694c2cb632, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.27
+      value: 0.21
       objectReference: {fileID: 0}
     - target: {fileID: 6953181500530117074, guid: b32a827e8fe65db4294eb3694c2cb632, type: 3}
       propertyPath: m_LocalPosition.z

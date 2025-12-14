@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 // simple singleton manager for player's inventory
 
@@ -32,7 +33,7 @@ public class InventoryManager : MonoBehaviour
     public bool AddItem(ItemSO item)
     {
         // check if we have inventory space
-        if(items.Count >= inventorySize)
+        if (items.Count >= inventorySize)
         {
             Debug.Log("inventory full!");
             return false; // didn't add item cause there is no space
@@ -43,7 +44,7 @@ public class InventoryManager : MonoBehaviour
 
         OnInventoryChanged?.Invoke(); // invoke inventory change , used in UI updating
 
-        if(itemIndex == activeSlotIndex)
+        if (itemIndex == activeSlotIndex)
         {
             OnActiveSlotChanged?.Invoke(activeSlotIndex); // re-actualize current slot
         }
@@ -54,7 +55,7 @@ public class InventoryManager : MonoBehaviour
     public void SetActiveSlot(int index)
     {
         //check if index is valid
-        if(index < 0 || index >= inventorySize)
+        if (index < 0 || index >= inventorySize)
         {
             return;
         }
@@ -69,13 +70,82 @@ public class InventoryManager : MonoBehaviour
     public ItemSO GetActiveItem()
     {
         //if we have item in this slot
-        if(activeSlotIndex < items.Count)
+        if (activeSlotIndex < items.Count)
         {
             return items[activeSlotIndex];
         }
 
         return null; // empty slot
     }
+
+    public ItemSO DropActiveItem(Vector3 dropPosition)
+    {
+        if (activeSlotIndex < items.Count)
+        {
+            ItemSO itemToDrop = items[activeSlotIndex];
+
+            items.RemoveAt(activeSlotIndex);
+
+            if (itemToDrop.itemPrefab != null)
+            {
+                Vector3 safeDropPosition = dropPosition + Vector3.up * 0.1f;
+
+                GameObject droppedGO = Instantiate(itemToDrop.itemPrefab, safeDropPosition, Quaternion.identity);
+
+                Rigidbody rb = droppedGO.GetComponent<Rigidbody>();
+                if (rb == null)
+                {
+                    rb = droppedGO.AddComponent<Rigidbody>();
+                }
+                rb.isKinematic = false;
+                rb.useGravity = true;
+
+                Collider col = droppedGO.GetComponent<Collider>();
+                if (col == null)
+                {
+                    col = droppedGO.AddComponent<BoxCollider>();
+                }
+                col.isTrigger = true;
+
+                ItemPickup itemPickup = droppedGO.GetComponent<ItemPickup>();
+                if (itemPickup == null)
+                {
+                    itemPickup = droppedGO.AddComponent<ItemPickup>();
+                }
+
+                itemPickup.item = itemToDrop;
+
+                Vector3 dropForce = Vector3.up * 0.5f + new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f)).normalized * 0.5f;
+                rb.AddForce(dropForce, ForceMode.Impulse);
+
+                StartCoroutine(LockItemHeight(droppedGO, 0.2f));
+            }
+
+            OnInventoryChanged?.Invoke();
+            OnActiveSlotChanged?.Invoke(activeSlotIndex);
+
+            return itemToDrop;
+        }
+
+        return null;
+    }
+
+    private IEnumerator LockItemHeight(GameObject droppedItem, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (droppedItem != null)
+        {
+            ItemPickup itemPickup = droppedItem.GetComponent<ItemPickup>();
+
+            if (itemPickup != null)
+            {
+                itemPickup.StopDropping();
+            }
+        }
+    }
+
+
 
     //check input for hotbar slot + player item change
     private void Update()
@@ -88,6 +158,30 @@ public class InventoryManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             InventoryManager.Instance.SetActiveSlot(1); // key 2 = slot 1
+        }
+        if (Input.GetButtonDown("Drop"))
+        {
+            GameObject playerGO = GameObject.FindWithTag("Player");
+
+            if (playerGO != null)
+            {
+                Vector3 playerPos = playerGO.transform.position;
+                Vector3 playerForward = playerGO.transform.forward;
+
+
+                Vector3 dropPosition = playerPos - playerForward * 3.0f + Vector3.up * 0.1f;
+
+                ItemSO droppedItem = DropActiveItem(dropPosition);
+
+                if (droppedItem != null)
+                {
+                    Debug.Log($"SUCCESS: Dropped item: {droppedItem.name}");
+                }
+            }
+            else
+            {
+                Debug.LogError("FATAL DROP ERROR: Player object not found. Ensure your Player has the tag 'Player'.");
+            }
         }
     }
 }
