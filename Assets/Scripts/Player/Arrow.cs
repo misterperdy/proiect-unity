@@ -82,6 +82,7 @@ public class Arrow : MonoBehaviour
             {
                 enemy.TakeDamage((int)damage);
             }
+            if(shooter != null) { shooter.TakeDamage((int)damage); }    
             if (explosive != null) explosive.TakeDamage((int)damage);
 
             if (dashBoss != null) dashBoss.TakeDamage((int)damage);
