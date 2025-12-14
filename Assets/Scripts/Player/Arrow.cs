@@ -66,18 +66,24 @@ public class Arrow : MonoBehaviour
             Debug.Log("Arrow collided with: " + collision.gameObject.name);
             // Try to get the EnemyAI component from the object we hit
             EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
-            DashBoss boss = collision.gameObject.GetComponent<DashBoss>();
             ShooterEnemy shooter = collision.gameObject.GetComponent<ShooterEnemy>();
+            KamikazeEnemyAI explosive = collision.gameObject.GetComponent<KamikazeEnemyAI>();
 
-            bool isEnemyHit = (enemy != null) || (boss != null) || (shooter != null);
+            DashBoss dashBoss = collision.gameObject.GetComponent<DashBoss>();
+            SlimeBoss slimeBoss = collision.gameObject.GetComponent<SlimeBoss>();
+            LichBoss lichBoss = collision.gameObject.GetComponent<LichBoss>();
+
+            bool isEnemyHit = (enemy != null) || (shooter != null) || (explosive != null) || (dashBoss != null) || (slimeBoss != null) || (lichBoss != null) ;
             // If the object has an EnemyAI component, it's an enemy
-            if (isEnemyHit)
-            {
-                if (enemy != null) enemy.TakeDamage((int)damage);
-                if (boss != null) boss.TakeDamage((int)damage);
-                if (shooter != null) shooter.TakeDamage((int)damage);
+            
+            if (enemy != null) enemy.TakeDamage((int)damage);
+            if (explosive != null) explosive.TakeDamage((int)damage);
 
-                if (remainingBounces > 0)
+            if (dashBoss != null) dashBoss.TakeDamage((int)damage);
+            if (slimeBoss != null) slimeBoss.TakeDamage((int)damage);
+            if (lichBoss != null) lichBoss.TakeDamage((int)damage);
+
+            if (remainingBounces > 0  && isEnemyHit)
                 {
                     remainingBounces--;
 
@@ -97,14 +103,7 @@ public class Arrow : MonoBehaviour
 
                     return;
                 }
-            }
-
-            //also check if it's explosive enemy
-            KamikazeEnemyAI explosive = collision.gameObject.GetComponent<KamikazeEnemyAI>();
-            if (explosive != null)
-            {
-                explosive.TakeDamage((int)damage);
-            }
+            
 
             // se the arrow as  returned soon as it hits anything (enemy, wall, floor, etc.)
             BulletPool.Instance.ReturnBullet(gameObject);

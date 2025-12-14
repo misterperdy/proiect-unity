@@ -217,10 +217,23 @@ public class PlayerAttack : MonoBehaviour
         }
 
         //also chjeck if its a boss
-        DashBoss boss = enemyCollider.GetComponent<DashBoss>();
-        if (boss != null)
+        DashBoss dashBoss = enemyCollider.GetComponent<DashBoss>();
+        SlimeBoss slimeBoss = enemyCollider.GetComponent<SlimeBoss>();
+        LichBoss lichBoss = enemyCollider.GetComponent<LichBoss>();
+
+        if (dashBoss != null)
         {
-            boss.TakeDamage((int)currentDamage);
+            dashBoss.TakeDamage((int)currentDamage);
+        }
+        
+        if (slimeBoss != null)
+        {
+            slimeBoss.TakeDamage((int)currentDamage);  
+        }
+
+        if (lichBoss != null)
+        {
+            lichBoss.TakeDamage((int)currentDamage);
         }
 
         //also check if it's explosive enemy

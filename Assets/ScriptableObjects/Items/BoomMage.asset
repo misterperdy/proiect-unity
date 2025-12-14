@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemType: 3
   itemIcon: {fileID: 0}
-  itemPrefab: {fileID: 69741677329645539, guid: 89ff69063cad3ff4599ee5315d572263, type: 3}
+  itemPrefab: {fileID: 4844774490473000855, guid: 57f02ace8b87e9c4b8e9fcdedb4907da, type: 3}
   damage: 5
   attackCooldown: 0.5
   sizeMultiplier: 1
