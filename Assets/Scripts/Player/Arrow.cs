@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.AI;
 
 public class Arrow : MonoBehaviour
 {
@@ -66,6 +67,7 @@ public class Arrow : MonoBehaviour
             Debug.Log("Arrow collided with: " + collision.gameObject.name);
             // Try to get the EnemyAI component from the object we hit
             EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
+            NavMeshAgent agent = collision.gameObject.GetComponent<NavMeshAgent>(); 
             ShooterEnemy shooter = collision.gameObject.GetComponent<ShooterEnemy>();
             KamikazeEnemyAI explosive = collision.gameObject.GetComponent<KamikazeEnemyAI>();
 
@@ -75,8 +77,11 @@ public class Arrow : MonoBehaviour
 
             bool isEnemyHit = (enemy != null) || (shooter != null) || (explosive != null) || (dashBoss != null) || (slimeBoss != null) || (lichBoss != null) ;
             // If the object has an EnemyAI component, it's an enemy
-            
-            if (enemy != null) enemy.TakeDamage((int)damage);
+
+            if (enemy != null)
+            {
+                enemy.TakeDamage((int)damage);
+            }
             if (explosive != null) explosive.TakeDamage((int)damage);
 
             if (dashBoss != null) dashBoss.TakeDamage((int)damage);

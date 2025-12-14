@@ -50,7 +50,7 @@ public class EnemyAI : MonoBehaviour
                 return;
             }
         }
-
+        
         StartCoroutine(InitializeAI());
     }
 
@@ -122,7 +122,7 @@ public class EnemyAI : MonoBehaviour
             return;
         }
 
-        agent.SetDestination(player.position);
+        agent.SetDestination(player.position); 
 
         if (Vector3.Distance(transform.position, player.position) <= attackRange)
         {
