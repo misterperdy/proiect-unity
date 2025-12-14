@@ -404,6 +404,8 @@ MonoBehaviour:
   arrowPrefab: {fileID: 5124060890674046994, guid: cd895943ee12c554697b924aa2e7daa3, type: 3}
   arrowSpawnPoint: {fileID: 118724729}
   arrowSpeed: 30
+  explosionPrefab: {fileID: 0}
+  abilityKey: 101
 --- !u!114 &471382647
 MonoBehaviour:
   m_ObjectHideFlags: 0
