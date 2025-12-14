@@ -169,7 +169,7 @@ public class InventoryManager : MonoBehaviour
                 Vector3 playerForward = playerGO.transform.forward;
 
 
-                Vector3 dropPosition = playerPos - playerForward * 3.0f + Vector3.up * 0.1f;
+                Vector3 dropPosition = playerPos + playerForward * 3.0f + Vector3.up * 0.1f;
 
                 ItemSO droppedItem = DropActiveItem(dropPosition);
 

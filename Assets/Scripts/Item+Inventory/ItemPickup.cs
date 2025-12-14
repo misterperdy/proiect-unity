@@ -15,6 +15,8 @@ public class ItemPickup : MonoBehaviour
             // if the item on the ground collided with a player, try to add it in inventory
             bool wasPickedUp = InventoryManager.Instance.AddItem(item);
 
+            Debug.Log(item);
+
             if (wasPickedUp)
             {
                 Destroy(gameObject); // destroy item on ground
