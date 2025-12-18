@@ -107,9 +107,9 @@ public class DungeonGenerator : MonoBehaviour
         if (navMeshSurface == null) navMeshSurface = GetComponent<NavMeshSurface>();
 
         GenerateCurrentLevel();
-        //GenerateNextLevel();
-        //GenerateNextLevel();
-        //GenerateNextLevel();
+        GenerateNextLevel();
+        GenerateNextLevel();
+        GenerateNextLevel();
     }
 
     public void GenerateNextLevel()
@@ -188,7 +188,7 @@ public class DungeonGenerator : MonoBehaviour
         Instantiate(meleeWeapon, finalPos + Vector3.up + Vector3.right*3, Quaternion.identity, levelParent);
         Instantiate(rangedWeapon, finalPos + Vector3.up + Vector3.left*3, Quaternion.identity, levelParent);
 
-        if (player != null)
+        if (player != null && currentBiomeIndex==0)
         {
             player.position = finalPos + new Vector3(0, 2, 0);
             Rigidbody playerRb = player.GetComponent<Rigidbody>();

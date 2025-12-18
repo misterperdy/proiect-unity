@@ -57,7 +57,7 @@ public class EnemySpawner : MonoBehaviour
         if (attempts < 100)
         {
             Instantiate(enemyPrefab, randomSpawnPoint, Quaternion.identity);
-            enemyPrefab.GetComponent<Animator>().SetBool("isChasing", true);
+            //enemyPrefab.GetComponent<Animator>().SetBool("isChasing", true);
         }
         else
         {

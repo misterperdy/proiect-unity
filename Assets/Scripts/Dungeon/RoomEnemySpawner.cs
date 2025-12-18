@@ -13,8 +13,7 @@ public class RoomEnemySpawner : MonoBehaviour
     {
         public string name;
         public Color color;
-        public float healthMult;
-        public float damageMult;
+        public float statMult;
         public float lootMult;
         [Range(0, 1)] public float spawnChance; // Chance to upgrade to this rarity
     }
@@ -98,35 +97,34 @@ public class RoomEnemySpawner : MonoBehaviour
         EnemyRarity rarity = DetermineRarity();
         RaritySettings settings = GetRaritySettings(rarity);
 
-        float hpMult = biomeStatMultiplier * difficultyMultiplier * settings.healthMult;
-        float dmgMult = biomeStatMultiplier * difficultyMultiplier * settings.damageMult;
+        float statMult = difficultyMultiplier * biomeStatMultiplier * settings.statMult;
 
         // We need to read base stats. This is tricky without a common interface.
         // We will check for each component.
 
         if (enemyObj.TryGetComponent(out EnemyAI melee))
         {
-            int hp = Mathf.RoundToInt(melee.maxHealth * hpMult);
-            int dmg = Mathf.RoundToInt(melee.damage * dmgMult);
-            float attSpeed = melee.attackSpeed * biomeStatMultiplier * difficultyMultiplier;
-            float spd = melee.moveSpeed + biomeStatMultiplier + difficultyMultiplier;
+            int hp = Mathf.RoundToInt(melee.maxHealth * statMult);
+            int dmg = Mathf.RoundToInt(melee.damage * statMult);
+            float attSpeed = melee.attackSpeed * statMult;
+            float spd = melee.moveSpeed + statMult;
             melee.SetupEnemy(hp, dmg, attSpeed, spd, settings.color, settings.lootMult);
         }
         else if (enemyObj.TryGetComponent(out ShooterEnemy shooter))
         {
-            int hp = Mathf.RoundToInt(shooter.maxHealth * hpMult);
-            int dmg = Mathf.RoundToInt(10 * dmgMult);
-            float fireRateMult = shooter.fireRateMultiplier * biomeStatMultiplier * difficultyMultiplier;
-            int BPS = Mathf.RoundToInt(shooter.bulletsPerShot * biomeStatMultiplier * difficultyMultiplier);
-            float spreadAng = shooter.spreadAngle * biomeStatMultiplier * difficultyMultiplier;
-            int aimErr = Mathf.RoundToInt(shooter.aimError + biomeStatMultiplier + difficultyMultiplier);
+            int hp = Mathf.RoundToInt(shooter.maxHealth * statMult);
+            int dmg = Mathf.RoundToInt(10 * statMult);
+            float fireRateMult = shooter.fireRateMultiplier * statMult;
+            int BPS = Mathf.RoundToInt(shooter.bulletsPerShot * statMult);
+            float spreadAng = shooter.spreadAngle * statMult;
+            int aimErr = Mathf.RoundToInt(shooter.aimError + statMult);
             shooter.SetupEnemy(hp, dmg, fireRateMult, BPS, spreadAng,
             aimErr, settings.color, settings.lootMult);
         }
         else if (enemyObj.TryGetComponent(out KamikazeEnemyAI kami))
         {
-            int hp = Mathf.RoundToInt(kami.maxHealth * hpMult);
-            int dmg = Mathf.RoundToInt(kami.explosionDamage * dmgMult);
+            int hp = Mathf.RoundToInt(kami.maxHealth * statMult);
+            int dmg = Mathf.RoundToInt(kami.explosionDamage * statMult);
             kami.SetupEnemy(hp, dmg, settings.color, settings.lootMult);
         }
     }

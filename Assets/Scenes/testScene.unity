@@ -1417,7 +1417,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 38.400024, y: 28.5}
+  m_AnchoredPosition: {x: 38.399902, y: 28.5}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &628072021
@@ -2094,21 +2094,18 @@ MonoBehaviour:
   rarityDefinitions:
   - name: Normal
     color: {r: 1, g: 1, b: 1, a: 0}
-    healthMult: 1
-    damageMult: 1
+    statMult: 1
     lootMult: 1
     spawnChance: 1
   - name: Magic
     color: {r: 0, g: 0.3333335, b: 1, a: 0}
-    healthMult: 1.5
-    damageMult: 1.2
+    statMult: 2
     lootMult: 2
     spawnChance: 0.2
   - name: Rare
     color: {r: 0.8439851, g: 0.8773585, b: 0.15312389, a: 0}
-    healthMult: 2.5
-    damageMult: 1.5
-    lootMult: 5
+    statMult: 4
+    lootMult: 4
     spawnChance: 0.05
   distanceDifficultyFactor: 0.05
   gridSize: 150
@@ -2183,7 +2180,7 @@ MonoBehaviour:
   tJunction: {fileID: 8068108429544898594, guid: b60a1c414440c6443b6e4110c0059406, type: 3}
   crossIntersection: {fileID: 8068108429544898594, guid: 77a3b03f6fe1a63489f82dfb236ae64b, type: 3}
   dungeonContainer: {fileID: 1808893742}
-  navMeshSurface: {fileID: 0}
+  navMeshSurface: {fileID: 1352424735}
 --- !u!4 &1352424734
 Transform:
   m_ObjectHideFlags: 0
@@ -2527,7 +2524,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 36.9, y: 153.67}
+  m_AnchoredPosition: {x: 36.899902, y: 153.67004}
   m_SizeDelta: {x: 160, y: 19.650024}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &1629379426
