@@ -22,6 +22,10 @@ public class ShooterEnemy : MonoBehaviour
     public GameObject projectilePrefab;
     public Transform firePoint;
 
+    [Header("Loot")]
+    public float lootMultiplier = 1f;
+    public int projectileDamage = 10; // New variable to control bullet damage
+
     private NavMeshAgent agent;
     private Transform player;
     private float nextFireTime;
@@ -75,6 +79,21 @@ public class ShooterEnemy : MonoBehaviour
         }
     }
 
+    public void SetupEnemy(int hp, int dmg, float fireRateMult, int BPS, float spreadAng,
+        int aimErr, Color color, float lootMult)
+    {
+        maxHealth = hp;
+        currentHealth = hp;
+        projectileDamage = dmg; // Pass this to the projectile later
+        fireRateMultiplier = fireRateMult;
+        bulletsPerShot = BPS;
+        spreadAngle = spreadAng;
+        lootMultiplier = lootMult;
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (var r in renderers) r.material.color = color;
+    }
+
     void EngagePlayer(float distance)
     {
         // Movement Logic: Maintain distance
@@ -102,6 +121,8 @@ public class ShooterEnemy : MonoBehaviour
 
     public void Shoot()
     {
+        projectilePrefab.GetComponent<EnemyProjectile>().damage = projectileDamage;
+
         if (projectilePrefab == null)
         {
             Debug.LogWarning("ShooterEnemy: Projectile Prefab is null!");

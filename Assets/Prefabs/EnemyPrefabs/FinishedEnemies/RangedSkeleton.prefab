@@ -76,7 +76,6 @@ GameObject:
   - component: {fileID: 7743629685768810682}
   - component: {fileID: 2011478444165617782}
   - component: {fileID: 379211495868888170}
-  - component: {fileID: 6955237889156417292}
   m_Layer: 8
   m_Name: LowPolySkeleton_Edge
   m_TagString: Untagged
@@ -149,27 +148,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &6955237889156417292
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 400060050653794168}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.24846639, y: 0.15494375, z: 0.27399427}
-  m_Center: {x: -0.0000000018139745, y: -0.03549181, z: 0.081867054}
 --- !u!1 &590795026347763524
 GameObject:
   m_ObjectHideFlags: 0
@@ -181,7 +159,6 @@ GameObject:
   - component: {fileID: 4877594237952276037}
   - component: {fileID: 8712498525610452961}
   - component: {fileID: 5424106373588277809}
-  - component: {fileID: 425967572311766835}
   m_Layer: 8
   m_Name: LowPolySkeleton_SholderL
   m_TagString: Untagged
@@ -254,27 +231,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &425967572311766835
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 590795026347763524}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.114615895, y: 0.1305128, z: 0.18752278}
-  m_Center: {x: -0.00023701423, y: -0.00007518013, z: 0.000044174492}
 --- !u!1 &782573945711584062
 GameObject:
   m_ObjectHideFlags: 0
@@ -476,7 +432,6 @@ GameObject:
   - component: {fileID: 4975628207673652392}
   - component: {fileID: 8126174069042985811}
   - component: {fileID: 5925040765428625332}
-  - component: {fileID: 5245570948841287189}
   m_Layer: 8
   m_Name: LowPolySkeleton_SholderR
   m_TagString: Untagged
@@ -549,27 +504,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &5245570948841287189
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2864128208812096605}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.11252507, y: 0.12835711, z: 0.18717092}
-  m_Center: {x: 0.00002764725, y: 0.000009026381, z: 0.00004617497}
 --- !u!1 &2951052103892038251
 GameObject:
   m_ObjectHideFlags: 0
@@ -877,7 +811,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9e47cfa4e245fe43b3920e2f4ab9582, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fireRateMultiplier: 3
+  fireRateMultiplier: 1
   bulletsPerShot: 1
   spreadAngle: 15
   aimError: 5
@@ -886,6 +820,8 @@ MonoBehaviour:
   moveSpeed: 3.5
   projectilePrefab: {fileID: 193576, guid: ab24ef0900089004a8d270a23704c140, type: 3}
   firePoint: {fileID: 7603671616240652209}
+  lootMultiplier: 1
+  projectileDamage: 10
   maxHealth: 50
   currentHealth: 0
 --- !u!1 &4771635925631712885
@@ -1605,40 +1541,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 180010, guid: 2e52ab7b27833a546a0f62de87d98a15, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6051203770298077691}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2e52ab7b27833a546a0f62de87d98a15, type: 3}
 --- !u!4 &2416115398912113238 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 499022, guid: 2e52ab7b27833a546a0f62de87d98a15, type: 3}
   m_PrefabInstance: {fileID: 2416115398912403224}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &2416115398912301106 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 180010, guid: 2e52ab7b27833a546a0f62de87d98a15, type: 3}
-  m_PrefabInstance: {fileID: 2416115398912403224}
-  m_PrefabAsset: {fileID: 0}
---- !u!64 &6051203770298077691
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2416115398912301106}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 4300170, guid: 7374575f12d49ba459e91009f7a9ec62, type: 3}

@@ -23,6 +23,9 @@ public class KamikazeEnemyAI : MonoBehaviour
     [Header("Body")]
     public GameObject body;
 
+    [Header("Loot")]
+    public float lootMultiplier = 1f;
+
     private Rigidbody rb;
     private NavMeshAgent agent;
     private Transform player;
@@ -78,6 +81,17 @@ public class KamikazeEnemyAI : MonoBehaviour
                 break;
                 // explosion is managed by coroutine , not in update
         }
+    }
+
+    public void SetupEnemy(int hp, int dmg, Color color, float lootMult)
+    {
+        maxHealth = hp;
+        currentHealth = hp;
+        explosionDamage = dmg;
+        lootMultiplier = lootMult;
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (var r in renderers) r.material.color = color;
     }
 
     // CanSeePlayer same as enemy

@@ -10,6 +10,7 @@ public class EnemyAI : MonoBehaviour
     public float sightRange = 20f;
     public float patrolRadius = 10f;
     public float attackSpeed = 1f;
+    public float moveSpeed = 3.5f;
 
 
     private NavMeshAgent agent;
@@ -19,6 +20,9 @@ public class EnemyAI : MonoBehaviour
     private Vector3 lastKnownPlayerPosition;
     private bool isDead = false;
     private int randomNumber;
+
+    [Header("Loot")]
+    public float lootMultiplier = 1f;
 
     private enum AIState { Patrolling, Chasing, Attacking, Searching }
     private AIState currentState;
@@ -30,6 +34,7 @@ public class EnemyAI : MonoBehaviour
         randomNumber = Random.Range(1, 3);
         agent = GetComponent<NavMeshAgent>();
         acp = GetComponent<Animator>();
+        agent.speed = moveSpeed;
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj == null && acp == null)
         {
@@ -57,6 +62,23 @@ public class EnemyAI : MonoBehaviour
         }
 
         StartCoroutine(InitializeAI());
+    }
+
+    public void SetupEnemy(int hp, int dmg, float attSpeed, float spd, Color color, float lootMult)
+    {
+        maxHealth = hp;
+        currentHealth = hp;
+        damage = dmg;
+        attackSpeed = attSpeed;
+        lootMultiplier = lootMult;
+        moveSpeed = spd;
+
+        // Change color of the mesh
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (var r in renderers)
+        {
+            r.material.color = color;
+        }
     }
 
     System.Collections.IEnumerator InitializeAI()

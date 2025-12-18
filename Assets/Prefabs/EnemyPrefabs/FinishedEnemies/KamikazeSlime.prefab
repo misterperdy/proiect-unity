@@ -95,7 +95,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 13.52898, y: 0.20097256, z: 8.083478}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2561541664556240977}
@@ -147,6 +147,7 @@ MonoBehaviour:
   triggerDistance: 2.5
   explosion: {fileID: 6275440924894886465}
   body: {fileID: 3183076584563330190}
+  lootMultiplier: 1
 --- !u!195 &1419093870979966074
 NavMeshAgent:
   m_ObjectHideFlags: 0
