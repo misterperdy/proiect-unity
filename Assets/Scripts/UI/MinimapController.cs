@@ -12,6 +12,7 @@ public class MinimapController : MonoBehaviour
     public GameObject nodePrefab;
     public Transform playerTransform;
     public RectTransform minimapFrame;
+    public RectTransform playerIcon;
 
     [Header("Colors")]
     public Color roomColor = new Color(0.8f, 0.8f, 0.8f, 1f);
@@ -174,6 +175,12 @@ public class MinimapController : MonoBehaviour
         {
             DiscoverArea(currentGridPos);
             lastGridPos = currentGridPos;
+        }
+
+        float playerYRot = playerTransform.eulerAngles.y;
+        if(playerIcon != null)
+        {
+            playerIcon.localRotation = Quaternion.Euler(0, 0, -playerYRot);
         }
     }
 
