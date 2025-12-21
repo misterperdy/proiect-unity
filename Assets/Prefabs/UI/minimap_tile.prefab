@@ -90,4 +90,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nodeImage: {fileID: 0}
   nodeOriginalColor: {r: 0, g: 0, b: 0, a: 0}
+  tileType: 0
   isDiscovered: 0
