@@ -2621,11 +2621,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1945086504}
   m_CullTransparentMesh: 1
---- !u!4 &1963922917 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1528272316603244349, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
-  m_PrefabInstance: {fileID: 1506223950468363468}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1995746438 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 500835341633612108, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
@@ -2960,25 +2955,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 539314160753136875, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3487016196604326121, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
-      propertyPath: spineBone
-      value: 
-      objectReference: {fileID: 1963922917}
-    - target: {fileID: 3487016196604326121, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
-      propertyPath: archeryRotationOffset
-      value: 75
-      objectReference: {fileID: 0}
     - target: {fileID: 4929837257510911764, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
       propertyPath: m_Name
       value: player
-      objectReference: {fileID: 0}
-    - target: {fileID: 7027622484167262851, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7769628398168667710, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
       propertyPath: m_LocalPosition.x

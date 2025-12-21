@@ -453,7 +453,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0060cfe2bae34bb4785475c3b73a9f0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _dashVelocity: 1.2
+  _dashVelocity: 10
   _dashingTime: 0.2
   _dashCooldown: 1
 --- !u!96 &331216165488921038
@@ -582,6 +582,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotationSpeed: 20
+  spineBone: {fileID: 1528272316603244349}
+  archeryRotationOffset: 75
+  blendSpeed: 10
   aimLayers:
     serializedVersion: 2
     m_Bits: 887
@@ -785,7 +788,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7027622484167262851}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -956,6 +959,11 @@ PrefabInstance:
       addedObject: {fileID: 3046463074749227825}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3b8ab6e871fce604f868a0eb40111eca, type: 3}
+--- !u!4 &1528272316603244349 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7739327798976731304, guid: 3b8ab6e871fce604f868a0eb40111eca, type: 3}
+  m_PrefabInstance: {fileID: 9102371004572977045}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2444865073843383606 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6899507924944743075, guid: 3b8ab6e871fce604f868a0eb40111eca, type: 3}
