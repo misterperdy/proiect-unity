@@ -471,12 +471,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventoryManager: {fileID: 0}
   sword: {fileID: 1995746438}
-  bow: {fileID: 225426395}
---- !u!1 &225426395 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7644337811456799361, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
-  m_PrefabInstance: {fileID: 1506223950468363468}
-  m_PrefabAsset: {fileID: 0}
+  bow: {fileID: 1506223950468363469}
 --- !u!1 &234021737
 GameObject:
   m_ObjectHideFlags: 0
@@ -3009,6 +3004,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
+--- !u!1 &1506223950468363469 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 473438577097424679, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
+  m_PrefabInstance: {fileID: 1506223950468363468}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2721647787671582737
 PrefabInstance:
   m_ObjectHideFlags: 0
