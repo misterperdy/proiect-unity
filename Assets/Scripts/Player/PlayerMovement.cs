@@ -10,6 +10,8 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody rb;
     private Vector3 moveVector;
 
+    public Animator animator;
+
 
     // Start is called before the first frame update
     void Start()
@@ -25,6 +27,9 @@ public class PlayerMovement : MonoBehaviour
 
         //create a vector with the inputs from the 2 axis
         moveVector = new Vector3(moveX, 0f, moveZ).normalized;
+
+        if (moveX != 0 || moveZ != 0) animator.SetBool("isWalking", true);
+        else animator.SetBool("isWalking", false);
     }
 
     //function to handle physics that runs constantly
