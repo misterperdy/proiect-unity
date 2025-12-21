@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyAI : MonoBehaviour
+public class EnemyAI : MonoBehaviour, IDamageable
 {
     public int maxHealth = 50;
     public int currentHealth;
@@ -237,6 +237,12 @@ public class EnemyAI : MonoBehaviour
     void Die()
     {
         Debug.Log("Enemy has died!");
+
+        MinimapTracker tracker = GetComponent<MinimapTracker>();
+        if (tracker != null)
+        {
+            tracker.TriggerDeathAnimation();
+        }
 
         agent.isStopped = true;
 

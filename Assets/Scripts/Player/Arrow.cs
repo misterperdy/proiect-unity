@@ -61,59 +61,50 @@ public class Arrow : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        
-        if (collision.gameObject.tag != "Player" && collision.gameObject.tag != "Projectile") // so it doesnt collide with the player itself
+        if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Projectile"))
         {
-            Debug.Log("Arrow collided with: " + collision.gameObject.name);
-            // Try to get the EnemyAI component from the object we hit
-            EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
-            NavMeshAgent agent = collision.gameObject.GetComponent<NavMeshAgent>(); 
-            ShooterEnemy shooter = collision.gameObject.GetComponent<ShooterEnemy>();
-            KamikazeEnemyAI explosive = collision.gameObject.GetComponent<KamikazeEnemyAI>();
-
-            DashBoss dashBoss = collision.gameObject.GetComponent<DashBoss>();
-            SlimeBoss slimeBoss = collision.gameObject.GetComponent<SlimeBoss>();
-            LichBoss lichBoss = collision.gameObject.GetComponent<LichBoss>();
-
-            bool isEnemyHit = (enemy != null) || (shooter != null) || (explosive != null) || (dashBoss != null) || (slimeBoss != null) || (lichBoss != null) ;
-            // If the object has an EnemyAI component, it's an enemy
-
-            if (enemy != null)
-            {
-                enemy.TakeDamage((int)damage);
-            }
-            if(shooter != null) { shooter.TakeDamage((int)damage); }    
-            if (explosive != null) explosive.TakeDamage((int)damage);
-
-            if (dashBoss != null) dashBoss.TakeDamage((int)damage);
-            if (slimeBoss != null) slimeBoss.TakeDamage((int)damage);
-            if (lichBoss != null) lichBoss.TakeDamage((int)damage);
-
-            if (remainingBounces > 0  && isEnemyHit)
-                {
-                    remainingBounces--;
-
-                    Vector3 currentVelocity = rb.velocity;
-                    Vector3 surfaceNormal = collision.contacts[0].normal;
-
-                    surfaceNormal.y = 0f;
-                    surfaceNormal.Normalize();
-
-                    Vector3 reflectedDirection = Vector3.Reflect(currentVelocity.normalized, surfaceNormal);
-
-                    reflectedDirection.y = 0f;
-                    reflectedDirection.Normalize();
-
-                    rb.velocity = reflectedDirection * currentVelocity.magnitude;
-                    transform.rotation = Quaternion.LookRotation(reflectedDirection);
-
-                    return;
-                }
-            
-
-            // se the arrow as  returned soon as it hits anything (enemy, wall, floor, etc.)
-            BulletPool.Instance.ReturnBullet(gameObject);
+            return;
         }
+
+        IDamageable damageableTarget = collision.gameObject.GetComponent<IDamageable>();
+
+        bool isEnemyHit = (damageableTarget != null);
+
+        if (isEnemyHit)
+        {
+            damageableTarget.TakeDamage((int)damage);
+            Debug.Log("Arrow hit an enemy: " + collision.gameObject.name);
+        }
+        else
+        {
+            Debug.Log("Arrow hit object: " + collision.gameObject.name);
+        }
+
+        if (remainingBounces > 0 && isEnemyHit)
+        {
+            remainingBounces--;
+
+            Vector3 currentVelocity = rb.velocity;
+
+            if (collision.contacts.Length > 0)
+            {
+                Vector3 surfaceNormal = collision.contacts[0].normal;
+
+                surfaceNormal.y = 0f;
+                surfaceNormal.Normalize();
+
+                Vector3 reflectedDirection = Vector3.Reflect(currentVelocity.normalized, surfaceNormal);
+                reflectedDirection.y = 0f;
+                reflectedDirection.Normalize();
+
+                rb.velocity = reflectedDirection * currentVelocity.magnitude;
+                transform.rotation = Quaternion.LookRotation(reflectedDirection);
+
+                return;
+            }
+        }
+
+        BulletPool.Instance.ReturnBullet(gameObject);
     }
 
     private IEnumerator DeactivateAfterTime()

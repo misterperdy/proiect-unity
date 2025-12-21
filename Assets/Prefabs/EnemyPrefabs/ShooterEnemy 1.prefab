@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 357566906004249139}
   - component: {fileID: 6816909373578759918}
   - component: {fileID: 1790429246138347715}
+  - component: {fileID: 3388522057720350785}
   m_Layer: 8
   m_Name: ShooterEnemy 1
   m_TagString: Untagged
@@ -182,7 +183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9e47cfa4e245fe43b3920e2f4ab9582, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fireRate: 1
+  fireRateMultiplier: 3
   bulletsPerShot: 1
   spreadAngle: 15
   aimError: 5
@@ -191,5 +192,19 @@ MonoBehaviour:
   moveSpeed: 3.5
   projectilePrefab: {fileID: 5657317921680895806, guid: 0389fbec9e084264da438e996d348019, type: 3}
   firePoint: {fileID: 0}
+  lootMultiplier: 1
+  projectileDamage: 10
   maxHealth: 50
   currentHealth: 0
+--- !u!114 &3388522057720350785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5176436283803680926}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b977efe495dabb41b48f18a0e0a8a28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

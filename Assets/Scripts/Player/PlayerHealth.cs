@@ -19,7 +19,12 @@ public class PlayerHealth : MonoBehaviour
     private Renderer[] modelRenderers;
     public GameOverManager gameOverManager;
 
+    private Animator animator;
 
+    private void Awake()
+    {
+        animator = GetComponentInChildren<Animator>();
+    }
     void Start()
     {
         currentHealth = maxHealth;
@@ -41,6 +46,7 @@ public class PlayerHealth : MonoBehaviour
         {
             damage = Mathf.Max(0, damage);
             currentHealth -= damage;
+            animator.SetTrigger("t_damage");
 
             if (currentHealth <= 0)
             {
@@ -101,6 +107,8 @@ public class PlayerHealth : MonoBehaviour
         isDead = true;
         Debug.Log("Player has died!");
 
+        animator.SetTrigger("t_dead");
+
         StopAllCoroutines();
         ToggleRenderers(true);
 
@@ -123,9 +131,9 @@ public class PlayerHealth : MonoBehaviour
             medkit.enabled = false;
 
 
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
-            rb.isKinematic = false;
+        //Rigidbody rb = GetComponent<Rigidbody>();
+        //if (rb != null)
+        //    rb.isKinematic = false;
 
         Invoke(nameof(LoadGameOverScene), 1.5f);
 

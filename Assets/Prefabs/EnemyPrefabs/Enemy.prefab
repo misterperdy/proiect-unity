@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 1255520980427373269}
   - component: {fileID: 5422292355968349380}
   - component: {fileID: 4277078055329701347}
+  - component: {fileID: 2381991612218161489}
   m_Layer: 8
   m_Name: Enemy
   m_TagString: Untagged
@@ -66,7 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -137,9 +138,11 @@ MonoBehaviour:
   currentHealth: 0
   damage: 10
   attackRange: 1.5
-  attackCooldown: 1
   sightRange: 20
   patrolRadius: 10
+  attackSpeed: 1
+  moveSpeed: 3.5
+  lootMultiplier: 1
 --- !u!54 &5422292355968349380
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -189,3 +192,17 @@ NavMeshAgent:
   m_BaseOffset: 0.5
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &2381991612218161489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2875165678126979609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b977efe495dabb41b48f18a0e0a8a28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showDistance: 35
+  animSpeed: 8

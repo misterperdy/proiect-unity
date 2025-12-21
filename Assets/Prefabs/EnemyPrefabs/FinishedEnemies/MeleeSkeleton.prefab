@@ -708,6 +708,7 @@ GameObject:
   - component: {fileID: 5968278701187641690}
   - component: {fileID: 4499146637346303253}
   - component: {fileID: 1767468960397081854}
+  - component: {fileID: 8628826897838876068}
   m_Layer: 8
   m_Name: MeleeSkeleton
   m_TagString: Enemy
@@ -773,6 +774,7 @@ MonoBehaviour:
   sightRange: 20
   patrolRadius: 10
   attackSpeed: 1
+  moveSpeed: 3.5
   lootMultiplier: 1
 --- !u!195 &4499146637346303253
 NavMeshAgent:
@@ -819,6 +821,18 @@ CapsuleCollider:
   m_Height: 1.46
   m_Direction: 1
   m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &8628826897838876068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4289140126970083767}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b977efe495dabb41b48f18a0e0a8a28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4771635925631712885
 GameObject:
   m_ObjectHideFlags: 0

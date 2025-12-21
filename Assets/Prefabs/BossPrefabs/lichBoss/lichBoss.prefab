@@ -746,17 +746,33 @@ MonoBehaviour:
   currentHealth: 0
   contactDamage: 15
   sightRange: 15
-  attackCooldown: 2
   castPoint: {fileID: 992953447392925091}
   projectilePrefab: {fileID: 3277424993963009854, guid: 00685ae2ef0013741a2fec7eaedc80d4, type: 3}
-  spiralCount: 30
-  spiralSpeed: 0.1
-  zonePrefab: {fileID: 3447538671069391565, guid: 4493418d4cde4c64ba5902adb7b6aea6, type: 3}
-  zoneCount: 5
-  zoneSpawnRadius: 10
-  minionPrefab: {fileID: 2875165678126979609, guid: 06d9be8a741a20b4696b03c646975695, type: 3}
-  minionsToSummon: 3
-  healRate: 50
+  p1_spiralCount: 30
+  p1_spiralSpeed: 0.11
+  p1_spiralArms: 4
+  p1_spiralRotationStep: 9
+  p2_spiralCount: 50
+  p2_spiralSpeed: 0.12
+  p2_spiralArms: 5
+  p2_spiralRotationStep: 7
+  p2_reverseAfterWaves: 15
+  zonePrefabP1: {fileID: 0}
+  p1_zoneCount: 25
+  p1_zoneSpawnRadius: 20
+  zonePrefabP2: {fileID: 0}
+  p2_passiveZoneCount: 5
+  p2_passiveZoneInterval: 1.5
+  p3_targetedZoneInterval: 0.5
+  minionPrefabs: []
+  trans_minionsPerWave: 3
+  trans_waveInterval: 5
+  healPercentPerSecond: 5
+  p2_summonCooldown: 15
+  p2_minionsToSpawn: 3
+  p3_decayPercentPerSecond: 1.5
+  invulnShieldPrefabPhase2: {fileID: 0}
+  invulnShieldPrefabSurvivePhase: {fileID: 0}
   animator: {fileID: 1640008761992392850}
   bossHealthBar: {fileID: 2750687999453140699}
   currentState: 0

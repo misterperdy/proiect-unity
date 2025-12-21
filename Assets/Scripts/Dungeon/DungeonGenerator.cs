@@ -88,6 +88,9 @@ public class DungeonGenerator : MonoBehaviour
     [Header("NavMesh")]
     public NavMeshSurface navMeshSurface;
 
+    [Header("UI")]
+    public MinimapController minimapController; //asign in inspector
+
     // --- Internal State ---
     private int[,] grid;
     private List<Vector2Int> roomConnectionPoints = new List<Vector2Int>();
@@ -151,6 +154,17 @@ public class DungeonGenerator : MonoBehaviour
         PlaceBossGate(furthest, currentBiomeIndex, levelObj.transform);
 
         SpawnWorld(levelObj.transform, currentBiome);
+
+        //init minimap
+        if(minimapController != null && currentBiomeIndex == 0 ) // only generate first time for first level cause it generates for all of them
+        {
+            minimapController.playerTransform = player;
+            minimapController.InitializeMinimap(grid, gridSize, tileSize, currentWorldOffset);
+        }
+        else
+        {
+            Debug.LogWarning("minimap controller is null on dungeon script");
+        }
 
         if (navMeshSurface != null)
         {

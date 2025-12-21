@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class ShooterEnemy : MonoBehaviour
+public class ShooterEnemy : MonoBehaviour, IDamageable
 {
     [Header("Shooting Stats")]
     [Tooltip("Seconds between shots")]
@@ -201,6 +201,12 @@ public class ShooterEnemy : MonoBehaviour
     {
         Debug.Log("Enemy has died!");
 
+        MinimapTracker tracker = GetComponent<MinimapTracker>();
+        if (tracker != null)
+        {
+            tracker.TriggerDeathAnimation();
+        }
+        
         agent.isStopped = true;
 
         acp.ResetTrigger("isRangedAttacking");
