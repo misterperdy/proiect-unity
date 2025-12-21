@@ -38,6 +38,16 @@ public class MinimapTracker : MonoBehaviour
 
         Vector2 uiPos = new Vector2(gridX * minimap.uiTileSize, gridY * minimap.uiTileSize);
         myIcon.anchoredPosition = uiPos; // update on UI
+
+        float distToPlayer = Vector3.Distance(transform.position, minimap.playerTransform.position);
+        if (distToPlayer > 25f)
+        {
+            iconObj.SetActive(false);
+        }
+        else
+        {
+            iconObj.SetActive(true);
+        }
     }
 
     private void OnDestroy()
