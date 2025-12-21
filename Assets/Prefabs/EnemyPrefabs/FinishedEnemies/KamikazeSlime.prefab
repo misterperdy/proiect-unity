@@ -78,6 +78,7 @@ GameObject:
   - component: {fileID: 7358855410454227394}
   - component: {fileID: 1419093870979966074}
   - component: {fileID: 8932704924182411912}
+  - component: {fileID: -4001170518208073201}
   m_Layer: 0
   m_Name: KamikazeSlime
   m_TagString: Untagged
@@ -193,6 +194,18 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0.4, z: 0}
+--- !u!114 &-4001170518208073201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 972194377953240498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b977efe495dabb41b48f18a0e0a8a28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1036986274818332477
 GameObject:
   m_ObjectHideFlags: 0

@@ -22,6 +22,9 @@ public class MinimapController : MonoBehaviour
     public float uiTileSize = 40f; // leave as in the prefab
     public int radius = 2; //how much you seee ayround you
 
+    [Header("Icon Prefabs")]
+    public GameObject enemyIconPrefab;
+
     //variables for fullscreen mode switching
     private bool isFullscreen = false;
     private Vector2 startSize;
@@ -32,10 +35,10 @@ public class MinimapController : MonoBehaviour
 
     //other internal variables
     private Dictionary<Vector2Int, MinimapNode> gridNodes = new Dictionary<Vector2Int, MinimapNode>();
-    private float worldTileSize;
+    [HideInInspector] public float worldTileSize;
     private bool isInitialized = false;
     private Vector2Int lastGridPos = new Vector2Int(-999, -999);
-    private Vector3 currentLevelOffset = Vector3.zero;
+    [HideInInspector] public Vector3 currentLevelOffset = Vector3.zero;
 
     private void Start()
     {
