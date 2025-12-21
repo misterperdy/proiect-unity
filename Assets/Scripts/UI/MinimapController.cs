@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 //brain of the minimap
 
@@ -10,6 +11,7 @@ public class MinimapController : MonoBehaviour
     public RectTransform mapContainer;
     public GameObject nodePrefab;
     public Transform playerTransform;
+    public RectTransform minimapFrame;
 
     [Header("Colors")]
     public Color roomColor = new Color(0.8f, 0.8f, 0.8f, 1f);
@@ -19,11 +21,33 @@ public class MinimapController : MonoBehaviour
     public float uiTileSize = 40f; // leave as in the prefab
     public int radius = 2; //how much you seee ayround you
 
+    //variables for fullscreen mode switching
+    private bool isFullscreen = false;
+    private Vector2 startSize;
+    private Vector3 startPos;
+    private Vector2 startAnchorMin;
+    private Vector2 startAnchorMax;
+    private Vector2 startPivot;
+
+    //other internal variables
     private Dictionary<Vector2Int, MinimapNode> gridNodes = new Dictionary<Vector2Int, MinimapNode>();
     private float worldTileSize;
     private bool isInitialized = false;
     private Vector2Int lastGridPos = new Vector2Int(-999, -999);
     private Vector3 currentLevelOffset = Vector3.zero;
+
+    private void Start()
+    {
+        //save minimap state
+        if (minimapFrame != null)
+        {
+            startSize = minimapFrame.sizeDelta;
+            startPos = minimapFrame.anchoredPosition;
+            startAnchorMin = minimapFrame.anchorMin;
+            startAnchorMax = minimapFrame.anchorMax;
+            startPivot = minimapFrame.pivot;
+        }
+    }
 
     //function to be called by dungeon generator master script
     public void InitializeMinimap(int[,] grid, int gridSize, float worldTileSize, Vector3 levelOffset)
@@ -87,6 +111,46 @@ public class MinimapController : MonoBehaviour
         }
 
         UpdateMinimapState();
+
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            ToggleFullscreen();
+        }
+    }
+
+    private void ToggleFullscreen()
+    {
+        isFullscreen = !isFullscreen;
+
+        if (isFullscreen)
+        {
+            //move to center of screen and make it big
+            minimapFrame.anchorMin = new Vector2(0.5f, 0.5f);
+            minimapFrame.anchorMax = new Vector2(0.5f, 0.5f);
+            minimapFrame.pivot = new Vector2(0.5f, 0.5f);
+
+            minimapFrame.anchoredPosition = Vector2.zero;
+
+            RectTransform canvasRect = minimapFrame.parent as RectTransform;
+            float width = canvasRect.rect.width;
+            float height = canvasRect.rect.height;
+
+            minimapFrame.sizeDelta = new Vector2(width, height);
+
+            //this fucks up the position on the map, its fine for now
+            //mapContainer.localScale = new Vector3(0.5f, 0.5f, 1f);
+        }
+        else
+        {
+            //restore minimap
+            minimapFrame.anchorMin = startAnchorMin;
+            minimapFrame.anchorMax = startAnchorMax;
+            minimapFrame.pivot = startPivot;
+            minimapFrame.anchoredPosition = startPos;
+            minimapFrame.sizeDelta = startSize;
+
+            //mapContainer.localScale = Vector3.one;
+        }
     }
 
     private void UpdateMinimapState()
