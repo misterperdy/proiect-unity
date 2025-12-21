@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.U2D;
 
 // Manages all player attack logic, including switching between melee and ranged,
 // handling weapon visuals, and managing per-weapon cooldowns.
@@ -31,9 +32,17 @@ public class PlayerAttack : MonoBehaviour
     private ItemSO currentItem;
     private SwordHitbox swordHitbox;
     private List<Collider> enemiesHitThisSwing;
+    private Animator animator;
+
+    private Coroutine activeSwingCoroutine;
 
     // Stores the player's rotation at the start of a melee attack to ensure the swing is not affected by mouse movement during the animation.
     private Quaternion initialAttackRotation;
+
+    private void Awake()
+    {
+        animator = GetComponentInChildren<Animator>();
+    }
 
     private void Start()
     {
@@ -94,9 +103,11 @@ public class PlayerAttack : MonoBehaviour
                 {
                     case ItemType.Melee:
                         PerformMeleeAttack();
+                        animator.SetTrigger("t_melee");
                         break;
                     case ItemType.Ranged:
                         PerformRangedAttack();
+                        animator.SetTrigger("t_shoot");
                         break;
                 }
             }
@@ -158,9 +169,17 @@ public class PlayerAttack : MonoBehaviour
         float finalCooldown = currentItem.attackCooldown / currentItem.fireRateMultiplier;
         slotCooldownEndTimes[activeSlot] = Time.time + finalCooldown;
 
+        if (activeSwingCoroutine != null)
+        {
+            StopCoroutine(activeSwingCoroutine);
+        }
+
+        ResetMeleeVisuals();
+
         enemiesHitThisSwing = new List<Collider>();
         initialAttackRotation = transform.rotation;
-        StartCoroutine(AnimateMeleeSwing());
+
+        activeSwingCoroutine = StartCoroutine(AnimateMeleeSwing());
     }
 
     void UseExplosionAbility()
@@ -261,8 +280,14 @@ public class PlayerAttack : MonoBehaviour
 
         float elapsedTime = 0f;
         bool swingLeftToRight = Random.value > 0.5f; // Randomize swing direction for variety.
+
+        swingLeftToRight = false;
+
         float startAngle = swingLeftToRight ? -attackAngle / 2 : attackAngle / 2;
         float endAngle = swingLeftToRight ? attackAngle / 2 : -attackAngle / 2;
+
+        //get from animation of melee swing
+        attackDuration = 0.47f;
 
         while (elapsedTime < attackDuration)
         {
@@ -278,8 +303,23 @@ public class PlayerAttack : MonoBehaviour
             yield return null; // Wait for the next frame.
         }
 
-        // Reset the pivot's rotation so it's aligned for the next attack.
-        meleeAttackPivot.localRotation = Quaternion.identity;
-        meleeWeaponVisual.SetActive(false);
+        ResetMeleeVisuals();
+
+        activeSwingCoroutine = null;
+    }
+
+    private void ResetMeleeVisuals()
+    {
+        if (meleeAttackPivot != null)
+        {
+            meleeAttackPivot.localRotation = Quaternion.identity;
+        }
+
+        if (meleeWeaponVisual != null)
+        {
+            meleeWeaponVisual.SetActive(false);
+        }
+
+        activeSwingCoroutine = null;
     }
 }
