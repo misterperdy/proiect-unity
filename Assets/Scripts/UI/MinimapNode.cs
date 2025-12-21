@@ -8,12 +8,14 @@ public class MinimapNode : MonoBehaviour
 {
     public Image nodeImage;
     public Color nodeOriginalColor;
+    public int tileType;
     public bool isDiscovered = false;
 
-    public void Initialize(Color color)
+    public void Initialize(Color color, int type)
     {
         nodeImage = GetComponent<Image>();
         nodeOriginalColor = color;
+        tileType = type;
 
         Hide();
     }
@@ -35,7 +37,7 @@ public class MinimapNode : MonoBehaviour
         if (nodeImage == null) return;
 
         Color c = nodeOriginalColor;
-        c.a = 0.3f; // set alpha to 30%
+        c.a = 0.2f; // set alpha
         nodeImage.color = c;
     }
 

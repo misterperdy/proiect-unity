@@ -13,8 +13,7 @@ public class MinimapController : MonoBehaviour
 
     [Header("Colors")]
     public Color roomColor = new Color(0.8f, 0.8f, 0.8f, 1f);
-    public Color hallwayColor = new Color(0.4f, 0.4f, 0.4f, 1f);
-    //there is also door type in the map matrix but we set it as hallway color to look better in the minimap
+    public Color hallwayColor = new Color(0.6f, 0.8f, 1f, 1f);
 
     [Header("Config")]
     public float uiTileSize = 40f; // leave as in the prefab
@@ -47,15 +46,17 @@ public class MinimapController : MonoBehaviour
                 int type = grid[x, y];
 
                 //empty
-                if (type == 0) continue;
+                if (type != 1 && type != 2 && type != 3) continue;
 
                 //if not empty,determine color
 
                 Color targetColor = roomColor; // type 1 - room
-                if(type == 2 || type == 3)
+                if(type == 2)
                 {
-                    targetColor = hallwayColor; // type 2(hallway) , type 3(door) - hallway color
+                    targetColor = hallwayColor; // type 2(hallway)
                 }
+
+                //type 3-door
 
                 //instatitnate on UI
                 GameObject newNode = Instantiate(nodePrefab, mapContainer);
@@ -67,7 +68,7 @@ public class MinimapController : MonoBehaviour
                 //init script
                 MinimapNode nodeScript = newNode.GetComponent<MinimapNode>();
 
-                nodeScript.Initialize(targetColor);
+                nodeScript.Initialize(targetColor, type);
 
                 //save in dictionary
                 gridNodes.Add(new Vector2Int(x, y), nodeScript);
@@ -114,7 +115,25 @@ public class MinimapController : MonoBehaviour
 
     private void DiscoverArea(Vector2Int center)
     {
-        for(int x = -radius; x <= radius; x++)
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                Vector2Int neighbor = center + new Vector2Int(x, y);
+
+                if (gridNodes.ContainsKey(neighbor))
+                {
+                    MinimapNode node = gridNodes[neighbor];
+
+                    if (node.tileType == 1 && !node.isDiscovered)
+                    {
+                        RevealEntireRoom(neighbor);
+                    }
+                }
+            }
+        }
+
+        for (int x = -radius; x <= radius; x++)
         {
             for(int y = -radius; y <= radius; y++)
             {
@@ -122,16 +141,63 @@ public class MinimapController : MonoBehaviour
 
                 if (gridNodes.ContainsKey(posToCheck))
                 {
+                    MinimapNode node = gridNodes[posToCheck];
+
+                    if (node.isDiscovered) continue;
+
                     float dist = Vector2Int.Distance(center, posToCheck);
 
-                    //decide whta to do 
-                    if(dist < 1.5f)
+                    if (dist < 1.5f)
                     {
-                        gridNodes[posToCheck].ShowVisited();
+                        node.ShowVisited();
                     }
                     else
                     {
-                        gridNodes[posToCheck].ShowDiscovered();
+                        node.ShowDiscovered();
+                    }
+                }
+            }
+        }
+    }
+
+    void RevealEntireRoom(Vector2Int startNode)
+    {
+        Queue<Vector2Int> nodesToCheck = new Queue<Vector2Int>();
+        nodesToCheck.Enqueue(startNode);
+
+        HashSet<Vector2Int> checkedNodes = new HashSet<Vector2Int>();
+        checkedNodes.Add(startNode);
+
+        while (nodesToCheck.Count > 0)
+        {
+            Vector2Int current = nodesToCheck.Dequeue();
+
+            if (gridNodes.ContainsKey(current))
+            {
+                MinimapNode node = gridNodes[current];
+                node.ShowVisited();
+
+                if (node.tileType == 1)
+                {
+                    Vector2Int[] dirs = {
+                        Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right,
+                        new Vector2Int(1, 1), new Vector2Int(1, -1), new Vector2Int(-1, 1), new Vector2Int(-1, -1)
+                    };
+
+                    foreach (Vector2Int d in dirs)
+                    {
+                        Vector2Int neighborPos = current + d;
+
+                        if (!checkedNodes.Contains(neighborPos) && gridNodes.ContainsKey(neighborPos))
+                        {
+                            MinimapNode neighborNode = gridNodes[neighborPos];
+
+                            if (neighborNode.tileType == 1)
+                            {
+                                nodesToCheck.Enqueue(neighborPos);
+                                checkedNodes.Add(neighborPos);
+                            }
+                        }
                     }
                 }
             }
