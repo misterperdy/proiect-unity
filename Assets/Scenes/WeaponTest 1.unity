@@ -629,7 +629,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd4d5b459c7c0c340b404648c6403a7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefab: {fileID: 2875165678126979609, guid: 06d9be8a741a20b4696b03c646975695, type: 3}
+  enemyPrefab: {fileID: 4289140126970083767, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
   numberOfEnemies: 10
   floor: {fileID: 1874783073}
   spawnDelay: 2

@@ -5,7 +5,7 @@ public class ShooterEnemy : MonoBehaviour
 {
     [Header("Shooting Stats")]
     [Tooltip("Seconds between shots")]
-    public float fireRate = 2f;
+    public float fireRateMultiplier = 3f;
     [Tooltip("Number of bullets per shot")]
     public int bulletsPerShot = 1;
     [Tooltip("Total angle of the spread")]
@@ -22,15 +22,22 @@ public class ShooterEnemy : MonoBehaviour
     public GameObject projectilePrefab;
     public Transform firePoint;
 
+    [Header("Loot")]
+    public float lootMultiplier = 1f;
+    public int projectileDamage = 10; // New variable to control bullet damage
+
     private NavMeshAgent agent;
     private Transform player;
     private float nextFireTime;
+    private Animator acp;
+    private bool isDead = false;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         agent.speed = moveSpeed;
-        
+        acp = GetComponent<Animator>();
+
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
         {
@@ -46,7 +53,7 @@ public class ShooterEnemy : MonoBehaviour
 
     void Update()
     {
-        if (player == null) return;
+        if (player == null || isDead) return;
 
         // Update speed in case it was changed in Inspector
         if (agent != null)
@@ -59,6 +66,7 @@ public class ShooterEnemy : MonoBehaviour
         // Check if player is within view range
         if (distanceToPlayer <= viewRange)
         {
+            acp.SetBool("isChasing", true);
             EngagePlayer(distanceToPlayer);
         }
         else
@@ -71,6 +79,21 @@ public class ShooterEnemy : MonoBehaviour
         }
     }
 
+    public void SetupEnemy(int hp, int dmg, float fireRateMult, int BPS, float spreadAng,
+        int aimErr, Color color, float lootMult)
+    {
+        maxHealth = hp;
+        currentHealth = hp;
+        projectileDamage = dmg; // Pass this to the projectile later
+        fireRateMultiplier = fireRateMult;
+        bulletsPerShot = BPS;
+        spreadAngle = spreadAng;
+        lootMultiplier = lootMult;
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (var r in renderers) r.material.color = color;
+    }
+
     void EngagePlayer(float distance)
     {
         // Movement Logic: Maintain distance
@@ -80,7 +103,7 @@ public class ShooterEnemy : MonoBehaviour
         
         Vector3 directionToPlayer = (player.position - transform.position).normalized;
         Vector3 targetPosition = player.position - (directionToPlayer * maintainDistance);
-        
+
         agent.SetDestination(targetPosition);
 
         // Rotation: Always face the player when engaged
@@ -88,15 +111,18 @@ public class ShooterEnemy : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
 
         // Shooting Logic
-        if (Time.time >= nextFireTime)
-        {
-            Shoot();
-            nextFireTime = Time.time + fireRate;
-        }
+      
+          acp.SetFloat("rangedAnimationSpeed", fireRateMultiplier);
+          acp.SetTrigger("isRangedAttacking");
+
+
+        //acp.ResetTrigger("isRangedAttacking");
     }
 
-    void Shoot()
+    public void Shoot()
     {
+        projectilePrefab.GetComponent<EnemyProjectile>().damage = projectileDamage;
+
         if (projectilePrefab == null)
         {
             Debug.LogWarning("ShooterEnemy: Projectile Prefab is null!");
@@ -104,7 +130,7 @@ public class ShooterEnemy : MonoBehaviour
         }
 
         // Debug logs to diagnose shooting issues
-        Debug.Log($"ShooterEnemy: Shooting! Rate: {fireRate}, Bullets: {bulletsPerShot}, Spread: {spreadAngle}");
+        Debug.Log($"ShooterEnemy: Shooting! Rate: {fireRateMultiplier}, Bullets: {bulletsPerShot}, Spread: {spreadAngle}");
 
         // Calculate base rotation towards player
         Vector3 directionToPlayer = (player.position - firePoint.position).normalized;
@@ -173,6 +199,18 @@ public class ShooterEnemy : MonoBehaviour
 
     void Die()
     {
-        Destroy(gameObject);
+        Debug.Log("Enemy has died!");
+
+        agent.isStopped = true;
+
+        acp.ResetTrigger("isRangedAttacking");
+        acp.SetBool("isChasing", false);
+        acp.SetTrigger("isDead");
+        StopAllCoroutines();
+
+        Collider col = GetComponent<Collider>();
+        if (col) col.enabled = false;
+        isDead = true;
+        Destroy(gameObject, 2f);
     }
 }
