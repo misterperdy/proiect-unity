@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 2633275876287703715}
   - component: {fileID: 1400992426043857957}
   - component: {fileID: 3575017346560760119}
+  - component: {fileID: 8312666646044690558}
   m_Layer: 8
   m_Name: KamikazeEnemy
   m_TagString: Untagged
@@ -108,6 +109,9 @@ MonoBehaviour:
   sightRange: 20
   patrolRadius: 10
   triggerDistance: 2.5
+  explosion: {fileID: 0}
+  body: {fileID: 0}
+  lootMultiplier: 1
 --- !u!65 &2060343997929257728
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -190,3 +194,16 @@ NavMeshAgent:
   m_BaseOffset: 0.5
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &8312666646044690558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5889046879607465386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b977efe495dabb41b48f18a0e0a8a28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animSpeed: 8

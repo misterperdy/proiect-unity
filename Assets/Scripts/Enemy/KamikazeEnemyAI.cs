@@ -241,6 +241,12 @@ public class KamikazeEnemyAI : MonoBehaviour
 
     void Die()
     {
+        MinimapTracker tracker = GetComponent<MinimapTracker>();
+        if (tracker != null)
+        {
+            tracker.TriggerDeathAnimation(); 
+        }
+
         Destroy(gameObject);
     }
 

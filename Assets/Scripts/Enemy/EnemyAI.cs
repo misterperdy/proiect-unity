@@ -238,6 +238,12 @@ public class EnemyAI : MonoBehaviour
     {
         Debug.Log("Enemy has died!");
 
+        MinimapTracker tracker = GetComponent<MinimapTracker>();
+        if (tracker != null)
+        {
+            tracker.TriggerDeathAnimation();
+        }
+
         agent.isStopped = true;
 
         acp.ResetTrigger("isMeleeAttacking" + randomNumber);
