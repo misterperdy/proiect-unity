@@ -28,8 +28,15 @@ public class PlayerMovement : MonoBehaviour
         //create a vector with the inputs from the 2 axis
         moveVector = new Vector3(moveX, 0f, moveZ).normalized;
 
-        if (moveX != 0 || moveZ != 0) animator.SetBool("isWalking", true);
-        else animator.SetBool("isWalking", false);
+        //pass variables to animator
+        Quaternion flatRotation = Quaternion.Euler(0, transform.eulerAngles.y, 0);
+        Vector3 localMove = Quaternion.Inverse(flatRotation) * moveVector;
+        if (localMove.magnitude < 0.05f)
+        {
+            localMove = Vector3.zero;
+        }
+        animator.SetFloat("InputX", localMove.x, 0.01f, Time.deltaTime);
+        animator.SetFloat("InputZ", localMove.z, 0.01f, Time.deltaTime);
     }
 
     //function to handle physics that runs constantly

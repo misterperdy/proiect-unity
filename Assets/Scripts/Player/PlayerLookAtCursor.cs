@@ -8,6 +8,8 @@ public class PlayerLookAtCursor : MonoBehaviour
     private Rigidbody rb;
     private Camera cam;
 
+    public LayerMask aimLayers;
+
     private Vector3 targetDirection;
 
     private void Start()
@@ -19,7 +21,7 @@ public class PlayerLookAtCursor : MonoBehaviour
     void Update()
     {
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        if (Physics.Raycast(ray, out RaycastHit hit, 1000f, aimLayers))
         {
             Vector3 targetPosition = hit.point;
             targetPosition.y = transform.position.y;

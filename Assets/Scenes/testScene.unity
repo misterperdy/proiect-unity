@@ -2943,6 +2943,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3487016196604326121, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
+      propertyPath: aimLayers.m_Bits
+      value: 887
+      objectReference: {fileID: 0}
     - target: {fileID: 4929837257510911764, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
       propertyPath: m_Name
       value: player
