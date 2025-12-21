@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class DashBoss : MonoBehaviour
+public class DashBoss : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
     public int maxHealth = 200;

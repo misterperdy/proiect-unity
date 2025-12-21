@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LichBoss : MonoBehaviour
+public class LichBoss : MonoBehaviour, IDamageable
 {
     [Header("General Stats")]
     public int maxHealth = 1500;

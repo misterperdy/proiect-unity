@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class ShooterEnemy : MonoBehaviour
+public class ShooterEnemy : MonoBehaviour, IDamageable
 {
     [Header("Shooting Stats")]
     [Tooltip("Seconds between shots")]

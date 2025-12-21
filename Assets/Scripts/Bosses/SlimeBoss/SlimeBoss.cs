@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SlimeBoss : MonoBehaviour
+public class SlimeBoss : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
     public int maxHealth = 1500;

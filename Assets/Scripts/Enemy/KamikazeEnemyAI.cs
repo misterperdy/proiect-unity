@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class KamikazeEnemyAI : MonoBehaviour
+public class KamikazeEnemyAI : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
     public int maxHealth = 30;

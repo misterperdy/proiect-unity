@@ -228,46 +228,13 @@ public class PlayerAttack : MonoBehaviour
         enemiesHitThisSwing.Add(enemyCollider);
 
         float currentDamage = (currentItem != null) ? currentItem.damage : 10f;
-        
-        EnemyAI enemy = enemyCollider.GetComponent<EnemyAI>();
-        if (enemy != null)
-        {
-            enemy.TakeDamage((int)currentDamage);
-        }
 
-        //also chjeck if its a boss
-        DashBoss dashBoss = enemyCollider.GetComponent<DashBoss>();
-        SlimeBoss slimeBoss = enemyCollider.GetComponent<SlimeBoss>();
-        LichBoss lichBoss = enemyCollider.GetComponent<LichBoss>();
+        //replaced all the checks with interface
+        IDamageable damageableTarget = enemyCollider.GetComponent<IDamageable>();
 
-        if (dashBoss != null)
+        if (damageableTarget != null)
         {
-            dashBoss.TakeDamage((int)currentDamage);
-        }
-        
-        if (slimeBoss != null)
-        {
-            slimeBoss.TakeDamage((int)currentDamage);  
-        }
-
-        if (lichBoss != null)
-        {
-            lichBoss.TakeDamage((int)currentDamage);
-        }
-
-        //also check if it's explosive enemy
-        KamikazeEnemyAI explosive = enemyCollider.GetComponent<KamikazeEnemyAI>();
-        if (explosive != null)
-        {
-            explosive.TakeDamage((int)currentDamage);
-        }
-
-
-        // Check for ShooterEnemy
-        ShooterEnemy shooter = enemyCollider.GetComponent<ShooterEnemy>();
-        if (shooter != null)
-        {
-            shooter.TakeDamage((int)currentDamage);
+            damageableTarget.TakeDamage((int)currentDamage);
         }
     }
 
