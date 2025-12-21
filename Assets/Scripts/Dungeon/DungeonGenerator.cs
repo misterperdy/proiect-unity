@@ -2,39 +2,75 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Unity.AI.Navigation;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 
 public class DungeonGenerator : MonoBehaviour
 {
-    // Simple enum to help us visualize which side the door is on
     public enum DoorSide { Top, Right, Bottom, Left }
 
+    [System.Serializable]
+    public struct BiomeConfig
+    {
+        public string name;
+        public int roomCount;
+        public Material floorMaterial;
+        public Material wallMaterial;
+
+        [Header("Enemies")]
+        public List<GameObject> enemyPrefabs;
+        public float statMultiplier; // e.g. 1.0 for Biome 1, 1.5 for Biome 2
+
+        [Header("Enemy Settings")]
+        public int minEnemies; 
+        public int maxEnemies;
+    }
+
+    [Header("Enemy Rarity Settings")]
+    public RoomEnemySpawner.RaritySettings[] rarityDefinitions;
+
+    [Header("Spawn Settings")]
+    public float distanceDifficultyFactor = 0.05f;
+
     [Header("Grid Settings")]
-    public int gridSize = 60; // How big the total map is
-    public float tileSize = 9.5f; // Matches the physical size of the room assets
+    public int gridSize = 250; // Increased for 40+ rooms
+    public float tileSize = 9.5f;
+    public Vector3 levelDistanceOffset = new Vector3(0, 0, 1000);
+
+    [Header("Biomes & Progression")]
+    public List<BiomeConfig> biomes;
+    public int currentBiomeIndex = 0;
 
     [Header("Player")]
-    public Transform player; // We move this object to the start room when done
+    public Transform player;
+
+    [Header("Weapons")]
+    public GameObject meleeWeapon;
+    public GameObject rangedWeapon;
 
     [Header("Start Room")]
     public GameObject startRoomPrefab;
     public int startRoomWidth = 5;
     public int startRoomHeight = 2;
-    // We set this to 2, 2 because the room is height 2, so Y=2 is just outside the top wall
     public Vector2Int startRoomDoorOffset = new Vector2Int(2, 2);
+
+    [Header("Boss Room")]
+    public GameObject bossRoomPrefab;
+    public int bossRoomSize = 5;
+    public Vector2Int bossEntryOffset = new Vector2Int(2, 0);
+    public Vector2Int bossExitOffset = new Vector2Int(2, 6);
 
     [Header("Standard Rooms")]
     public RoomGenerator roomGeneratorPrefab;
-    public int numberOfRooms = 6;
     public int minRoomSize = 3;
     public int maxRoomSize = 6;
 
     [Header("Generation Logic")]
-    [Range(0f, 1f)] public float layerSpawnChance = 0.5f; // Chance to spawn extra rooms in a spiral layer
+    [Range(0f, 1f)] public float layerSpawnChance = 0.6f;
 
     [Header("Rotation Logic")]
-    // Since our logic assumes the door is at y=1 on a height-2 room, that is the Top side
     public DoorSide prefabDefaultDoorSide = DoorSide.Top;
-    [Range(0, 270)] public int globalRotationFix = 0; // Use this if everything is facing the wrong way
+    [Range(0, 270)] public int globalRotationFix = 0;
 
     [Header("Adjustments")]
     public float roomVisualNudgeX = 0f;
@@ -49,445 +85,288 @@ public class DungeonGenerator : MonoBehaviour
     [Header("Container")]
     public Transform dungeonContainer;
 
-    // The main grid where 0 is empty, 1 is room, 2 is hallway, 3 is a door connection
+    [Header("NavMesh")]
+    public NavMeshSurface navMeshSurface;
+
+    // --- Internal State ---
     private int[,] grid;
     private List<Vector2Int> roomConnectionPoints = new List<Vector2Int>();
-    private List<Vector2Int> debugPath = new List<Vector2Int>();
+    private Vector3 currentWorldOffset = Vector3.zero;
+    private int[,] tileBiomeMap;
     private Vector2Int startRoomCenter;
 
-    // A helper struct to keep our door math organized
     struct DoorInfo
     {
-        public Vector2Int gridPos;   // The tile inside the room (the door itself)
-        public Vector2Int stepPos;   // The tile outside the room (where the hallway connects)
-        public Vector2Int dir;       // Which way points out of the room
+        public Vector2Int gridPos;
+        public Vector2Int stepPos;
+        public Vector2Int dir;
     }
-
-    private bool even;
 
     void Start()
     {
-        GenerateDungeon();
+        if (navMeshSurface == null) navMeshSurface = GetComponent<NavMeshSurface>();
+
+        GenerateCurrentLevel();
+        GenerateNextLevel();
+        GenerateNextLevel();
+        GenerateNextLevel();
     }
 
-    public void GenerateDungeon()
+    public void GenerateNextLevel()
     {
-        // Initialize the empty grid and clear old lists
+        currentBiomeIndex++;
+        if (currentBiomeIndex >= biomes.Count)
+        {
+            currentBiomeIndex = biomes.Count - 1;
+        }
+
+        currentWorldOffset += levelDistanceOffset;
+        GenerateCurrentLevel();
+    }
+
+    void GenerateCurrentLevel()
+    {
         grid = new int[gridSize, gridSize];
+        tileBiomeMap = new int[gridSize, gridSize];
         roomConnectionPoints.Clear();
-        debugPath.Clear();
 
-        // Delete any old dungeon objects so we have a clean slate
-        if (dungeonContainer != null)
-            foreach (Transform child in dungeonContainer) Destroy(child.gameObject);
+        for (int x = 0; x < gridSize; x++)
+            for (int y = 0; y < gridSize; y++)
+                tileBiomeMap[x, y] = -1;
 
-        // Step 1 is placing the fixed start room
-        PlaceStartRoom();
+        GameObject levelObj = new GameObject("Level_" + currentBiomeIndex);
+        if (dungeonContainer != null) levelObj.transform.parent = dungeonContainer;
 
-        // Step 2 is spiraling out to place random rooms
-        PlaceRoomsSpiralLayers();
+        Vector2Int center = new Vector2Int(gridSize / 2, gridSize / 2);
 
-        // Step 3 ensures we connect to the closest room first to avoid long weird hallways
-        SortConnectionPointsByDistance();
+        BiomeConfig currentBiome = biomes[currentBiomeIndex];
 
-        // Step 4 actually calculates the paths
-        ConnectRoomsWithAStar();
+        PlaceStartRoom(center, levelObj.transform, currentBiome);
 
-        // Step 5 spawns the hallway prefabs based on the grid data
-        SpawnWorld();
+        List<Vector2Int> biomeRooms = PlaceBiomeRooms(currentBiome, currentBiomeIndex, center, levelObj.transform);
+
+        ConnectSpecificRooms(biomeRooms);
+
+        Vector2Int furthest = GetFurthestRoom(biomeRooms, center);
+        PlaceBossGate(furthest, currentBiomeIndex, levelObj.transform);
+
+        SpawnWorld(levelObj.transform, currentBiome);
+
+        if (navMeshSurface != null)
+        {
+            // Update the NavMeshSurface to point to the container if needed, 
+            // or ensure the Generator is the parent of the container.
+            navMeshSurface.BuildNavMesh();
+        }
     }
 
-    void PlaceStartRoom()
+    void PlaceStartRoom(Vector2Int center, Transform levelParent, BiomeConfig theme)
     {
-        // Calculate the center of the grid to place our first room
-        int x = gridSize / 2 - (startRoomWidth / 2);
-        int y = gridSize / 2 - (startRoomHeight / 2);
+        int x = center.x - (startRoomWidth / 2);
+        int y = center.y - (startRoomHeight / 2);
         startRoomCenter = new Vector2Int(x + startRoomWidth / 2, y + startRoomHeight / 2);
 
-        // We use rotation 180 here to ensure the door faces the right way for the start room
         DoorInfo door = GetRotatedDoorInfo(x, y, startRoomWidth, startRoomHeight, 180, startRoomDoorOffset);
 
-        // Safety check to make sure we didn't try to spawn outside the map
         if (!IsInsideGrid(door.stepPos)) return;
 
-        // Mark the grid so hallways know not to walk through this room
         MarkPadding(x, y, startRoomWidth, startRoomHeight);
-        MarkRoom(x, y, startRoomWidth, startRoomHeight);
+        MarkRoom(x, y, startRoomWidth, startRoomHeight, 0);
 
-        // Set the connection point
         grid[door.stepPos.x, door.stepPos.y] = 3;
+        tileBiomeMap[door.stepPos.x, door.stepPos.y] = 0;
         roomConnectionPoints.Add(door.stepPos);
+
         ClearEntryPoint(door.stepPos, door.dir);
 
-        // Calculate visual position for the prefab
         float cx = ((startRoomWidth - 1) * tileSize) / 2f;
         float cy = ((startRoomHeight - 1) * tileSize) / 2f;
-        Vector3 finalPos = new Vector3((x * tileSize) + cx, 0, (y * tileSize) + cy);
+        Vector3 finalPos = new Vector3((x * tileSize) + cx, 0, (y * tileSize) + cy) + currentWorldOffset;
 
-        // Instantiate the room and move the player there
-        Instantiate(startRoomPrefab, finalPos, Quaternion.identity, dungeonContainer);
-        if (player != null)
+        GameObject startRoomObj = Instantiate(startRoomPrefab, finalPos, Quaternion.identity, levelParent);
+        ApplyThemeRecursively(startRoomObj, theme);
+        Instantiate(meleeWeapon, finalPos + Vector3.up + Vector3.right*3, Quaternion.identity, levelParent);
+        Instantiate(rangedWeapon, finalPos + Vector3.up + Vector3.left*3, Quaternion.identity, levelParent);
+
+        if (player != null && currentBiomeIndex==0)
         {
-            // Teleport the Transform and reset physics so the player doesn't carry momentum
             player.position = finalPos + new Vector3(0, 2, 0);
-
             Rigidbody playerRb = player.GetComponent<Rigidbody>();
-            if (playerRb != null)
-            {
-                playerRb.velocity = Vector3.zero;
-                playerRb.position = player.position;
-            }
-
+            if (playerRb != null) { playerRb.velocity = Vector3.zero; playerRb.position = player.position; }
             player.rotation = Quaternion.identity;
         }
     }
 
-    void PlaceRoomsSpiralLayers()
+    List<Vector2Int> PlaceBiomeRooms(BiomeConfig biome, int biomeIndex, Vector2Int center, Transform levelParent)
     {
+        List<Vector2Int> placedRooms = new List<Vector2Int>();
+        placedRooms.Add(center);
+
         int roomsPlaced = 0;
-        int maxRoomsToAdd = numberOfRooms - 1;
+        int targetRooms = biome.roomCount;
 
-        // Get a list of coordinates spiraling out from the center
-        List<Vector2Int> allSpiralPoints = GenerateSpiralPoints();
-        Dictionary<int, List<Vector2Int>> layers = new Dictionary<int, List<Vector2Int>>();
-        int centerX = gridSize / 2;
-        int centerY = gridSize / 2;
+        // Increased Loop Limit happens here
+        List<Vector2Int> spiralPoints = GenerateSpiralPoints(center);
 
-        // Group these points into layers or rings around the center
-        foreach (Vector2Int p in allSpiralPoints)
+        for (int i = 1; i < spiralPoints.Count; i++)
         {
-            int dist = Mathf.Max(Mathf.Abs(p.x - centerX), Mathf.Abs(p.y - centerY));
-            if (!layers.ContainsKey(dist)) layers.Add(dist, new List<Vector2Int>());
-            layers[dist].Add(p);
-        }
+            if (roomsPlaced >= targetRooms) break;
 
-        // Iterate through each layer ring
-        foreach (var layerIndex in layers.Keys.OrderBy(k => k))
-        {
-            if (roomsPlaced >= maxRoomsToAdd) break;
-            if (layerIndex == 0) continue;
+            Vector2Int pos = spiralPoints[i];
 
-            // Shuffle the points in this layer so we don't always pick the top-left one
-            List<Vector2Int> candidates = layers[layerIndex].OrderBy(x => Random.value).ToList();
-            bool placedOneInThisLayer = false;
-
-            foreach (Vector2Int pos in candidates)
+            bool forceFirst = (roomsPlaced == 0);
+            if (Random.value < layerSpawnChance || forceFirst)
             {
-                if (roomsPlaced >= maxRoomsToAdd) break;
+                int randW = Random.Range(minRoomSize, maxRoomSize + 1);
+                int randH = Random.Range(minRoomSize, maxRoomSize + 1);
+                if (randW % 2 == 0) randW = (Random.Range(0, 2) % 2 == 0) ? randW - 1 : randW + 1;
 
-                // We guarantee at least one room per layer, then rely on chance for more
-                bool shouldTry = !placedOneInThisLayer || (Random.value < layerSpawnChance);
-
-                if (shouldTry)
+                if (TryPlaceRoom(pos.x, pos.y, randW, randH, center, biome, biomeIndex, levelParent))
                 {
-                    // Pick a random size for this specific room
-                    int randW = Random.Range(minRoomSize, maxRoomSize + 1);
-                    int randH = Random.Range(minRoomSize, maxRoomSize + 1);
+                    float rot = CalculateRotationTowardsTarget(pos.x, pos.y, randW, randH, center);
 
-                    // Force odd/even adjustments if needed logic was here, simplified for now
-                    if (randW % 2 == 0) randW = (Random.Range(0, 2) % 2 == 0) ? randW = randW - 1 : randW = randW + 1;
+                    int dx = randW / 2;
+                    int dy = 0;
 
-                    if (TryPlaceRoom(pos.x, pos.y, randW, randH))
-                    {
-                        roomsPlaced++;
-                        placedOneInThisLayer = true;
-                    }
+                    Vector2Int dp = GetRotatedDoorInfo(pos.x, pos.y, randW, randH, rot, new Vector2Int(dx, dy)).stepPos;
+
+                    placedRooms.Add(dp);
+                    roomsPlaced++;
                 }
             }
         }
+        return placedRooms;
     }
 
-    bool TryPlaceRoom(int x, int y, int rawW, int rawH)
+    bool TryPlaceRoom(int x, int y, int w, int h, Vector2Int target, BiomeConfig theme, int biomeIndex, Transform levelParent)
     {
-        // First we figure out which way this room should face to look at the start room
-        float rotation = CalculateRotationTowardsStart(x, y, rawW, rawH);
+        float rotation = CalculateRotationTowardsTarget(x, y, w, h, target);
 
-        // We calculate the local door position dynamically based on the random size we just picked
-        // This ensures the door is always centered on the wall
-        int doorIndexX = rawW / 2;
+        int doorIndexX = w / 2;
         int doorIndexY = 0;
-
         Vector2Int localDoorPos = new Vector2Int(doorIndexX, doorIndexY);
 
-        // If rotated sideways 90 or 270 degrees, the width and height occupied on the grid swap
-        int occupiedW = rawW;
-        int occupiedH = rawH;
-        bool isSideways = Mathf.Approximately(Mathf.Abs(rotation - 90), 0) || Mathf.Approximately(Mathf.Abs(rotation - 270), 0);
-        if (isSideways) { occupiedW = rawH; occupiedH = rawW; }
+        int gridDy = doorIndexY;
+        if (prefabDefaultDoorSide == DoorSide.Top) gridDy += 1;
+        else if (prefabDefaultDoorSide == DoorSide.Bottom) gridDy -= 1;
 
-        // Check if we are out of bounds
+        int occupiedW = w; int occupiedH = h;
+        bool isSideways = Mathf.Approximately(Mathf.Abs(rotation - 90), 0) || Mathf.Approximately(Mathf.Abs(rotation - 270), 0);
+        if (isSideways) { occupiedW = h; occupiedH = w; }
+
+        if (!IsInsideGrid(new Vector2Int(x, y))) return false;
         if (x < 4 || y < 4 || x > gridSize - occupiedW - 4 || y > gridSize - occupiedH - 4) return false;
 
         if (IsAreaClear(x, y, occupiedW, occupiedH))
         {
-            // Calculate where the connection point lands on the grid
-            DoorInfo door = GetRotatedDoorInfo(x, y, rawW, rawH, rotation, localDoorPos);
+            DoorInfo door = GetRotatedDoorInfo(x, y, w, h, rotation, new Vector2Int(doorIndexX, gridDy));
 
-            if (!IsInsideGrid(door.stepPos)) return false;
-            // Make sure we aren't connecting into an existing wall
-            if (grid[door.stepPos.x, door.stepPos.y] != 0) return false;
+            if (!IsInsideGrid(door.stepPos) || grid[door.stepPos.x, door.stepPos.y] != 0) return false;
 
-            // Commit the room to the grid data
             MarkPadding(x, y, occupiedW, occupiedH);
-            MarkRoom(x, y, occupiedW, occupiedH);
+            MarkRoom(x, y, occupiedW, occupiedH, biomeIndex);
 
             grid[door.stepPos.x, door.stepPos.y] = 3;
-            roomConnectionPoints.Add(door.stepPos);
+            tileBiomeMap[door.stepPos.x, door.stepPos.y] = biomeIndex;
+
             ClearEntryPoint(door.stepPos, door.dir);
 
-            // Calculate the visual center position
             float midX = x + (occupiedW - 1) / 2f;
             float midY = y + (occupiedH - 1) / 2f;
-            Vector3 finalPos = new Vector3(midX * tileSize, 0, midY * tileSize);
+            Vector3 finalPos = new Vector3(midX * tileSize, 0, midY * tileSize) + currentWorldOffset;
 
-            // Apply visual nudge logic if needed for rotation alignment
-            if (isSideways)
-            {
-                finalPos.x += roomVisualNudgeZ;
-                finalPos.z += roomVisualNudgeX;
-            }
-            else
-            {
-                finalPos.x += roomVisualNudgeX;
-                finalPos.z += roomVisualNudgeZ;
-            }
+            if (isSideways) { finalPos.x += roomVisualNudgeZ; finalPos.z += roomVisualNudgeX; }
+            else { finalPos.x += roomVisualNudgeX; finalPos.z += roomVisualNudgeZ; }
 
-            // Spawn the empty room object
-            GameObject roomObj = Instantiate(roomGeneratorPrefab.gameObject, finalPos, Quaternion.Euler(0, rotation, 0), dungeonContainer);
+            GameObject roomObj = Instantiate(roomGeneratorPrefab.gameObject, finalPos, Quaternion.Euler(0, rotation, 0), levelParent);
 
-            // Tell the room script to actually build the walls and floors
-            roomObj.GetComponent<RoomGenerator>().BuildRoom(rawW, rawH, localDoorPos);
+            roomObj.GetComponent<RoomGenerator>().BuildRoom(w, h, localDoorPos, theme.floorMaterial, theme.wallMaterial);
+
+            RoomEnemySpawner spawner = roomObj.AddComponent<RoomEnemySpawner>();
+
+            float dist = Vector2.Distance(startRoomCenter, new Vector2(x, y));
+            float diffMult = 1.0f + (dist * distanceDifficultyFactor);
+
+            spawner.Initialize(
+                theme.enemyPrefabs,
+                diffMult,
+                theme.statMultiplier,
+                rarityDefinitions,
+                theme.minEnemies,
+                theme.maxEnemies,
+                w,      
+                h,     
+                tileSize
+            );
+
 
             return true;
         }
         return false;
     }
 
-    // This function handles the discrete math to find where the door is after rotation
-    // It prevents floating point errors from messing up the grid alignment
-    DoorInfo GetRotatedDoorInfo(int x, int y, int w, int h, float rotation, Vector2Int localDoor)
+    Vector2Int PlaceBossGate(Vector2Int originPoint, int biomeIndex, Transform levelParent)
     {
-        int rot = Mathf.RoundToInt(rotation) % 360;
-        if (rot < 0) rot += 360;
-        Vector2Int internalPos = Vector2Int.zero;
-        Vector2Int direction = Vector2Int.zero;
+        List<Vector2Int> candidates = GenerateSpiralPoints(originPoint);
 
-        switch (rot)
+        foreach (Vector2Int pos in candidates)
         {
-            case 0: // Facing North
-                internalPos = new Vector2Int(x + (w - 1 - localDoor.x), y + 1);
-                direction = new Vector2Int(0, -1);
-                break;
-            case 90: // Facing East
-                internalPos = new Vector2Int(x + 1, y + localDoor.x);
-                direction = new Vector2Int(-1, 0);
-                break;
-            case 180: // Facing South
-                internalPos = new Vector2Int(x + localDoor.x, y + (h - 2));
-                direction = new Vector2Int(0, 1);
-                break;
-            case 270: // Facing West
-                internalPos = new Vector2Int(x + (h - 2), y + (w - 1 - localDoor.x));
-                direction = new Vector2Int(1, 0);
-                break;
-        }
-        DoorInfo info;
-        info.gridPos = internalPos;
-        info.stepPos = internalPos + direction;
-        info.dir = direction;
-        return info;
-    }
+            if (Vector2Int.Distance(pos, originPoint) < 6) continue;
 
-    // Calculates which direction the room needs to face to look at the start room
-    float CalculateRotationTowardsStart(int x, int y, int w, int h)
-    {
-        Vector2 roomCenter = new Vector2(x + w / 2f, y + h / 2f);
-        Vector2 startCenter = new Vector2(startRoomCenter.x, startRoomCenter.y);
-        Vector2 dir = startCenter - roomCenter;
-        float targetAngle = 0;
-
-        // Determine the dominant direction
-        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
-        {
-            if (dir.x > 0) targetAngle = 270;
-            else targetAngle = 90;
-        }
-        else
-        {
-            if (dir.y > 0) targetAngle = 180;
-            else targetAngle = 0;
-        }
-
-        float initialAngle = 0;
-        switch (prefabDefaultDoorSide)
-        {
-            case DoorSide.Top: initialAngle = 0; break;
-            case DoorSide.Right: initialAngle = 90; break;
-            case DoorSide.Bottom: initialAngle = 180; break;
-            case DoorSide.Left: initialAngle = 270; break;
-        }
-
-        float finalRot = targetAngle - initialAngle;
-        finalRot += globalRotationFix;
-        return (finalRot + 360) % 360;
-    }
-
-    // figures out which way the door points so we can clear the path
-    Vector2Int CalculateClearanceDir(float rotation)
-    {
-        Vector3 defaultDir = Vector3.zero;
-        switch (prefabDefaultDoorSide)
-        {
-            case DoorSide.Top: defaultDir = new Vector3(0, 0, 1); break;
-            case DoorSide.Bottom: defaultDir = new Vector3(0, 0, -1); break;
-            case DoorSide.Right: defaultDir = new Vector3(1, 0, 0); break;
-            case DoorSide.Left: defaultDir = new Vector3(-1, 0, 0); break;
-        }
-        Vector3 rotatedDir = Quaternion.Euler(0, rotation, 0) * defaultDir;
-        return new Vector2Int(Mathf.RoundToInt(rotatedDir.x), Mathf.RoundToInt(rotatedDir.z));
-    }
-
-    // Standard helper to check grid boundaries
-    bool IsInsideGrid(Vector2Int p)
-    {
-        return p.x > 0 && p.y > 0 && p.x < gridSize - 1 && p.y < gridSize - 1;
-    }
-
-    // Standard helper to generate points spiraling out from center
-    List<Vector2Int> GenerateSpiralPoints()
-    {
-        List<Vector2Int> points = new List<Vector2Int>();
-        int x = gridSize / 2; int y = gridSize / 2;
-        int stepSize = 1; int stepsTaken = 0; int directionIndex = 0;
-        Vector2Int[] dirs = { new Vector2Int(1, 0), new Vector2Int(0, -1), new Vector2Int(-1, 0), new Vector2Int(0, 1) };
-        points.Add(new Vector2Int(x, y));
-        for (int i = 0; i < gridSize * gridSize; i++)
-        {
-            x += dirs[directionIndex].x; y += dirs[directionIndex].y;
-            points.Add(new Vector2Int(x, y));
-            stepsTaken++;
-            if (stepsTaken == stepSize)
+            if (IsAreaClear(pos.x, pos.y, bossRoomSize, bossRoomSize))
             {
-                stepsTaken = 0; directionIndex = (directionIndex + 1) % 4;
-                if (directionIndex % 2 == 0) stepSize++;
+                MarkPadding(pos.x, pos.y, bossRoomSize, bossRoomSize);
+                MarkRoom(pos.x, pos.y, bossRoomSize, bossRoomSize, biomeIndex);
+
+                Vector2Int entry = pos + bossEntryOffset;
+                if (IsInsideGrid(entry))
+                {
+                    grid[entry.x, entry.y] = 3;
+                    tileBiomeMap[entry.x, entry.y] = biomeIndex;
+                }
+
+                Vector2Int exit = pos + bossExitOffset;
+                if (IsInsideGrid(exit))
+                {
+                    grid[exit.x, exit.y] = 3;
+                    tileBiomeMap[exit.x, exit.y] = biomeIndex;
+                }
+
+                ApplyPathToGrid(FindPath(originPoint, entry), biomeIndex);
+
+                float cx = ((bossRoomSize - 1) * tileSize) / 2f;
+                float cy = ((bossRoomSize - 1) * tileSize) / 2f;
+                Vector3 finalPos = new Vector3((pos.x * tileSize) + cx, 0, (pos.y * tileSize) + cy) + currentWorldOffset;
+
+                Instantiate(bossRoomPrefab, finalPos, Quaternion.identity, levelParent);
+
+                return exit;
             }
         }
-        return points;
+
+        Debug.LogWarning("Could not place Boss Room!");
+        return originPoint;
     }
 
-    // Marks the padding buffer around rooms so hallways don't hug walls
-    void MarkPadding(int x, int y, int w, int h)
+    void SpawnWorld(Transform levelParent, BiomeConfig biome)
     {
-        for (int i = -1; i <= w; i++) for (int j = -1; j <= h; j++)
-                if (IsInsideGrid(new Vector2Int(x + i, y + j))) grid[x + i, y + j] = 4;
-    }
-
-    // Marks the actual room tiles
-    void MarkRoom(int x, int y, int w, int h)
-    {
-        for (int i = 0; i < w; i++) for (int j = 0; j < h; j++) grid[x + i, y + j] = 1;
-    }
-
-    // Clears the path immediately in front of the door
-    void ClearEntryPoint(Vector2Int doorPos, Vector2Int dir)
-    {
-        for (int i = 0; i < 2; i++)
+        for (int x = 0; x < gridSize; x++)
         {
-            Vector2Int entry = doorPos + (dir * i);
-            if (IsInsideGrid(entry) && grid[entry.x, entry.y] == 4) grid[entry.x, entry.y] = 0;
-        }
-    }
-
-    // Checks if the area is free for a new room
-    bool IsAreaClear(int startX, int startY, int w, int h)
-    {
-        for (int x = startX - 4; x < startX + w + 4; x++) for (int y = startY - 4; y < startY + h + 4; y++)
-                if (!IsInsideGrid(new Vector2Int(x, y)) || grid[x, y] != 0) return false;
-        return true;
-    }
-
-    // Debug gizmos to see connections
-    void OnDrawGizmos()
-    {
-        if (roomConnectionPoints == null) return;
-        Gizmos.color = Color.red;
-        foreach (var p in roomConnectionPoints) Gizmos.DrawSphere(new Vector3(p.x * tileSize, 2, p.y * tileSize), 2f);
-    }
-
-    // Reorders the room list so we connect to nearest neighbors
-    void SortConnectionPointsByDistance()
-    {
-        if (roomConnectionPoints.Count < 2) return;
-        List<Vector2Int> sorted = new List<Vector2Int>();
-        List<Vector2Int> pool = new List<Vector2Int>(roomConnectionPoints);
-        Vector2Int current = pool[0]; sorted.Add(current); pool.RemoveAt(0);
-        while (pool.Count > 0)
-        {
-            Vector2Int closest = Vector2Int.zero; float minDst = float.MaxValue; int closestIndex = -1;
-            for (int i = 0; i < pool.Count; i++)
+            for (int y = 0; y < gridSize; y++)
             {
-                float dst = Vector2Int.Distance(current, pool[i]);
-                if (dst < minDst) { minDst = dst; closest = pool[i]; closestIndex = i; }
-            }
-            sorted.Add(closest); current = closest; pool.RemoveAt(closestIndex);
-        }
-        roomConnectionPoints = sorted;
-    }
-
-    // Main loop to create A* paths between sorted rooms
-    void ConnectRoomsWithAStar()
-    {
-        for (int i = 0; i < roomConnectionPoints.Count - 1; i++)
-        {
-            List<Vector2Int> path = FindPath(roomConnectionPoints[i], roomConnectionPoints[i + 1]);
-            if (path != null) foreach (Vector2Int pos in path) if (grid[pos.x, pos.y] != 3) grid[pos.x, pos.y] = 2;
-        }
-    }
-
-    // The A* pathfinding implementation
-    List<Vector2Int> FindPath(Vector2Int start, Vector2Int target)
-    {
-        List<Vector2Int> path = new List<Vector2Int>();
-        Queue<Vector2Int> queue = new Queue<Vector2Int>();
-        Dictionary<Vector2Int, Vector2Int> cameFrom = new Dictionary<Vector2Int, Vector2Int>();
-        queue.Enqueue(start); cameFrom[start] = start;
-        int safe = 0;
-        while (queue.Count > 0 && safe < 10000)
-        {
-            safe++; Vector2Int curr = queue.Dequeue();
-            if (curr == target)
-            {
-                while (curr != start) { path.Add(curr); curr = cameFrom[curr]; }
-                path.Reverse(); return path;
-            }
-            Vector2Int[] dirs = { new Vector2Int(0, 1), new Vector2Int(0, -1), new Vector2Int(1, 0), new Vector2Int(-1, 0) };
-            foreach (Vector2Int d in dirs)
-            {
-                Vector2Int n = curr + d;
-                if (!IsInsideGrid(n)) continue;
-                // Avoid rooms(1) and padding(4), but target is allowed
-                bool blocked = (grid[n.x, n.y] == 1 || grid[n.x, n.y] == 4);
-                if (n == target) blocked = false;
-                if (!blocked && !cameFrom.ContainsKey(n)) { queue.Enqueue(n); cameFrom[n] = curr; }
+                if (grid[x, y] == 2 || grid[x, y] == 3)
+                    SpawnTile(x, y, levelParent, biome);
             }
         }
-        return null;
     }
 
-    // Iterates the grid and spawns the correct prefab for hallways
-    void SpawnWorld()
-    {
-        for (int x = 0; x < gridSize; x++) for (int y = 0; y < gridSize; y++)
-                if (grid[x, y] == 2 || grid[x, y] == 3) SpawnTile(x, y);
-    }
-
-    // Determines if a tile is a straight hall, corner, or intersection
-    void SpawnTile(int x, int y)
+    void SpawnTile(int x, int y, Transform levelParent, BiomeConfig biome)
     {
         if (grid[x, y] == 3) return;
         bool n = IsPath(x, y + 1); bool s = IsPath(x, y - 1); bool e = IsPath(x + 1, y); bool w = IsPath(x - 1, y);
         GameObject prefab = null; float rotation = 0;
         int count = (n ? 1 : 0) + (s ? 1 : 0) + (e ? 1 : 0) + (w ? 1 : 0);
+
         if (count >= 3)
         {
             prefab = (count == 4) ? crossIntersection : tJunction;
@@ -501,13 +380,188 @@ public class DungeonGenerator : MonoBehaviour
             if (s && e) rotation = 0; if (s && w) rotation = 90; if (n && w) rotation = 180; if (n && e) rotation = 270;
             if (count == 1) { prefab = straightHallway; if (n || s) rotation = 0; else rotation = 90; }
         }
-        if (prefab != null) Instantiate(prefab, new Vector3(x * tileSize, 0, y * tileSize), Quaternion.Euler(0, rotation, 0), dungeonContainer);
+
+        if (prefab != null)
+        {
+            Vector3 pos = new Vector3(x * tileSize, 0, y * tileSize) + currentWorldOffset;
+            GameObject hall = Instantiate(prefab, pos, Quaternion.Euler(0, rotation, 0), levelParent);
+            ApplyHallwayTheme(hall, biome);
+        }
     }
 
-    // Helper check for spawning logic
-    bool IsPath(int x, int y)
+    void ApplyThemeRecursively(GameObject obj, BiomeConfig theme)
     {
-        if (x < 0 || y < 0 || x >= gridSize || y >= gridSize) return false;
-        return grid[x, y] == 2 || grid[x, y] == 3;
+        if (theme.floorMaterial == null || theme.wallMaterial == null) return;
+
+        Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
+        foreach (Renderer r in renderers)
+        {
+            // Only paint parts we are sure about, preserving Prop colors
+            if (r.gameObject.name.Contains("Floor"))
+            {
+                r.material = theme.floorMaterial;
+            }
+            else if (r.gameObject.name.Contains("Wall") || r.gameObject.name.Contains("Column") || r.gameObject.name.Contains("Pillar"))
+            {
+                r.material = theme.wallMaterial;
+            }
+        }
     }
+
+    void ApplyHallwayTheme(GameObject obj, BiomeConfig theme)
+    {
+        if (theme.floorMaterial == null || theme.wallMaterial == null) return;
+        foreach (Renderer r in obj.GetComponentsInChildren<Renderer>())
+        {
+            if (r.gameObject.name.Contains("Floor")) r.material = theme.floorMaterial;
+            else r.material = theme.wallMaterial;
+        }
+    }
+
+    void ConnectSpecificRooms(List<Vector2Int> points)
+    {
+        if (points.Count < 2) return;
+
+        List<Vector2Int> sorted = new List<Vector2Int>();
+        List<Vector2Int> pool = new List<Vector2Int>(points);
+        Vector2Int current = pool[0];
+        sorted.Add(current);
+        pool.RemoveAt(0);
+
+        while (pool.Count > 0)
+        {
+            Vector2Int closest = Vector2Int.zero;
+            float minDst = float.MaxValue;
+            int closestIndex = -1;
+            for (int i = 0; i < pool.Count; i++)
+            {
+                float dst = Vector2Int.Distance(current, pool[i]);
+                if (dst < minDst) { minDst = dst; closest = pool[i]; closestIndex = i; }
+            }
+            sorted.Add(closest);
+            current = closest;
+            pool.RemoveAt(closestIndex);
+        }
+
+        for (int i = 0; i < sorted.Count - 1; i++)
+        {
+            ApplyPathToGrid(FindPath(sorted[i], sorted[i + 1]), currentBiomeIndex);
+        }
+    }
+
+    void ApplyPathToGrid(List<Vector2Int> path, int biomeIndex)
+    {
+        if (path == null) return;
+        foreach (Vector2Int pos in path)
+        {
+            if (grid[pos.x, pos.y] != 3)
+            {
+                grid[pos.x, pos.y] = 2;
+                tileBiomeMap[pos.x, pos.y] = biomeIndex;
+            }
+        }
+    }
+
+    Vector2Int GetFurthestRoom(List<Vector2Int> rooms, Vector2Int center)
+    {
+        Vector2Int furthest = center;
+        float maxDist = 0;
+        foreach (var r in rooms)
+        {
+            float d = Vector2Int.Distance(center, r);
+            if (d > maxDist) { maxDist = d; furthest = r; }
+        }
+        return furthest;
+    }
+
+    // --- MATH & HELPERS (Your Logic) ---
+
+    DoorInfo GetRotatedDoorInfo(int x, int y, int w, int h, float rotation, Vector2Int localDoor)
+    {
+        int rot = Mathf.RoundToInt(rotation) % 360;
+        if (rot < 0) rot += 360;
+        Vector2Int internalPos = Vector2Int.zero; Vector2Int direction = Vector2Int.zero;
+        switch (rot)
+        {
+            case 0: internalPos = new Vector2Int(x + (w - 1 - localDoor.x), y + 1); direction = new Vector2Int(0, -1); break;
+            case 90: internalPos = new Vector2Int(x + 1, y + localDoor.x); direction = new Vector2Int(-1, 0); break;
+            case 180: internalPos = new Vector2Int(x + localDoor.x, y + (h - 2)); direction = new Vector2Int(0, 1); break;
+            case 270: internalPos = new Vector2Int(x + (h - 2), y + (w - 1 - localDoor.x)); direction = new Vector2Int(1, 0); break;
+        }
+        DoorInfo info; info.gridPos = internalPos; info.stepPos = internalPos + direction; info.dir = direction; return info;
+    }
+
+    float CalculateRotationTowardsTarget(int x, int y, int w, int h, Vector2Int target)
+    {
+        Vector2 roomCenter = new Vector2(x + w / 2f, y + h / 2f);
+        Vector2 dir = (Vector2)target - roomCenter;
+        float targetAngle = 0;
+        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y)) { if (dir.x > 0) targetAngle = 270; else targetAngle = 90; }
+        else { if (dir.y > 0) targetAngle = 180; else targetAngle = 0; }
+        float initialAngle = 0;
+        switch (prefabDefaultDoorSide)
+        {
+            case DoorSide.Top: initialAngle = 0; break;
+            case DoorSide.Right: initialAngle = 90; break;
+            case DoorSide.Bottom: initialAngle = 180; break;
+            case DoorSide.Left: initialAngle = 270; break;
+        }
+        float finalRot = targetAngle - initialAngle;
+        finalRot += globalRotationFix;
+        return (finalRot + 360) % 360;
+    }
+
+    Vector2Int CalculateClearanceDir(float rotation)
+    {
+        Vector3 defaultDir = Vector3.zero;
+        switch (prefabDefaultDoorSide) { case DoorSide.Top: defaultDir = new Vector3(0, 0, 1); break; case DoorSide.Bottom: defaultDir = new Vector3(0, 0, -1); break; case DoorSide.Right: defaultDir = new Vector3(1, 0, 0); break; case DoorSide.Left: defaultDir = new Vector3(-1, 0, 0); break; }
+        Vector3 rotatedDir = Quaternion.Euler(0, rotation, 0) * defaultDir; return new Vector2Int(Mathf.RoundToInt(rotatedDir.x), Mathf.RoundToInt(rotatedDir.z));
+    }
+
+    List<Vector2Int> GenerateSpiralPoints(Vector2Int center)
+    {
+        List<Vector2Int> points = new List<Vector2Int>();
+        int x = center.x; int y = center.y;
+        int stepSize = 1; int stepsTaken = 0; int directionIndex = 0;
+        Vector2Int[] dirs = { new Vector2Int(1, 0), new Vector2Int(0, -1), new Vector2Int(-1, 0), new Vector2Int(0, 1) };
+        points.Add(new Vector2Int(x, y));
+
+        // FIX: Increased search limit
+        for (int i = 0; i < 10000; i++)
+        {
+            x += dirs[directionIndex].x; y += dirs[directionIndex].y;
+            if (IsInsideGrid(new Vector2Int(x, y))) points.Add(new Vector2Int(x, y));
+            stepsTaken++;
+            if (stepsTaken == stepSize)
+            {
+                stepsTaken = 0; directionIndex = (directionIndex + 1) % 4;
+                if (directionIndex % 2 == 0) stepSize++;
+            }
+        }
+        return points;
+    }
+
+    bool IsInsideGrid(Vector2Int p) { return p.x > 0 && p.y > 0 && p.x < gridSize - 1 && p.y < gridSize - 1; }
+    void MarkPadding(int x, int y, int w, int h) { for (int i = -1; i <= w; i++) for (int j = -1; j <= h; j++) if (IsInsideGrid(new Vector2Int(x + i, y + j))) grid[x + i, y + j] = 4; }
+    void MarkRoom(int x, int y, int w, int h, int biomeIndex)
+    {
+        for (int i = 0; i < w; i++) for (int j = 0; j < h; j++) { grid[x + i, y + j] = 1; tileBiomeMap[x + i, y + j] = biomeIndex; }
+    }
+    void ClearEntryPoint(Vector2Int doorPos, Vector2Int dir) { for (int i = 0; i < 2; i++) { Vector2Int entry = doorPos + (dir * i); if (IsInsideGrid(entry) && grid[entry.x, entry.y] == 4) grid[entry.x, entry.y] = 0; } }
+    bool IsAreaClear(int startX, int startY, int w, int h) { for (int x = startX - 4; x < startX + w + 4; x++) for (int y = startY - 4; y < startY + h + 4; y++) if (!IsInsideGrid(new Vector2Int(x, y)) || grid[x, y] != 0) return false; return true; }
+    void SortConnectionPointsByDistance() { /* Redundant but safe */ }
+    void ConnectRoomsWithAStar() { /* Redundant but safe */ }
+    List<Vector2Int> FindPath(Vector2Int start, Vector2Int target)
+    {
+        List<Vector2Int> path = new List<Vector2Int>(); Queue<Vector2Int> queue = new Queue<Vector2Int>(); Dictionary<Vector2Int, Vector2Int> cameFrom = new Dictionary<Vector2Int, Vector2Int>();
+        queue.Enqueue(start); cameFrom[start] = start; int safe = 0;
+        while (queue.Count > 0 && safe < 10000)
+        {
+            safe++; Vector2Int curr = queue.Dequeue(); if (curr == target) { while (curr != start) { path.Add(curr); curr = cameFrom[curr]; } path.Reverse(); return path; }
+            Vector2Int[] dirs = { new Vector2Int(0, 1), new Vector2Int(0, -1), new Vector2Int(1, 0), new Vector2Int(-1, 0) };
+            foreach (Vector2Int d in dirs) { Vector2Int n = curr + d; if (!IsInsideGrid(n)) continue; bool blocked = (grid[n.x, n.y] == 1 || grid[n.x, n.y] == 4); if (n == target) blocked = false; if (!blocked && !cameFrom.ContainsKey(n)) { queue.Enqueue(n); cameFrom[n] = curr; } }
+        }
+        return null;
+    }
+    bool IsPath(int x, int y) { if (x < 0 || y < 0 || x >= gridSize || y >= gridSize) return false; return grid[x, y] == 2 || grid[x, y] == 3; }
 }
