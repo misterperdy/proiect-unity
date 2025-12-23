@@ -394,6 +394,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MeleeSkeleton
       objectReference: {fileID: 0}
+    - target: {fileID: 5968278701187641690, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
+      propertyPath: attackSpeed
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7263101879320954549, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
       propertyPath: m_LocalPosition.x
       value: 9.338138
@@ -1744,7 +1748,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2643672567416820092, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
       propertyPath: bulletsPerShot
-      value: 20
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2643672567416820092, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
+      propertyPath: fireRateMultiplier
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4289140126970083767, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
       propertyPath: m_Name

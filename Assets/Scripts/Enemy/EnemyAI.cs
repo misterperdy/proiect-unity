@@ -150,6 +150,8 @@ public class EnemyAI : MonoBehaviour, IDamageable
             agent.SetDestination(lastKnownPlayerPosition);
             return;
         }
+
+        acp.SetBool("isChasing", true);
         agent.SetDestination(player.position);
 
         if (Vector3.Distance(transform.position, player.position) <= attackRange)
@@ -164,6 +166,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
         if (Vector3.Distance(transform.position, player.position) > attackRange)
         {
+            acp.ResetTrigger("isMeleeAttacking" + randomNumber);
             currentState = AIState.Chasing;
             agent.isStopped = false;
             return;
