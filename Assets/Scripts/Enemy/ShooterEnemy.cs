@@ -26,6 +26,8 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
     public float lootMultiplier = 1f;
     public int projectileDamage = 10; // New variable to control bullet damage
 
+    public GameObject xpOrbPrefab;
+
     private NavMeshAgent agent;
     private Transform player;
     private float nextFireTime;
@@ -217,7 +219,14 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
         {
             tracker.TriggerDeathAnimation();
         }
-        
+
+        if (xpOrbPrefab != null)
+        {
+            int xpToDrop = Mathf.RoundToInt(1 * lootMultiplier);
+            GameObject orb = Instantiate(xpOrbPrefab, transform.position + Vector3.up, Quaternion.identity);
+            orb.GetComponent<XPOrb>().Initialize(xpToDrop);
+        }
+
         agent.isStopped = true;
 
         acp.ResetTrigger("isRangedAttacking");

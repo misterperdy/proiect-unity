@@ -823,6 +823,7 @@ MonoBehaviour:
   firePoint: {fileID: 7603671616240652209}
   lootMultiplier: 1
   projectileDamage: 10
+  xpOrbPrefab: {fileID: 7185489140940364686, guid: f6192108dbd2ea144bfd5f2fa392b278, type: 3}
   maxHealth: 50
   currentHealth: 0
 --- !u!114 &-7350704004215826038

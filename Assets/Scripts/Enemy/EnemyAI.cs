@@ -21,6 +21,8 @@ public class EnemyAI : MonoBehaviour, IDamageable
     private bool isDead = false;
     private int randomNumber;
 
+    public GameObject xpOrbPrefab;
+
     [Header("Loot")]
     public float lootMultiplier = 1f;
 
@@ -245,6 +247,16 @@ public class EnemyAI : MonoBehaviour, IDamageable
         if (tracker != null)
         {
             tracker.TriggerDeathAnimation();
+        }
+
+        if (xpOrbPrefab != null)
+        {
+            // Base XP is 1, multiplied by loot multiplier
+            int xpToDrop = Mathf.RoundToInt(1 * lootMultiplier);
+
+            // Spawn slightly above ground
+            GameObject orb = Instantiate(xpOrbPrefab, transform.position + Vector3.up, Quaternion.identity);
+            orb.GetComponent<XPOrb>().Initialize(xpToDrop);
         }
 
         agent.isStopped = true;
