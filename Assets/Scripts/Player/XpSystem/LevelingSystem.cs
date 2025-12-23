@@ -11,6 +11,7 @@ public class LevelingSystem : MonoBehaviour
 
 
     public int currentAmountGained = 0;
+    public PerkManager perkManager;
 
     [Header("Debug")]
     public int previousLevelCost = 0; // Tracks "Cost(n-1)" for formula
@@ -46,7 +47,9 @@ public class LevelingSystem : MonoBehaviour
         CalculateNextLevelCost();
 
         Debug.Log("LEVEL UP! New Level: " + currentLevel);
-        // TODO: Trigger UI update, particle effects, stat increase
+
+        if (perkManager != null)
+            perkManager.NotifyLevelUp();
     }
 
     void CalculateNextLevelCost()

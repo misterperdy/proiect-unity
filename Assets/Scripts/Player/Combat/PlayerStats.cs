@@ -1,0 +1,67 @@
+using UnityEngine;
+
+public class PlayerStats : MonoBehaviour
+{
+    [Header("Modifiers")]
+    public float healthMultiplier = 1f;
+    public float damageMultiplier = 1f;
+    public float fireRateMultiplier = 1f;
+    public int bonusProjectiles = 0;
+
+    private PlayerHealth playerHealth;
+
+    void Awake()
+    {
+        playerHealth = GetComponent<PlayerHealth>();
+    }
+
+    public void ApplyPerk(PerkSO perk)
+    {
+        switch (perk.type)
+        {
+            case PerkType.HealthBoost:
+                ApplyHealthBoost(perk.amount);
+                break;
+            case PerkType.DamageBoost:
+                damageMultiplier += perk.amount;
+                break;
+            case PerkType.MultiShot:
+                bonusProjectiles += Mathf.RoundToInt(perk.amount);
+                break;
+            case PerkType.FireRate:
+                // For cooldowns, reducing the time means increasing speed. 
+                // Alternatively, we increase a 'speed' multiplier.
+                fireRateMultiplier += perk.amount;
+                break;
+        }
+
+        Debug.Log($"Applied Perk: {perk.perkName}");
+    }
+
+    void ApplyHealthBoost(float percentage)
+    {
+        if (playerHealth != null)
+        {
+            // Calculate how much HP to add based on Base Max Health (assuming 100 or current max)
+            int amountToAdd = Mathf.RoundToInt(playerHealth.maxHealth * percentage);
+            playerHealth.maxHealth += amountToAdd;
+            playerHealth.Heal(amountToAdd); // Heal the amount we just gained
+        }
+    }
+
+    public float GetModifiedDamage(float baseDamage)
+    {
+        return baseDamage * damageMultiplier;
+    }
+
+    public int GetModifiedProjectileCount(int baseCount)
+    {
+        return baseCount + bonusProjectiles;
+    }
+
+    public float GetModifiedCooldown(float baseCooldown)
+    {
+        // Higher multiplier = Lower cooldown
+        return baseCooldown / fireRateMultiplier;
+    }
+}
