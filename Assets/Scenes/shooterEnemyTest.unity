@@ -1734,6 +1734,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2643672567416820092, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
+      propertyPath: aimError
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2643672567416820092, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
+      propertyPath: spreadAngle
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 2643672567416820092, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
+      propertyPath: bulletsPerShot
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 4289140126970083767, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
       propertyPath: m_Name
       value: RangedSkeleton

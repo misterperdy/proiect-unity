@@ -5,13 +5,13 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
 {
     [Header("Shooting Stats")]
     [Tooltip("Seconds between shots")]
-    public float fireRateMultiplier = 3f;
+    public float fireRateMultiplier = 1f;
     [Tooltip("Number of bullets per shot")]
     public int bulletsPerShot = 1;
     [Tooltip("Total angle of the spread")]
     public float spreadAngle = 15f;
     [Tooltip("Random angle offset error")]
-    public int aimError = 5;
+    public int aimError = 0;
     
     [Header("Movement Stats")]
     public float viewRange = 20f;
@@ -133,42 +133,53 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
         Debug.Log($"ShooterEnemy: Shooting! Rate: {fireRateMultiplier}, Bullets: {bulletsPerShot}, Spread: {spreadAngle}");
 
         // Calculate base rotation towards player
-        Vector3 directionToPlayer = (player.position - firePoint.position).normalized;
+        Vector3 directionToPlayer = player.position - firePoint.position;
+        directionToPlayer.y = 0;
+        directionToPlayer.Normalize();
         Quaternion baseRotation = Quaternion.LookRotation(directionToPlayer);
 
-        // Calculate starting angle for the spread
-        // If 1 bullet, angle is 0.
-        // If multiple, we center the spread.
-        float startAngle = 0;
-        float angleStep = 0;
-
-        if (bulletsPerShot > 1)
+        if (bulletsPerShot <= 1)
         {
-            startAngle = -spreadAngle / 2f;
-            angleStep = spreadAngle / (bulletsPerShot - 1);
+            // Add a little aiming error if desired
+            float error = Random.Range(-aimError, aimError);
+            Quaternion finalRot = baseRotation * Quaternion.Euler(0, error, 0);
+
+            SpawnProjectile(finalRot);
+            return;
         }
+
+        float totalArcAngle = spreadAngle * (bulletsPerShot - 1);
+
+        float startAngle = -totalArcAngle / 2f;
 
         for (int i = 0; i < bulletsPerShot; i++)
         {
-            // Calculate spread offset
-            float currentSpread = 0;
-            if (bulletsPerShot > 1)
-            {
-                currentSpread = startAngle + (angleStep * i);
-            }
+            // Calculate the fixed angle for this specific bullet index
+            float currentAngleOffset = startAngle + (spreadAngle * i);
 
-            // Add random error
-            float randomError = Random.Range(-aimError, aimError);
-            float finalAngle = currentSpread + randomError;
+            // Add random jitter (aimError)
+            float randomJitter = Random.Range(-aimError, aimError);
+            float finalAngle = currentAngleOffset + randomJitter;
 
-            // Apply rotation
+            // Apply rotation to the base direction
             Quaternion fireRotation = baseRotation * Quaternion.Euler(0, finalAngle, 0);
 
-            // Instantiate projectile
-            Instantiate(projectilePrefab, firePoint.position, fireRotation);
+            SpawnProjectile(fireRotation);
         }
     }
-    
+
+    void SpawnProjectile(Quaternion rotation)
+    {
+        GameObject proj = Instantiate(projectilePrefab, firePoint.position, rotation);
+
+        // Ensure damage is passed correctly
+        EnemyProjectile ep = proj.GetComponent<EnemyProjectile>();
+        if (ep != null)
+        {
+            ep.damage = projectileDamage;
+        }
+    }
+
     // Visualization for debugging ranges
     void OnDrawGizmosSelected()
     {

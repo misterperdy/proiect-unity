@@ -117,7 +117,7 @@ public class RoomEnemySpawner : MonoBehaviour
             float fireRateMult = shooter.fireRateMultiplier * statMult;
             int BPS = Mathf.RoundToInt(shooter.bulletsPerShot * statMult);
             float spreadAng = shooter.spreadAngle * statMult;
-            int aimErr = Mathf.RoundToInt(shooter.aimError + statMult);
+            int aimErr = Mathf.RoundToInt(shooter.aimError);
             shooter.SetupEnemy(hp, dmg, fireRateMult, BPS, spreadAng,
             aimErr, settings.color, settings.lootMult);
         }

@@ -815,7 +815,7 @@ MonoBehaviour:
   fireRateMultiplier: 1
   bulletsPerShot: 1
   spreadAngle: 15
-  aimError: 5
+  aimError: 0
   viewRange: 20
   maintainDistance: 10
   moveSpeed: 3.5
@@ -837,6 +837,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b977efe495dabb41b48f18a0e0a8a28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDistance: 35
+  animSpeed: 8
 --- !u!1 &4771635925631712885
 GameObject:
   m_ObjectHideFlags: 0

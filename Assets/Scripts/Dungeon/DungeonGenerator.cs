@@ -30,6 +30,7 @@ public class DungeonGenerator : MonoBehaviour
     public RoomEnemySpawner.RaritySettings[] rarityDefinitions;
 
     [Header("Spawn Settings")]
+    public int biomeSpawnIndex = 0;
     public float distanceDifficultyFactor = 0.05f;
 
     [Header("Grid Settings")]
@@ -202,7 +203,7 @@ public class DungeonGenerator : MonoBehaviour
         Instantiate(meleeWeapon, finalPos + Vector3.up + Vector3.right*3, Quaternion.identity, levelParent);
         Instantiate(rangedWeapon, finalPos + Vector3.up + Vector3.left*3, Quaternion.identity, levelParent);
 
-        if (player != null && currentBiomeIndex==0)
+        if (player != null && currentBiomeIndex==biomeSpawnIndex)
         {
             player.position = finalPos + new Vector3(0, 2, 0);
             Rigidbody playerRb = player.GetComponent<Rigidbody>();
