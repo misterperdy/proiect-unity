@@ -130,6 +130,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 493968071074051069, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
+      propertyPath: perkHUD
+      value: 
+      objectReference: {fileID: 1467707285}
     - target: {fileID: 4929837257510911764, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
       propertyPath: m_Name
       value: player
@@ -1852,6 +1856,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
+--- !u!114 &1467707285 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7906032371134450168, guid: 3ab46ad3615eae2458893ff849069796, type: 3}
+  m_PrefabInstance: {fileID: 6357355066277567446}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 423bfa2e47e10424c93e190d7890a3ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1515997866
 GameObject:
   m_ObjectHideFlags: 0
@@ -3026,6 +3041,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3537541050906464557, guid: 3ab46ad3615eae2458893ff849069796, type: 3}
+      propertyPath: m_Spacing.x
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 3537541050906464557, guid: 3ab46ad3615eae2458893ff849069796, type: 3}
+      propertyPath: m_ConstraintCount
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 3834847626444844290, guid: 3ab46ad3615eae2458893ff849069796, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6024472849267615420, guid: 3ab46ad3615eae2458893ff849069796, type: 3}
       propertyPath: levelingSystem
       value: 
@@ -3110,10 +3137,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7771645234332548366, guid: 3ab46ad3615eae2458893ff849069796, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 7771645234332548366, guid: 3ab46ad3615eae2458893ff849069796, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -80
+      objectReference: {fileID: 0}
     - target: {fileID: 7902006186011248851, guid: 3ab46ad3615eae2458893ff849069796, type: 3}
       propertyPath: m_Name
       value: Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 7906032371134450168, guid: 3ab46ad3615eae2458893ff849069796, type: 3}
+      propertyPath: iconPrefab
+      value: 
+      objectReference: {fileID: 6434709195200836200, guid: 79716f07963f2ee48ab9c7e3eb4c380d, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
