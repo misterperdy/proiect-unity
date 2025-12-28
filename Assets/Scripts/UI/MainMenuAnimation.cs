@@ -23,7 +23,7 @@ namespace UI
         {
             _startPosition = transform.position;
             _startRotation = transform.rotation;
-        }
+        }   
 
         private void Update()
         {
