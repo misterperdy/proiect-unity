@@ -135,7 +135,7 @@ public class PlayerAttack : MonoBehaviour
         float finalDamage = stats.GetModifiedDamage(currentItem.damage);
         int finalProjectiles = stats.GetModifiedProjectileCount(currentItem.projectilesPerShot);
 
-        float finalCooldown = currentItem.attackCooldown / currentItem.fireRateMultiplier;
+        float finalCooldown = stats.GetModifiedCooldown(currentItem.attackCooldown);
         slotCooldownEndTimes[activeSlot] = Time.time + finalCooldown;
 
         int projectiles = Mathf.Max(1, finalProjectiles);

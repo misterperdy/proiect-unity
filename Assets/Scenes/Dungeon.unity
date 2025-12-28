@@ -1771,16 +1771,16 @@ MonoBehaviour:
     spawnChance: 1
   - name: Magic
     color: {r: 0, g: 0.3333335, b: 1, a: 0}
-    statMult: 2
-    lootMult: 2
+    statMult: 1.5
+    lootMult: 5
     spawnChance: 0.2
   - name: Rare
     color: {r: 0.8439851, g: 0.8773585, b: 0.15312389, a: 0}
-    statMult: 4
-    lootMult: 4
+    statMult: 2
+    lootMult: 10
     spawnChance: 0.05
   biomeSpawnIndex: 0
-  distanceDifficultyFactor: 0.05
+  distanceDifficultyFactor: 0.02
   gridSize: 150
   tileSize: 9.5
   levelDistanceOffset: {x: 0, y: 0, z: 1000}

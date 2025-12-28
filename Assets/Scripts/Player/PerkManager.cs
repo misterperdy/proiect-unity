@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PerkManager : MonoBehaviour
@@ -13,6 +14,13 @@ public class PerkManager : MonoBehaviour
     [Header("Data")]
     public List<PerkSO> allPerks;
     public int optionsToOffer = 3;
+
+    [Header("Luck Balancing")]
+    // How much weight does 1 Luck point add to these rarities?
+    public int luckBonusCommon = 0;
+    public int luckBonusRare = 5;      // 10 Luck = +50 Weight
+    public int luckBonusEpic = 2;
+    public int luckBonusLegendary = 1;
 
     private int pendingPerks = 0;
 
@@ -47,7 +55,7 @@ public class PerkManager : MonoBehaviour
         }
 
         // Pick random perks
-        List<PerkSO> choices = GetRandomPerks();
+        List<PerkSO> choices = GetWeightedRandomPerks();
 
         // Create UI cards
         foreach (PerkSO p in choices)
@@ -78,20 +86,76 @@ public class PerkManager : MonoBehaviour
         }
     }
 
-    List<PerkSO> GetRandomPerks()
+    List<PerkSO> GetWeightedRandomPerks()
     {
-        List<PerkSO> deck = new List<PerkSO>(allPerks);
-        List<PerkSO> selection = new List<PerkSO>();
+        List<PerkSO> selectedPerks = new List<PerkSO>();
 
-        for (int i = 0; i < optionsToOffer; i++)
+        // 1. Create a "Pool" of valid perks
+        // Filter out One-Time perks that we already have
+        List<PerkSO> validPool = new List<PerkSO>();
+
+        foreach (PerkSO p in allPerks)
         {
-            if (deck.Count == 0) break;
-
-            int randomIndex = Random.Range(0, deck.Count);
-            selection.Add(deck[randomIndex]);
-            deck.RemoveAt(randomIndex); // Don't pick the same one twice
+            if (p.isOneTimeOnly && playerStats.HasPerk(p))
+            {
+                continue; // Skip, we already have it
+            }
+            validPool.Add(p);
         }
 
-        return selection;
+        // 2. Pick 'optionsToOffer' amount of perks
+        for (int i = 0; i < optionsToOffer; i++)
+        {
+            if (validPool.Count == 0) break;
+
+            // 2a. Calculate Total Weight based on Luck
+            int totalWeight = 0;
+            Dictionary<PerkSO, int> currentWeights = new Dictionary<PerkSO, int>();
+
+            foreach (PerkSO p in validPool)
+            {
+                int modifiedWeight = p.baseWeight + (playerStats.luck * GetLuckBonus(p.rarity));
+                if (modifiedWeight < 1) modifiedWeight = 1; // Prevent 0 weight
+
+                currentWeights.Add(p, modifiedWeight);
+                totalWeight += modifiedWeight;
+            }
+
+            // 2b. Roll the dice
+            int randomNumber = Random.Range(0, totalWeight);
+            int weightSum = 0;
+            PerkSO pickedPerk = null;
+
+            foreach (var kvp in currentWeights)
+            {
+                weightSum += kvp.Value;
+                if (randomNumber < weightSum)
+                {
+                    pickedPerk = kvp.Key;
+                    break;
+                }
+            }
+
+            // 2c. Add to result and remove from pool so we don't pick it twice in same hand
+            if (pickedPerk != null)
+            {
+                selectedPerks.Add(pickedPerk);
+                validPool.Remove(pickedPerk);
+            }
+        }
+
+        return selectedPerks;
+    }
+
+    int GetLuckBonus(PerkRarity rarity)
+    {
+        switch (rarity)
+        {
+            case PerkRarity.Common: return luckBonusCommon;
+            case PerkRarity.Rare: return luckBonusRare;
+            case PerkRarity.Epic: return luckBonusEpic;
+            case PerkRarity.Legendary: return luckBonusLegendary;
+            default: return 0;
+        }
     }
 }

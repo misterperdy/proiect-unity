@@ -5,7 +5,16 @@ public enum PerkType
     HealthBoost,
     DamageBoost,
     MultiShot,
-    FireRate
+    FireRate,
+    LuckBoost // Added Luck as a perk type too!
+}
+
+public enum PerkRarity
+{
+    Common,
+    Rare,
+    Epic,
+    Legendary
 }
 
 [CreateAssetMenu(fileName = "New Perk", menuName = "Perk")]
@@ -17,7 +26,14 @@ public class PerkSO : ScriptableObject
 
     [Header("Effect")]
     public PerkType type;
-
-    [Tooltip("For Percentage, use decimals (0.2 = 20%). For Counts, use integers (1 = +1).")]
     public float amount;
+
+    [Header("Rarity & RNG")]
+    public PerkRarity rarity;
+
+    [Tooltip("Higher number = More likely to appear.")]
+    public int baseWeight = 100;
+
+    [Tooltip("If true, you can only pick this once per run.")]
+    public bool isOneTimeOnly = false;
 }

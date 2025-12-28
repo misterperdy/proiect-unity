@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
@@ -10,6 +11,11 @@ public class PlayerStats : MonoBehaviour
 
     private PlayerHealth playerHealth;
 
+    [Header("Luck")]
+    public int luck = 0;
+
+    public List<PerkSO> acquiredPerks = new List<PerkSO>();
+
     void Awake()
     {
         playerHealth = GetComponent<PlayerHealth>();
@@ -17,6 +23,8 @@ public class PlayerStats : MonoBehaviour
 
     public void ApplyPerk(PerkSO perk)
     {
+        acquiredPerks.Add(perk);
+
         switch (perk.type)
         {
             case PerkType.HealthBoost:
@@ -29,9 +37,10 @@ public class PlayerStats : MonoBehaviour
                 bonusProjectiles += Mathf.RoundToInt(perk.amount);
                 break;
             case PerkType.FireRate:
-                // For cooldowns, reducing the time means increasing speed. 
-                // Alternatively, we increase a 'speed' multiplier.
                 fireRateMultiplier += perk.amount;
+                break;
+            case PerkType.LuckBoost:
+                luck += Mathf.RoundToInt(perk.amount);
                 break;
         }
 
@@ -47,6 +56,11 @@ public class PlayerStats : MonoBehaviour
             playerHealth.maxHealth += amountToAdd;
             playerHealth.Heal(amountToAdd); // Heal the amount we just gained
         }
+    }
+
+    public bool HasPerk(PerkSO perk)
+    {
+        return acquiredPerks.Contains(perk);
     }
 
     public float GetModifiedDamage(float baseDamage)

@@ -2739,6 +2739,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2569742654165129304, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: m_Color.a
+      value: 0.74509805
+      objectReference: {fileID: 0}
+    - target: {fileID: 2569742654165129304, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2569742654165129304, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2569742654165129304, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: m_Color.r
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4334208772525070367, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -2823,6 +2839,14 @@ PrefabInstance:
       propertyPath: playerStats
       value: 
       objectReference: {fileID: 766022248}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.data[3]
+      value: 
+      objectReference: {fileID: 11400000, guid: de1776f5f48ee5a40b3a0b96e2baeec1, type: 2}
     - target: {fileID: 8480918194969402737, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
       propertyPath: m_Name
       value: PerkCanvas
@@ -3002,10 +3026,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3834847626444844290, guid: 3ab46ad3615eae2458893ff849069796, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6024472849267615420, guid: 3ab46ad3615eae2458893ff849069796, type: 3}
       propertyPath: levelingSystem
       value: 
