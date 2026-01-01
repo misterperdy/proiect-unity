@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SceneTemplate;
 using UnityEngine;
 using UnityEngine.U2D;
 
@@ -33,6 +34,7 @@ public class PlayerAttack : MonoBehaviour
     private SwordHitbox swordHitbox;
     private List<Collider> enemiesHitThisSwing;
     private Animator animator;
+    private PlayerStats stats;
 
     private Coroutine activeSwingCoroutine;
 
@@ -46,6 +48,8 @@ public class PlayerAttack : MonoBehaviour
 
     private void Start()
     {
+        stats = GetComponent<PlayerStats>();
+
         // Subscribe to the inventory manager's event to know when the active item changes.
         InventoryManager.Instance.OnActiveSlotChanged += UpdateEquippedItem;
 
@@ -127,11 +131,17 @@ public class PlayerAttack : MonoBehaviour
     private void PerformRangedAttack()
     {
         int activeSlot = InventoryManager.Instance.activeSlotIndex;
-        float finalCooldown = currentItem.attackCooldown / currentItem.fireRateMultiplier;
+
+        float finalDamage = stats.GetModifiedDamage(currentItem.damage);
+        int finalProjectiles = stats.GetModifiedProjectileCount(currentItem.projectilesPerShot);
+
+        float finalCooldown = stats.GetModifiedCooldown(currentItem.attackCooldown);
         slotCooldownEndTimes[activeSlot] = Time.time + finalCooldown;
 
-        int projectiles = Mathf.Max(1, currentItem.projectilesPerShot);
-        float spread = currentItem.spreadAngle;
+        int projectiles = Mathf.Max(1, finalProjectiles);
+        float spread;
+        if (finalProjectiles >= 10) spread = (180*(1+finalProjectiles/2f)) / (finalProjectiles);
+        else spread = (90 * (1 + finalProjectiles / 2f)) / (12-finalProjectiles);
 
         int bounces = currentItem.maxBounces;
 
@@ -157,7 +167,7 @@ public class PlayerAttack : MonoBehaviour
 
             if (arrow != null)
             {
-                arrow.Fire(this.arrowSpeed, currentItem.damage , bounces);
+                arrow.Fire(this.arrowSpeed, finalDamage , bounces);
             }
         }
     }
@@ -227,7 +237,9 @@ public class PlayerAttack : MonoBehaviour
 
         enemiesHitThisSwing.Add(enemyCollider);
 
-        float currentDamage = (currentItem != null) ? currentItem.damage : 10f;
+        float finalDamage = stats.GetModifiedDamage(currentItem.damage);
+
+        float currentDamage = (currentItem != null) ? finalDamage : 10f;
 
         //replaced all the checks with interface
         IDamageable damageableTarget = enemyCollider.GetComponent<IDamageable>();

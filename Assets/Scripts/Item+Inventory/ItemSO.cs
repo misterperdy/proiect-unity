@@ -17,12 +17,12 @@ public class ItemSO : ScriptableObject
 
     public float damage = 10f;
 
-    [Tooltip("The base time in seconds between attacks for this weapon.")]
+    [Header("Melee")]
     public float attackCooldown = 0.5f;
+    public float sizeMultiplier = 1f;
 
-
-    public float sizeMultiplier = 1f; //for melee
-    public float fireRateMultiplier = 1f; //for ranged/magic
+    [Header("Ranged")]
+    public float fireRateMultiplier = 1f; 
     public int projectilesPerShot = 1;
     public float spreadAngle = 0f;
     public int maxBounces = 0;
