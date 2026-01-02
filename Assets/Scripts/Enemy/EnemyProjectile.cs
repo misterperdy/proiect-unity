@@ -20,39 +20,44 @@ public class EnemyProjectile : MonoBehaviour
         {
             rb = gameObject.AddComponent<Rigidbody>();
             rb.useGravity = false; // Usually bullets don't drop immediately
+            rb.isKinematic = true; // Use Kinematic for triggers so they don't get pushed by physics
         }
         
         // Destroy after lifetime
         Destroy(gameObject, lifeTime);
         
-        // Apply initial velocity
-        rb.velocity = transform.forward * speed;
     }
 
-    void OnCollisionEnter(Collision collision)
+    void Update()
     {
-        // Check if we hit an enemy (friendly fire prevention)
-        // We use Layer check because the user specified they use the "Enemy" layer.
+        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        // Ignore Self and other Projectiles
+        if (other.GetComponent<EnemyProjectile>() != null) return;
+        if (other.GetComponent<ShooterEnemy>() != null) return;
+
+        // Friendly Fire Check (Layer)
         int enemyLayer = LayerMask.NameToLayer("Enemy");
-        if (enemyLayer != -1 && collision.gameObject.layer == enemyLayer) return;
-
-        // Also check for ShooterEnemy component just in case
-        if (collision.gameObject.GetComponent<ShooterEnemy>() != null) return;
-
-        // Ignore other projectiles to prevent self-collision when shooting multiple bullets
-        if (collision.gameObject.GetComponent<EnemyProjectile>() != null) return;
+        if (enemyLayer != -1 && other.gameObject.layer == enemyLayer) return;
 
         // Check for player
-        if (collision.gameObject.CompareTag("Player"))
+        if (other.CompareTag("Player"))
         {
-            PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
+            PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
             if (playerHealth != null)
             {
                 playerHealth.TakeDamage(damage);
             }
+            Destroy(gameObject);
         }
 
-        // Destroy on impact with anything else (walls, etc.)
-        Destroy(gameObject);
+        // Destroy on walls 
+        else if (other.gameObject.layer == LayerMask.NameToLayer("Default") || other.CompareTag("Wall"))
+        {
+            Destroy(gameObject);
+        }
     }
 }
