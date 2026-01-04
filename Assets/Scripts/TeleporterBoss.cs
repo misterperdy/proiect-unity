@@ -2,36 +2,58 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public class TeleporterBoss : MonoBehaviour
 {
-    public Transform player, destination, receiver;// Player, Destinatie si portalul la care ajunge
-    public float teleportCooldown = 1f;//Timpul de cooldown 
+    [Header("Settings")]
+    public Transform player;
+    public Transform destination; // Can be set via Inspector or Code
+    public float teleportCooldown = 1f;
 
-    private bool playerInZone = false; 
+    private bool playerInZone = false;
     private bool isTeleporting = false;
-
-    private void FixedUpdate()
+    public void SetDestination(Vector3 pos)
     {
-        if (PauseManager.IsPaused) return;
-        
-        //Verificare pentru teleportare
-        if (playerInZone  && Input.GetButtonDown("Teleport") && !isTeleporting)
+        // We create a temporary empty object to act as the transform target
+        GameObject destObj = new GameObject("TeleportTarget_" + gameObject.name);
+        destObj.transform.position = pos;
+        destination = destObj.transform;
+    }
+
+    private void Start()
+    {
+        if (player == null)
         {
-            StartCoroutine(TeleportPlayer());
+            GameObject p = GameObject.FindGameObjectWithTag("Player");
+            if (p != null) player = p.transform;
         }
     }
 
-    //Verificare zonei de collide
+    private void Update() // Changed from FixedUpdate for better Input response
+    {
+        // Removed PauseManager check for simplicity, add back if needed
+
+        if (playerInZone && Input.GetKeyDown(KeyCode.F) && !isTeleporting) // Changed to F key or Input Button
+        {
+            if (destination != null)
+            {
+                StartCoroutine(TeleportPlayer());
+            }
+            else
+            {
+                Debug.LogWarning("Teleporter has no destination!");
+            }
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             playerInZone = true;
-            Debug.Log("Player in teleport zone, press F to teleport");
+            // You can add UI prompt here
         }
     }
-    //Oprirea dupa iesirea din portal de detectare a zonei
+
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
@@ -39,37 +61,29 @@ public class TeleporterBoss : MonoBehaviour
             playerInZone = false;
         }
     }
-    
+
     private IEnumerator TeleportPlayer()
     {
         isTeleporting = true;
-        //Oprirea collider pentru a nu te teleporta din greseala la loc de unde ai plecat
-        if (receiver != null)
+
+        // Disable Physics/Collisions briefly
+        if (player != null)
         {
-            Collider recCol = receiver.GetComponent<Collider>();
-            if (recCol != null)
-            {
-                recCol.enabled = false;
-                Debug.Log($"{receiver.name}: Collider DISABLED");
-            }
-        }
-        //Pozitia playerului la destinatie
-        player.position = destination.position;
-        //Timpul de cooldown intre teleportari
-        yield return new WaitForSeconds(teleportCooldown);
-        //Pornire collider
-        if (receiver != null)
-        {
-            Collider recCol = receiver.GetComponent<Collider>();
-            if (recCol != null)
-            {
-                recCol.enabled = true;
-                Debug.Log($"{receiver.name}: Collider ENABLED");
-            }
+            CharacterController cc = player.GetComponent<CharacterController>();
+            Rigidbody rb = player.GetComponent<Rigidbody>();
+
+            if (cc != null) cc.enabled = false;
+            if (rb != null) rb.isKinematic = true;
+
+            player.position = destination.position;
+
+            yield return new WaitForSeconds(0.1f); // Short delay to let physics catch up
+
+            if (cc != null) cc.enabled = true;
+            if (rb != null) rb.isKinematic = false;
         }
 
-        Debug.Log("Teleport ready again!");
+        yield return new WaitForSeconds(teleportCooldown);
         isTeleporting = false;
     }
 }
-

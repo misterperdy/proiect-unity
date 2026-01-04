@@ -7,7 +7,18 @@ using Unity.VisualScripting.Antlr3.Runtime.Tree;
 
 public class DungeonGenerator : MonoBehaviour
 {
+    public static DungeonGenerator instance;
+
+    private void Awake()
+    {
+        if (instance == null) instance = this;
+        else Destroy(gameObject);
+    }
+
     public enum DoorSide { Top, Right, Bottom, Left }
+
+    [Header("Teleporters")]
+    public GameObject teleporterPrefab;
 
     [System.Serializable]
     public struct BiomeConfig
@@ -16,6 +27,9 @@ public class DungeonGenerator : MonoBehaviour
         public int roomCount;
         public Material floorMaterial;
         public Material wallMaterial;
+
+        [Header("Boss")]
+        public GameObject bossPrefab;
 
         [Header("Enemies")]
         public List<GameObject> enemyPrefabs;
@@ -30,6 +44,7 @@ public class DungeonGenerator : MonoBehaviour
     public RoomEnemySpawner.RaritySettings[] rarityDefinitions;
 
     [Header("Spawn Settings")]
+    public int biomeSpawnIndex = 0;
     public float distanceDifficultyFactor = 0.05f;
 
     [Header("Grid Settings")]
@@ -56,9 +71,9 @@ public class DungeonGenerator : MonoBehaviour
 
     [Header("Boss Room")]
     public GameObject bossRoomPrefab;
-    public int bossRoomSize = 5;
+    public int bossRoomWidth = 5;  
+    public int bossRoomHeight = 5; 
     public Vector2Int bossEntryOffset = new Vector2Int(2, 0);
-    public Vector2Int bossExitOffset = new Vector2Int(2, 6);
 
     [Header("Standard Rooms")]
     public RoomGenerator roomGeneratorPrefab;
@@ -110,21 +125,33 @@ public class DungeonGenerator : MonoBehaviour
         if (navMeshSurface == null) navMeshSurface = GetComponent<NavMeshSurface>();
 
         GenerateCurrentLevel();
-        GenerateNextLevel();
-        GenerateNextLevel();
-        GenerateNextLevel();
     }
 
-    public void GenerateNextLevel()
+    public Vector3 GenerateNextLevel(Vector3 positionToReturnTo)
     {
         currentBiomeIndex++;
-        if (currentBiomeIndex >= biomes.Count)
-        {
-            currentBiomeIndex = biomes.Count - 1;
-        }
+        if (currentBiomeIndex >= biomes.Count) currentBiomeIndex = biomes.Count - 1;
 
         currentWorldOffset += levelDistanceOffset;
+
         GenerateCurrentLevel();
+
+        float cx = ((startRoomWidth - 1) * tileSize) / 2f;
+        float cy = ((startRoomHeight - 1) * tileSize) / 2f;
+
+        int x = gridSize / 2 - (startRoomWidth / 2);
+        int y = gridSize / 2 - (startRoomHeight / 2);
+
+        Vector3 newStartPos = new Vector3((x * tileSize) + cx, 0, (y * tileSize) + cy) + currentWorldOffset;
+
+        if (teleporterPrefab != null && positionToReturnTo != Vector3.zero)
+        {
+            GameObject backPortal = Instantiate(teleporterPrefab, newStartPos + new Vector3(0f, 0.3f, 0f) + Vector3.back * 3, Quaternion.identity);
+            backPortal.name = "Teleporter_Back";
+            backPortal.GetComponent<TeleporterBoss>().SetDestination(positionToReturnTo);
+        }
+
+        return newStartPos;
     }
 
     void GenerateCurrentLevel()
@@ -202,7 +229,7 @@ public class DungeonGenerator : MonoBehaviour
         Instantiate(meleeWeapon, finalPos + Vector3.up + Vector3.right*3, Quaternion.identity, levelParent);
         Instantiate(rangedWeapon, finalPos + Vector3.up + Vector3.left*3, Quaternion.identity, levelParent);
 
-        if (player != null && currentBiomeIndex==0)
+        if (player != null && currentBiomeIndex==biomeSpawnIndex)
         {
             player.position = finalPos + new Vector3(0, 2, 0);
             Rigidbody playerRb = player.GetComponent<Rigidbody>();
@@ -319,7 +346,7 @@ public class DungeonGenerator : MonoBehaviour
         return false;
     }
 
-    Vector2Int PlaceBossGate(Vector2Int originPoint, int biomeIndex, Transform levelParent)
+    void PlaceBossGate(Vector2Int originPoint, int biomeIndex, Transform levelParent)
     {
         List<Vector2Int> candidates = GenerateSpiralPoints(originPoint);
 
@@ -327,10 +354,11 @@ public class DungeonGenerator : MonoBehaviour
         {
             if (Vector2Int.Distance(pos, originPoint) < 6) continue;
 
-            if (IsAreaClear(pos.x, pos.y, bossRoomSize, bossRoomSize))
+            // Updated Area Check with new Boss Width/Height
+            if (IsAreaClear(pos.x, pos.y, bossRoomWidth, bossRoomHeight))
             {
-                MarkPadding(pos.x, pos.y, bossRoomSize, bossRoomSize);
-                MarkRoom(pos.x, pos.y, bossRoomSize, bossRoomSize, biomeIndex);
+                MarkPadding(pos.x, pos.y, bossRoomWidth, bossRoomHeight);
+                MarkRoom(pos.x, pos.y, bossRoomWidth, bossRoomHeight, biomeIndex);
 
                 Vector2Int entry = pos + bossEntryOffset;
                 if (IsInsideGrid(entry))
@@ -339,27 +367,33 @@ public class DungeonGenerator : MonoBehaviour
                     tileBiomeMap[entry.x, entry.y] = biomeIndex;
                 }
 
-                Vector2Int exit = pos + bossExitOffset;
-                if (IsInsideGrid(exit))
-                {
-                    grid[exit.x, exit.y] = 3;
-                    tileBiomeMap[exit.x, exit.y] = biomeIndex;
-                }
-
+                // Connect
                 ApplyPathToGrid(FindPath(originPoint, entry), biomeIndex);
 
-                float cx = ((bossRoomSize - 1) * tileSize) / 2f;
-                float cy = ((bossRoomSize - 1) * tileSize) / 2f;
+                // Visuals
+                float cx = ((bossRoomWidth - 1) * tileSize) / 2f;
+                float cy = ((bossRoomHeight - 1) * tileSize) / 2f;
                 Vector3 finalPos = new Vector3((pos.x * tileSize) + cx, 0, (pos.y * tileSize) + cy) + currentWorldOffset;
 
-                Instantiate(bossRoomPrefab, finalPos, Quaternion.identity, levelParent);
+                GameObject bossObj = Instantiate(bossRoomPrefab, finalPos, Quaternion.identity, levelParent);
 
-                return exit;
+                ApplyThemeRecursively(bossObj, biomes[biomeIndex]);
+
+                BossRoomSpawner spawner = bossObj.AddComponent<BossRoomSpawner>();
+
+                spawner.Initialize(
+                    biomes[biomeIndex].bossPrefab,
+                    bossRoomWidth,
+                    bossRoomHeight,
+                    tileSize
+                );
+
+
+                return;
             }
         }
 
         Debug.LogWarning("Could not place Boss Room!");
-        return originPoint;
     }
 
     void SpawnWorld(Transform levelParent, BiomeConfig biome)
@@ -410,6 +444,7 @@ public class DungeonGenerator : MonoBehaviour
         Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
         foreach (Renderer r in renderers)
         {
+            //Renderer[] ChildRenderers = r.GetComponentsInChildren<Renderer>();
             // Only paint parts we are sure about, preserving Prop colors
             if (r.gameObject.name.Contains("Floor"))
             {

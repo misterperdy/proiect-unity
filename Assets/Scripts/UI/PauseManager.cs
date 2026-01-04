@@ -16,7 +16,7 @@ public class PauseManager : MonoBehaviour
             {
                 ResumeGame();
             }
-            else
+            else if (Time.timeScale != 0f)
             {
                 PauseGame();
             }
@@ -68,7 +68,7 @@ public class PauseManager : MonoBehaviour
     }
 
     public void PauseGame()
-    {
+    {   
         isPaused = true;
         Time.timeScale = 0f; // This freezes the game
         Debug.Log("Game Paused");
