@@ -8,7 +8,7 @@ public class MainMenuManager : MonoBehaviour
     public GameObject helpPanel;
 
     [Header("Scene To Load")]
-    public string gameSceneName = "GameScene"; 
+    public string gameSceneName = "Dungeon"; 
 
     private void Start()
     {
