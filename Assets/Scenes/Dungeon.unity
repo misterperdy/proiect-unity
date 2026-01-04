@@ -2938,10 +2938,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: player
       objectReference: {fileID: 0}
-    - target: {fileID: 5807814917330493581, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
-      propertyPath: movementSpeed
-      value: 30
-      objectReference: {fileID: 0}
     - target: {fileID: 6405786963966799124, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
