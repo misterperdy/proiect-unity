@@ -7,7 +7,18 @@ using Unity.VisualScripting.Antlr3.Runtime.Tree;
 
 public class DungeonGenerator : MonoBehaviour
 {
+    public static DungeonGenerator instance;
+
+    private void Awake()
+    {
+        if (instance == null) instance = this;
+        else Destroy(gameObject);
+    }
+
     public enum DoorSide { Top, Right, Bottom, Left }
+
+    [Header("Teleporters")]
+    public GameObject teleporterPrefab;
 
     [System.Serializable]
     public struct BiomeConfig
@@ -114,21 +125,33 @@ public class DungeonGenerator : MonoBehaviour
         if (navMeshSurface == null) navMeshSurface = GetComponent<NavMeshSurface>();
 
         GenerateCurrentLevel();
-        GenerateNextLevel();
-        GenerateNextLevel();
-        GenerateNextLevel();
     }
 
-    public void GenerateNextLevel()
+    public Vector3 GenerateNextLevel(Vector3 positionToReturnTo)
     {
         currentBiomeIndex++;
-        if (currentBiomeIndex >= biomes.Count)
-        {
-            currentBiomeIndex = biomes.Count - 1;
-        }
+        if (currentBiomeIndex >= biomes.Count) currentBiomeIndex = biomes.Count - 1;
 
         currentWorldOffset += levelDistanceOffset;
+
         GenerateCurrentLevel();
+
+        float cx = ((startRoomWidth - 1) * tileSize) / 2f;
+        float cy = ((startRoomHeight - 1) * tileSize) / 2f;
+
+        int x = gridSize / 2 - (startRoomWidth / 2);
+        int y = gridSize / 2 - (startRoomHeight / 2);
+
+        Vector3 newStartPos = new Vector3((x * tileSize) + cx, 0, (y * tileSize) + cy) + currentWorldOffset;
+
+        if (teleporterPrefab != null && positionToReturnTo != Vector3.zero)
+        {
+            GameObject backPortal = Instantiate(teleporterPrefab, newStartPos + new Vector3(0f, 0.3f, 0f) + Vector3.back * 3, Quaternion.identity);
+            backPortal.name = "Teleporter_Back";
+            backPortal.GetComponent<TeleporterBoss>().SetDestination(positionToReturnTo);
+        }
+
+        return newStartPos;
     }
 
     void GenerateCurrentLevel()

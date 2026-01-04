@@ -978,7 +978,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 545215136}
   destination: {fileID: 956338305}
-  receiver: {fileID: 1515997870}
   teleportCooldown: 1
 --- !u!1 &628072019
 GameObject:
@@ -1956,7 +1955,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 545215136}
   destination: {fileID: 762394571}
-  receiver: {fileID: 572218487}
   teleportCooldown: 1
 --- !u!114 &1562330427 stripped
 MonoBehaviour:
@@ -2942,7 +2940,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5807814917330493581, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
       propertyPath: movementSpeed
-      value: 8
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 6405786963966799124, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -3429,6 +3427,10 @@ PrefabInstance:
       propertyPath: bossRoomPrefab
       value: 
       objectReference: {fileID: 2381157318573626876, guid: f984b522691a13644a6ca87bc8bb7e87, type: 3}
+    - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
+      propertyPath: teleporterPrefab
+      value: 
+      objectReference: {fileID: 1059672157471281940, guid: 8c90c8f3647918946a9d40ccc8ab60fa, type: 3}
     - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
       propertyPath: bossEntryOffset.x
       value: 5
