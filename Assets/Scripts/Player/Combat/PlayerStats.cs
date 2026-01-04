@@ -14,7 +14,16 @@ public class PlayerStats : MonoBehaviour
     [Header("Luck")]
     public int luck = 0;
 
+    [Header("UI")]
+    public PerkHUD perkHUD;
+
     public List<PerkSO> acquiredPerks = new List<PerkSO>();
+
+    void Start()
+    {
+        // Auto-find if forgot to drag
+        if (perkHUD == null) perkHUD = FindObjectOfType<PerkHUD>();
+    }
 
     void Awake()
     {
@@ -43,6 +52,8 @@ public class PlayerStats : MonoBehaviour
                 luck += Mathf.RoundToInt(perk.amount);
                 break;
         }
+
+        if (perkHUD != null) perkHUD.UpdateDisplay();
 
         Debug.Log($"Applied Perk: {perk.perkName}");
     }
