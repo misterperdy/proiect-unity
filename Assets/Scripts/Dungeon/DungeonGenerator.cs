@@ -17,6 +17,9 @@ public class DungeonGenerator : MonoBehaviour
         public Material floorMaterial;
         public Material wallMaterial;
 
+        [Header("Boss")]
+        public GameObject bossPrefab;
+
         [Header("Enemies")]
         public List<GameObject> enemyPrefabs;
         public float statMultiplier; // e.g. 1.0 for Biome 1, 1.5 for Biome 2
@@ -352,6 +355,17 @@ public class DungeonGenerator : MonoBehaviour
                 GameObject bossObj = Instantiate(bossRoomPrefab, finalPos, Quaternion.identity, levelParent);
 
                 ApplyThemeRecursively(bossObj, biomes[biomeIndex]);
+
+                BossRoomSpawner spawner = bossObj.AddComponent<BossRoomSpawner>();
+
+                spawner.Initialize(
+                    biomes[biomeIndex].bossPrefab,
+                    bossRoomWidth,
+                    bossRoomHeight,
+                    tileSize
+                );
+
+
                 return;
             }
         }
