@@ -22,3 +22,7 @@ MonoBehaviour:
   projectilesPerShot: 1
   spreadAngle: 0
   maxBounces: 10
+  explosionDamage: 40
+  explosionRadius: 4
+  explosionDelay: 1
+  explosionForce: 1000
