@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.AI;
 
@@ -80,25 +80,33 @@ public class Arrow : MonoBehaviour
             Debug.Log("Arrow hit object: " + collision.gameObject.name);
         }
 
-        if (remainingBounces > 0 && isEnemyHit)
+        if (remainingBounces > 0)
         {
             remainingBounces--;
 
-            Vector3 currentVelocity = rb.velocity;
-
             if (collision.contacts.Length > 0)
             {
-                Vector3 surfaceNormal = collision.contacts[0].normal;
+                ContactPoint contact = collision.contacts[0];
 
-                surfaceNormal.y = 0f;
-                surfaceNormal.Normalize();
+                Vector3 normal = contact.normal;
+                normal.y = 0;
+                normal = normal.normalized;
 
-                Vector3 reflectedDirection = Vector3.Reflect(currentVelocity.normalized, surfaceNormal);
-                reflectedDirection.y = 0f;
-                reflectedDirection.Normalize();
+                Vector3 incomingDir = transform.forward;
+                incomingDir.y = 0;
+                incomingDir = incomingDir.normalized;
 
-                rb.velocity = reflectedDirection * currentVelocity.magnitude;
-                transform.rotation = Quaternion.LookRotation(reflectedDirection);
+                Vector3 reflectedDir = Vector3.Reflect(incomingDir, normal);
+                reflectedDir.y = 0;
+                reflectedDir = reflectedDir.normalized;
+
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+
+                transform.position = contact.point + normal * 0.1f;
+
+                transform.rotation = Quaternion.LookRotation(reflectedDir);
+                rb.velocity = reflectedDir * speed;
 
                 return;
             }

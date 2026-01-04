@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6495388505115324432}
   - component: {fileID: 8952002751533609951}
   - component: {fileID: 8878093310220891411}
-  - component: {fileID: 5006884162448682887}
+  - component: {fileID: 5182760449487020892}
   m_Layer: 0
   m_Name: Wall_Chiseled
   m_TagString: Untagged
@@ -107,7 +107,7 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 2348616061427368171, guid: edcc86a903182d0429c0d7b2c727fec0, type: 3}
---- !u!65 &5006884162448682887
+--- !u!65 &5182760449487020892
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

@@ -26,6 +26,8 @@ public class PlayerAttack : MonoBehaviour
 
     public GameObject explosionPrefab; 
     public KeyCode abilityKey = KeyCode.E;
+    public float explosionCooldown = 6f; 
+    private float explosionCooldownEndTime;
 
     // Instead of a single boolean, we track the cooldown end time for each inventory slot individually.
     private float[] slotCooldownEndTimes;
@@ -194,6 +196,12 @@ public class PlayerAttack : MonoBehaviour
 
     void UseExplosionAbility()
     {
+        if (Time.time < explosionCooldownEndTime)
+        {
+            Debug.Log($"Ability on cooldown");
+            return;
+        }
+
         ItemSO currentItem = InventoryManager.Instance.GetActiveItem();
 
         if (currentItem != null && currentItem.itemType == ItemType.Magic)
@@ -203,6 +211,9 @@ public class PlayerAttack : MonoBehaviour
             {
                 return;
             }
+
+            float cooldownDuration = currentItem.attackCooldown > 0 ? currentItem.attackCooldown : explosionCooldown;
+            explosionCooldownEndTime = Time.time + cooldownDuration;
 
             GameObject explosionGO = Instantiate(
                 currentItem.itemPrefab,
