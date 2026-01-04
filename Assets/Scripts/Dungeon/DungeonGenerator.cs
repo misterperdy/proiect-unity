@@ -57,9 +57,9 @@ public class DungeonGenerator : MonoBehaviour
 
     [Header("Boss Room")]
     public GameObject bossRoomPrefab;
-    public int bossRoomSize = 5;
+    public int bossRoomWidth = 5;  
+    public int bossRoomHeight = 5; 
     public Vector2Int bossEntryOffset = new Vector2Int(2, 0);
-    public Vector2Int bossExitOffset = new Vector2Int(2, 6);
 
     [Header("Standard Rooms")]
     public RoomGenerator roomGeneratorPrefab;
@@ -320,7 +320,7 @@ public class DungeonGenerator : MonoBehaviour
         return false;
     }
 
-    Vector2Int PlaceBossGate(Vector2Int originPoint, int biomeIndex, Transform levelParent)
+    void PlaceBossGate(Vector2Int originPoint, int biomeIndex, Transform levelParent)
     {
         List<Vector2Int> candidates = GenerateSpiralPoints(originPoint);
 
@@ -328,10 +328,11 @@ public class DungeonGenerator : MonoBehaviour
         {
             if (Vector2Int.Distance(pos, originPoint) < 6) continue;
 
-            if (IsAreaClear(pos.x, pos.y, bossRoomSize, bossRoomSize))
+            // Updated Area Check with new Boss Width/Height
+            if (IsAreaClear(pos.x, pos.y, bossRoomWidth, bossRoomHeight))
             {
-                MarkPadding(pos.x, pos.y, bossRoomSize, bossRoomSize);
-                MarkRoom(pos.x, pos.y, bossRoomSize, bossRoomSize, biomeIndex);
+                MarkPadding(pos.x, pos.y, bossRoomWidth, bossRoomHeight);
+                MarkRoom(pos.x, pos.y, bossRoomWidth, bossRoomHeight, biomeIndex);
 
                 Vector2Int entry = pos + bossEntryOffset;
                 if (IsInsideGrid(entry))
@@ -340,27 +341,22 @@ public class DungeonGenerator : MonoBehaviour
                     tileBiomeMap[entry.x, entry.y] = biomeIndex;
                 }
 
-                Vector2Int exit = pos + bossExitOffset;
-                if (IsInsideGrid(exit))
-                {
-                    grid[exit.x, exit.y] = 3;
-                    tileBiomeMap[exit.x, exit.y] = biomeIndex;
-                }
-
+                // Connect
                 ApplyPathToGrid(FindPath(originPoint, entry), biomeIndex);
 
-                float cx = ((bossRoomSize - 1) * tileSize) / 2f;
-                float cy = ((bossRoomSize - 1) * tileSize) / 2f;
+                // Visuals
+                float cx = ((bossRoomWidth - 1) * tileSize) / 2f;
+                float cy = ((bossRoomHeight - 1) * tileSize) / 2f;
                 Vector3 finalPos = new Vector3((pos.x * tileSize) + cx, 0, (pos.y * tileSize) + cy) + currentWorldOffset;
 
-                Instantiate(bossRoomPrefab, finalPos, Quaternion.identity, levelParent);
+                GameObject bossObj = Instantiate(bossRoomPrefab, finalPos, Quaternion.identity, levelParent);
 
-                return exit;
+                ApplyThemeRecursively(bossObj, biomes[biomeIndex]);
+                return;
             }
         }
 
         Debug.LogWarning("Could not place Boss Room!");
-        return originPoint;
     }
 
     void SpawnWorld(Transform levelParent, BiomeConfig biome)
@@ -411,6 +407,7 @@ public class DungeonGenerator : MonoBehaviour
         Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
         foreach (Renderer r in renderers)
         {
+            //Renderer[] ChildRenderers = r.GetComponentsInChildren<Renderer>();
             // Only paint parts we are sure about, preserving Prop colors
             if (r.gameObject.name.Contains("Floor"))
             {
