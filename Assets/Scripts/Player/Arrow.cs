@@ -97,7 +97,7 @@ public class Arrow : MonoBehaviour
                 reflectedDirection.y = 0f;
                 reflectedDirection.Normalize();
 
-                rb.velocity = reflectedDirection * currentVelocity.magnitude;
+                rb.velocity = reflectedDirection * speed;
                 transform.rotation = Quaternion.LookRotation(reflectedDirection);
 
                 return;
