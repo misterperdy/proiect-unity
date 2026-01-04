@@ -1,0 +1,201 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1738487290498140618
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5794907825826960653}
+  - component: {fileID: 1941467527987434211}
+  - component: {fileID: 2408527077682217920}
+  m_Layer: 0
+  m_Name: DungeonGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5794907825826960653
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1738487290498140618}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -98.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1726626148785685224}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1941467527987434211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1738487290498140618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: edc6b844edc2e9d49874f17b35b74db3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rarityDefinitions:
+  - name: Normal
+    color: {r: 1, g: 1, b: 1, a: 0}
+    statMult: 1
+    lootMult: 1
+    spawnChance: 1
+  - name: Magic
+    color: {r: 0, g: 0.3333335, b: 1, a: 0}
+    statMult: 1.5
+    lootMult: 5
+    spawnChance: 0.2
+  - name: Rare
+    color: {r: 0.8439851, g: 0.8773585, b: 0.15312389, a: 0}
+    statMult: 2
+    lootMult: 10
+    spawnChance: 0.05
+  distanceDifficultyFactor: 0.02
+  gridSize: 150
+  tileSize: 9.5
+  levelDistanceOffset: {x: 0, y: 0, z: 1000}
+  biomes:
+  - name: Moss
+    roomCount: 20
+    floorMaterial: {fileID: 2100000, guid: 3ec5090580f7f6a478aabc4834db2c82, type: 2}
+    wallMaterial: {fileID: 2100000, guid: 31b7d5270b86ed44faf8f197f0732e34, type: 2}
+    enemyPrefabs:
+    - {fileID: 4289140126970083767, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
+    - {fileID: 4289140126970083767, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
+    statMultiplier: 1
+    minEnemies: 4
+    maxEnemies: 6
+  - name: Shadow
+    roomCount: 20
+    floorMaterial: {fileID: 2100000, guid: a404bfcd3b91f81418e8afb794b8a28b, type: 2}
+    wallMaterial: {fileID: 2100000, guid: c1ec56e775e14a04ba3defbef3787c55, type: 2}
+    enemyPrefabs:
+    - {fileID: 972194377953240498, guid: 9b7dbfb4ce0e5684c9a63379270b0db4, type: 3}
+    - {fileID: 4289140126970083767, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
+    - {fileID: 4289140126970083767, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
+    statMultiplier: 2
+    minEnemies: 5
+    maxEnemies: 10
+  - name: Molten
+    roomCount: 20
+    floorMaterial: {fileID: 2100000, guid: 3aaba7309843c8e4cb6c0466fdeebc7e, type: 2}
+    wallMaterial: {fileID: 2100000, guid: bfda6a4a1f3388e49ab0873b54742e3b, type: 2}
+    enemyPrefabs:
+    - {fileID: 972194377953240498, guid: 9b7dbfb4ce0e5684c9a63379270b0db4, type: 3}
+    - {fileID: 4289140126970083767, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
+    - {fileID: 4289140126970083767, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
+    statMultiplier: 4
+    minEnemies: 10
+    maxEnemies: 15
+  - name: Abyss
+    roomCount: 20
+    floorMaterial: {fileID: 2100000, guid: f0b06f4f25fd0464db7d32eaa8a20dbe, type: 2}
+    wallMaterial: {fileID: 2100000, guid: f0460e70f3549ea4d9ac534c0df196ff, type: 2}
+    enemyPrefabs:
+    - {fileID: 972194377953240498, guid: 9b7dbfb4ce0e5684c9a63379270b0db4, type: 3}
+    - {fileID: 4289140126970083767, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
+    - {fileID: 4289140126970083767, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
+    statMultiplier: 8
+    minEnemies: 20
+    maxEnemies: 30
+  currentBiomeIndex: 0
+  player: {fileID: 0}
+  meleeWeapon: {fileID: 2394957336407906764, guid: 63afffe2f8e8fe74c8ecf1250ebcf052, type: 3}
+  rangedWeapon: {fileID: 4589121465221483655, guid: 0d241ebf06aadb848813387c9b9131d4, type: 3}
+  startRoomPrefab: {fileID: 8068108429544898594, guid: 86108281dbd8f6d4db021d83dcee2438, type: 3}
+  startRoomWidth: 5
+  startRoomHeight: 2
+  startRoomDoorOffset: {x: 2, y: 1}
+  bossRoomPrefab: {fileID: 8068108429544898594, guid: 86108281dbd8f6d4db021d83dcee2438, type: 3}
+  bossRoomSize: 5
+  bossEntryOffset: {x: 2, y: 5}
+  bossExitOffset: {x: 2, y: -1}
+  roomGeneratorPrefab: {fileID: 8369991580255540382, guid: 4e53992f5401da64f9c0ba76e3b098d1, type: 3}
+  minRoomSize: 4
+  maxRoomSize: 8
+  layerSpawnChance: 1
+  prefabDefaultDoorSide: 0
+  globalRotationFix: 0
+  roomVisualNudgeX: 0
+  roomVisualNudgeZ: 0
+  straightHallway: {fileID: 8068108429544898594, guid: 7030f736914c67b4abbd84d354cf0e18, type: 3}
+  cornerHallway: {fileID: 8068108429544898594, guid: 06b17de2cd5658a40845c77ede2d6d17, type: 3}
+  tJunction: {fileID: 8068108429544898594, guid: b60a1c414440c6443b6e4110c0059406, type: 3}
+  crossIntersection: {fileID: 8068108429544898594, guid: 77a3b03f6fe1a63489f82dfb236ae64b, type: 3}
+  dungeonContainer: {fileID: 1726626148785685224}
+  navMeshSurface: {fileID: 2408527077682217920}
+  minimapController: {fileID: 0}
+--- !u!114 &2408527077682217920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1738487290498140618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AgentTypeID: 0
+  m_CollectObjects: 2
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 2, z: 0}
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_UseGeometry: 0
+  m_DefaultArea: 0
+  m_GenerateLinks: 0
+  m_IgnoreNavMeshAgent: 1
+  m_IgnoreNavMeshObstacle: 1
+  m_OverrideTileSize: 0
+  m_TileSize: 256
+  m_OverrideVoxelSize: 0
+  m_VoxelSize: 0.16666667
+  m_MinRegionArea: 2
+  m_NavMeshData: {fileID: 0}
+  m_BuildHeightMesh: 0
+--- !u!1 &5772404717529928171
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1726626148785685224}
+  m_Layer: 0
+  m_Name: Environment_Holder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1726626148785685224
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5772404717529928171}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -52.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5794907825826960653}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -26,6 +26,8 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
     [Header("Loot")]
     public float lootMultiplier = 1f;
 
+    public GameObject xpOrbPrefab;
+
     private Rigidbody rb;
     private NavMeshAgent agent;
     private Transform player;
@@ -245,6 +247,13 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
         if (tracker != null)
         {
             tracker.TriggerDeathAnimation(); 
+        }
+
+        if (xpOrbPrefab != null)
+        {
+            int xpToDrop = Mathf.RoundToInt(1 * lootMultiplier);
+            GameObject orb = Instantiate(xpOrbPrefab, transform.position + Vector3.up, Quaternion.identity);
+            orb.GetComponent<XPOrb>().Initialize(xpToDrop);
         }
 
         Destroy(gameObject);

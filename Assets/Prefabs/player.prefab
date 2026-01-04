@@ -352,6 +352,8 @@ GameObject:
   - component: {fileID: 4413855645477461965}
   - component: {fileID: 8973851664402584779}
   - component: {fileID: 2838463325287181133}
+  - component: {fileID: 8375413435887365107}
+  - component: {fileID: 493968071074051069}
   m_Layer: 7
   m_Name: player
   m_TagString: Player
@@ -671,6 +673,40 @@ MonoBehaviour:
   zoomSpeed: 30
   minZoom: 7
   maxZoom: 15
+--- !u!114 &8375413435887365107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4929837257510911764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d37d0aca1043f274c925c6852a2c7489, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentLevel: 1
+  currentXP: 0
+  xpRequiredForNextLevel: 0
+  currentAmountGained: 0
+  perkManager: {fileID: 0}
+  previousLevelCost: 0
+--- !u!114 &493968071074051069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4929837257510911764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb119dc1aada8624aa0cae8039c1077b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthMultiplier: 1
+  damageMultiplier: 1
+  fireRateMultiplier: 1
+  bonusProjectiles: 0
 --- !u!1 &5983971642464633526
 GameObject:
   m_ObjectHideFlags: 0
