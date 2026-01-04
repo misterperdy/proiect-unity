@@ -3397,7 +3397,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
       propertyPath: bossRoomHeight
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
       propertyPath: bossRoomPrefab
@@ -3409,7 +3409,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
       propertyPath: bossEntryOffset.y
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
       propertyPath: minimapController
