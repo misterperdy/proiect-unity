@@ -495,7 +495,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5568d25470f49054786c61e6a63cd11a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelingSystem: {fileID: 0}
+  levelingSystem: {fileID: 8375413435887365107, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
   xpSlider: {fileID: 3820922187406023230}
   levelText: {fileID: 5664656732176953666}
   xpText: {fileID: 4904301959139897835}

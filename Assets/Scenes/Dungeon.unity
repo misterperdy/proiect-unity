@@ -767,7 +767,7 @@ PrefabInstance:
     - target: {fileID: 6024472849267615420, guid: 3ab46ad3615eae2458893ff849069796, type: 3}
       propertyPath: levelingSystem
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1506223950468363470}
     - target: {fileID: 7271841750891183467, guid: 3ab46ad3615eae2458893ff849069796, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -2998,6 +2998,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 473438577097424679, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
   m_PrefabInstance: {fileID: 1506223950468363468}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1506223950468363470 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8375413435887365107, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
+  m_PrefabInstance: {fileID: 1506223950468363468}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d37d0aca1043f274c925c6852a2c7489, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2721647787671582737
 PrefabInstance:
   m_ObjectHideFlags: 0
