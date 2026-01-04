@@ -2940,6 +2940,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: player
       objectReference: {fileID: 0}
+    - target: {fileID: 5807814917330493581, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
+      propertyPath: movementSpeed
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 6405786963966799124, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
@@ -3437,6 +3441,18 @@ PrefabInstance:
       propertyPath: minimapController
       value: 
       objectReference: {fileID: 219880546}
+    - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
+      propertyPath: biomes.Array.data[0].bossPrefab
+      value: 
+      objectReference: {fileID: 2001432429122068684, guid: b32a827e8fe65db4294eb3694c2cb632, type: 3}
+    - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
+      propertyPath: biomes.Array.data[1].bossPrefab
+      value: 
+      objectReference: {fileID: 2001432429122068684, guid: 4cb0d2e093ae49e4692ea6d19559269b, type: 3}
+    - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
+      propertyPath: biomes.Array.data[2].bossPrefab
+      value: 
+      objectReference: {fileID: 8647202866375485264, guid: bbfd7877e303be9449fd901555bbfd26, type: 3}
     - target: {fileID: 5794907825826960653, guid: de6901724d28b9d47b9920021a788027, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
