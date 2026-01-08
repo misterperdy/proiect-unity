@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor.SceneTemplate;
 using UnityEngine;
 using UnityEngine.U2D;
+using static UnityEditor.Progress;
 
 // Manages all player attack logic, including switching between melee and ranged,
 // handling weapon visuals, and managing per-weapon cooldowns.
@@ -39,6 +40,10 @@ public class PlayerAttack : MonoBehaviour
     private PlayerStats stats;
 
     private Coroutine activeSwingCoroutine;
+
+    public float TurretCooldown = 6f;
+    private float turretCooldownEndTime = 0f; // add this
+
 
     // Stores the player's rotation at the start of a melee attack to ensure the swing is not affected by mouse movement during the animation.
     private Quaternion initialAttackRotation;
@@ -114,6 +119,9 @@ public class PlayerAttack : MonoBehaviour
                     case ItemType.Ranged:
                         PerformRangedAttack();
                         animator.SetTrigger("t_shoot");
+                        break;
+                    case ItemType.Turret:
+                        useTurret();
                         break;
                 }
             }
@@ -312,4 +320,44 @@ public class PlayerAttack : MonoBehaviour
 
         activeSwingCoroutine = null;
     }
+
+    void useTurret()
+    {
+        if (Time.time < turretCooldownEndTime)
+        {
+            Debug.Log("Turret on cooldown");
+            return;
+        }
+
+        ItemSO currentItem = InventoryManager.Instance.GetActiveItem();
+        if (currentItem == null || currentItem.itemType != ItemType.Turret) return;
+        if (currentItem.itemPrefab == null) return;
+
+        float cooldownDuration = currentItem.attackCooldown > 0 ? currentItem.attackCooldown : TurretCooldown;
+        turretCooldownEndTime = Time.time + cooldownDuration;
+
+        GameObject turretGO = Instantiate(
+            currentItem.itemPrefab,
+            transform.position,
+            Quaternion.identity
+        );
+
+        TurretHandler handler = turretGO.GetComponent<TurretHandler>();
+        if (handler != null)
+        {
+            // Optional: pass stats from item
+            handler.damage = currentItem.damageTurret;
+            handler.fireRate = currentItem.fireRateTurret;
+            handler.projectiles = currentItem.projectilesperTurret;
+
+            handler.StartTurret();
+        }
+        else
+        {
+            Debug.LogError("FATAL: TurretHandler missing on turret prefab.");
+        }
+    }
+
+
+
 }
