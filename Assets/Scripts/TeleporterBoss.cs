@@ -73,7 +73,7 @@ public class TeleporterBoss : MonoBehaviour
         {
             if (targetLevelIndex >= 0 && DungeonGenerator.instance != null)
             {
-                DungeonGenerator.instance.LoadLevelMap(targetLevelIndex);
+                DungeonGenerator.instance.LoadLevelMapSimple(targetLevelIndex);
             }
 
             DungeonGenerator dungeon = DungeonGenerator.instance;
@@ -91,14 +91,10 @@ public class TeleporterBoss : MonoBehaviour
                     }
                 }
 
-                if (currentMapIndex != -1)
-                {
-                    dungeon.SaveExplorationForLevel(currentMapIndex);
-                }
 
                 if (targetLevelIndex >= 0)
                 {
-                    dungeon.LoadLevelMap(targetLevelIndex);
+                    dungeon.LoadLevelMapSimple(targetLevelIndex);
                 }
             }
 

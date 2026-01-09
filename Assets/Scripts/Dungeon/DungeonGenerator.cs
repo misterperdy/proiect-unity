@@ -141,20 +141,6 @@ public class DungeonGenerator : MonoBehaviour
         GenerateCurrentLevel();
     }
 
-    public void LoadLevelMap(int levelIndex)
-    {
-        if (levelIndex >= 0 && levelIndex < levelHistory.Count)
-        {
-            LevelData data = levelHistory[levelIndex];
-
-            if (minimapController != null)
-            {
-                minimapController.InitializeMinimap(data.grid, gridSize, tileSize, data.worldOffset);
-                minimapController.RestoreDiscoveredTiles(data.discoveredTiles);
-            }
-        }
-    }
-
     public Vector3 GenerateNextLevel(Vector3 positionToReturnTo, bool updateMinimap = false)
     {
         currentBiomeIndex++;
@@ -185,6 +171,15 @@ public class DungeonGenerator : MonoBehaviour
 
     void GenerateCurrentLevel(bool updateMinimap = true)
     {
+        if (minimapController == null)
+        {
+            minimapController = FindObjectOfType<MinimapController>();
+            if (minimapController != null)
+            {
+                Debug.Log("DungeonGenerator: MinimapController a fost reg?sit automat!");
+            }
+        }
+
         grid = new int[gridSize, gridSize];
         tileBiomeMap = new int[gridSize, gridSize];
 
@@ -213,15 +208,14 @@ public class DungeonGenerator : MonoBehaviour
 
         SpawnWorld(levelObj.transform, currentBiome);
 
-        //init minimap
         if (updateMinimap && minimapController != null)
         {
             minimapController.playerTransform = player;
-            minimapController.InitializeMinimap(grid, gridSize, tileSize, currentWorldOffset);
+            minimapController.InitializeMinimap(grid, gridSize, tileSize, currentWorldOffset, currentBiomeIndex);
         }
-        else
+        else if (updateMinimap && minimapController == null)
         {
-            Debug.LogWarning("minimap controller is null on dungeon script");
+            Debug.LogWarning("Minimap controller is null (si update a fost cerut)!");
         }
 
         LevelData newData = new LevelData();
@@ -246,11 +240,13 @@ public class DungeonGenerator : MonoBehaviour
         }
     }
 
-    public void SaveExplorationForLevel(int levelIndex)
+    public void LoadLevelMapSimple(int levelIndex)
     {
         if (levelIndex >= 0 && levelIndex < levelHistory.Count && minimapController != null)
         {
-            levelHistory[levelIndex].discoveredTiles = minimapController.GetDiscoveredTiles();
+            LevelData data = levelHistory[levelIndex];
+            // Trimitem indexul ca s? ?tie Minimapa ce memorie s? trag?
+            minimapController.InitializeMinimap(data.grid, gridSize, tileSize, data.worldOffset, levelIndex);
         }
     }
 
