@@ -53,6 +53,32 @@ public class MinimapController : MonoBehaviour
         }
     }
 
+    public List<Vector2Int> GetDiscoveredTiles()
+    {
+        List<Vector2Int> discovered = new List<Vector2Int>();
+        foreach (var kvp in gridNodes)
+        {
+            if (kvp.Value.isDiscovered)
+            {
+                discovered.Add(kvp.Key);
+            }
+        }
+        return discovered;
+    }
+
+    public void RestoreDiscoveredTiles(List<Vector2Int> discoveredTiles)
+    {
+        if (discoveredTiles == null) return;
+
+        foreach (Vector2Int pos in discoveredTiles)
+        {
+            if (gridNodes.ContainsKey(pos))
+            {
+                gridNodes[pos].ShowDiscovered();
+            }
+        }
+    }
+
     //function to be called by dungeon generator master script
     public void InitializeMinimap(int[,] grid, int gridSize, float worldTileSize, Vector3 levelOffset)
     {
@@ -65,9 +91,9 @@ public class MinimapController : MonoBehaviour
 
         this.worldTileSize = worldTileSize;
         this.currentLevelOffset = levelOffset;
-
+        lastGridPos = new Vector2Int(-999, -999); //restart fog
         //generate minimap
-        for(int x = 0; x < gridSize; x++)
+        for (int x = 0; x < gridSize; x++)
         {
             for(int y = 0; y < gridSize; y++)
             {

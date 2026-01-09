@@ -60,9 +60,10 @@ public class BossRoomSpawner : MonoBehaviour
             exitTeleporter = Instantiate(DungeonGenerator.instance.teleporterPrefab, portalPos, Quaternion.identity);
             exitTeleporter.name = "Teleporter_NextLevel";
 
-            Vector3 nextLevelStart = DungeonGenerator.instance.GenerateNextLevel(portalPos);
+            Vector3 nextLevelStart = DungeonGenerator.instance.GenerateNextLevel(portalPos, false);
 
             exitTeleporter.GetComponent<TeleporterBoss>().SetDestination(nextLevelStart);
+            exitTeleporter.GetComponent<TeleporterBoss>().targetLevelIndex = DungeonGenerator.instance.currentBiomeIndex;
         }
     }
 
