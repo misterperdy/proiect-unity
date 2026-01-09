@@ -114,7 +114,15 @@ public class MinimapController : MonoBehaviour
     {
         if (!isInitialized || playerTransform == null) return;
         UpdateMinimapState();
-        if (Input.GetKeyDown(KeyCode.M)) ToggleFullscreen();
+        if(Input.GetKeyDown(KeyCode.Tab))
+        {
+            SetFullscreen(true);
+        }
+
+        if (Input.GetKeyUp(KeyCode.Tab))
+        {
+            SetFullscreen(false);
+        }
     }
 
     private void UpdateMinimapState()
@@ -235,19 +243,32 @@ public class MinimapController : MonoBehaviour
         }
     }
 
-    private void ToggleFullscreen()
+    private void SetFullscreen(bool active)
     {
-        isFullscreen = !isFullscreen;
+        // Dac? starea cerut? e deja activ?, nu facem nimic (evit?m calcule inutile)
+        if (isFullscreen == active) return;
+
+        isFullscreen = active;
+
         if (isFullscreen)
         {
+            // --- MOD FULLSCREEN (ACTIVAT) ---
             minimapFrame.anchorMin = new Vector2(0.5f, 0.5f);
             minimapFrame.anchorMax = new Vector2(0.5f, 0.5f);
             minimapFrame.pivot = new Vector2(0.5f, 0.5f);
+
             minimapFrame.anchoredPosition = Vector2.zero;
-            minimapFrame.sizeDelta = new Vector2((minimapFrame.parent as RectTransform).rect.width, (minimapFrame.parent as RectTransform).rect.height);
+
+            // Ne asigur?m c? p?rintele exist? înainte s? lu?m dimensiunile
+            if (minimapFrame.parent != null)
+            {
+                RectTransform parentRect = minimapFrame.parent as RectTransform;
+                minimapFrame.sizeDelta = new Vector2(parentRect.rect.width, parentRect.rect.height);
+            }
         }
         else
         {
+            // --- MOD MINIMAP (RESTORE) ---
             minimapFrame.anchorMin = startAnchorMin;
             minimapFrame.anchorMax = startAnchorMax;
             minimapFrame.pivot = startPivot;
