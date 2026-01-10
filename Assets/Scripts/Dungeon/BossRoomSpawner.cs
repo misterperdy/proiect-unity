@@ -35,7 +35,7 @@ public class BossRoomSpawner : MonoBehaviour
         if (bossPrefab == null) return;
         hasSpawned = true;
 
-        Vector3 spawnPos = transform.position + new Vector3(0, 2f, 0);
+        Vector3 spawnPos = transform.position + new Vector3(0, 0.2f, 0); //CHANGED HEIGHT WHERE IT SPAWNS
         activeBoss = Instantiate(bossPrefab, spawnPos, Quaternion.identity);
 
         Destroy(triggerCollider);
