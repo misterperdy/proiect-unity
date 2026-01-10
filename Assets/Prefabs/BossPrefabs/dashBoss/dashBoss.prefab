@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 6271063232022405505}
   - component: {fileID: 2730611839623374187}
   - component: {fileID: 6739206584383091702}
+  - component: {fileID: 5610523210551734600}
   m_Layer: 8
   m_Name: dashBoss
   m_TagString: Untagged
@@ -246,6 +247,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2001432429122068684}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &5610523210551734600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2001432429122068684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b977efe495dabb41b48f18a0e0a8a28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isTeleporter: 0
+  showDistance: 35
+  animSpeed: 8
 --- !u!1 &2745974989816244047
 GameObject:
   m_ObjectHideFlags: 0

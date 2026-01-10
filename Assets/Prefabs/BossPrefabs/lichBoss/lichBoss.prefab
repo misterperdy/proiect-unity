@@ -571,6 +571,7 @@ GameObject:
   - component: {fileID: 2928295995288762643}
   - component: {fileID: 2197446207419272129}
   - component: {fileID: 6758654103555686226}
+  - component: {fileID: 4144575414461536880}
   m_Layer: 8
   m_Name: lichBoss
   m_TagString: Untagged
@@ -776,6 +777,21 @@ MonoBehaviour:
   animator: {fileID: 1640008761992392850}
   bossHealthBar: {fileID: 2750687999453140699}
   currentState: 0
+--- !u!114 &4144575414461536880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8647202866375485264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b977efe495dabb41b48f18a0e0a8a28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isTeleporter: 0
+  showDistance: 35
+  animSpeed: 8
 --- !u!1001 &1697934952563359158
 PrefabInstance:
   m_ObjectHideFlags: 0
