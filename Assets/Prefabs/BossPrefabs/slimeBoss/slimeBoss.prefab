@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 6739206584383091702}
   - component: {fileID: 1006560436630557556}
   - component: {fileID: 5509379413629473996}
+  - component: {fileID: 5958354580267924845}
   m_Layer: 8
   m_Name: slimeBoss
   m_TagString: Untagged
@@ -213,7 +214,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f78e52af3b5d1c408193eecbd4517f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 300
+  maxHealth: 1500
   currentHealth: 0
   contactDamage: 15
   sightRange: 30
@@ -225,9 +226,13 @@ MonoBehaviour:
   timeBetweenJumps: 1.5
   bigJumpDuration: 2
   slamRadius: 4
-  shadowFollowSpeed: 3
+  shadowFollowSpeed: 6
   shadowPrefab: {fileID: 5501144351370663987, guid: baffd2bf2dd15ab4789503c860ff1d08, type: 3}
   slimePuddlePrefab: {fileID: 5114912441938766273, guid: 6932b79d9d6df334c890e1b5bf204c98, type: 3}
+  jumpModelYOffset: 0
+  floorLayer:
+    serializedVersion: 2
+    m_Bits: 0
   currentState: 0
   bossHealthBar: {fileID: 1925417508932620704}
 --- !u!135 &5509379413629473996
@@ -251,6 +256,21 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.89
   m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &5958354580267924845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2001432429122068684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b977efe495dabb41b48f18a0e0a8a28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isTeleporter: 0
+  showDistance: 35
+  animSpeed: 8
 --- !u!1 &2745974989816244047
 GameObject:
   m_ObjectHideFlags: 0
@@ -316,7 +336,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: The Dasher
+  m_text: Slime
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

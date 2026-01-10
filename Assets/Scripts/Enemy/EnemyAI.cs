@@ -12,6 +12,8 @@ public class EnemyAI : MonoBehaviour, IDamageable
     public float attackSpeed = 1f;
     public float moveSpeed = 3.5f;
 
+    public float medkitDropChance = 10f; // 0-100
+
 
     private NavMeshAgent agent;
     private Transform player;
@@ -95,13 +97,17 @@ public class EnemyAI : MonoBehaviour, IDamageable
     void Update()
     {
         if (isDead) return;
+
+        bool isMoving = agent.velocity.magnitude > 0.1f;
+        acp.SetBool("isChasing", isMoving);
+
         switch (currentState)
         {
             case AIState.Patrolling:
                 Patrol();
                 break;
             case AIState.Chasing:
-                acp.SetBool("isChasing", true);
+                //acp.SetBool("isChasing", true);
                 Chase();
                 break;
             case AIState.Attacking:
@@ -120,11 +126,19 @@ public class EnemyAI : MonoBehaviour, IDamageable
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
         if (distanceToPlayer > sightRange) return false;
 
-        Vector3 directionToPlayer = (player.position - transform.position).normalized;
+        Vector3 origin = transform.position + Vector3.up;
+
+        Vector3 target = player.position + Vector3.up;
+
+        Vector3 directionToPlayer = (target - origin).normalized;
+
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, directionToPlayer, out hit, sightRange) && hit.transform == player)
+        if (Physics.Raycast(origin, directionToPlayer, out hit, sightRange))
         {
-            return true;
+            if (hit.transform == player)
+            {
+                return true;
+            }
         }
         return false;
     }
@@ -247,6 +261,17 @@ public class EnemyAI : MonoBehaviour, IDamageable
         if (tracker != null)
         {
             tracker.TriggerDeathAnimation();
+        }
+
+        if(DungeonGenerator.instance != null)
+        if(DungeonGenerator.instance.medkitPrefab != null)
+        {
+            float randomValue = Random.Range(0f, 100f);
+            if (randomValue <= medkitDropChance)
+            {
+                Vector3 pos = transform.position + new Vector3(0f, 0.3f, 0f);
+                GameObject medkit = Instantiate(DungeonGenerator.instance.medkitPrefab, pos + new Vector3(0, 0.28f, 2.5f), Quaternion.Euler(0, 90, 0));
+            }
         }
 
         if (xpOrbPrefab != null)
