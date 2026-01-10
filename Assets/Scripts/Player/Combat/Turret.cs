@@ -19,6 +19,11 @@ public class TurretHandler : MonoBehaviour
 
     private bool isActive;
 
+    [Header("Rotation")]
+    public Transform rotatingPart;
+    public float rotationSpeed = 360f; // degrees per second
+
+
     void Awake()
     {
         // Auto-create firePoint if missing
@@ -43,23 +48,71 @@ public class TurretHandler : MonoBehaviour
         StartCoroutine(TurretSequence());
     }
 
+    void RotateTowards(Transform target)
+    {
+        if (rotatingPart == null) return;
+
+        Vector3 direction = target.position - rotatingPart.position;
+        direction.y = 0f; // keep rotation flat (top-down)
+
+        if (direction.sqrMagnitude < 0.001f) return;
+
+        Quaternion targetRotation = Quaternion.LookRotation(direction);
+        rotatingPart.rotation = Quaternion.RotateTowards(
+            rotatingPart.rotation,
+            targetRotation,
+            rotationSpeed * Time.deltaTime
+        );
+    }
+
+    //IEnumerator TurretSequence()
+    //{
+    //    while (isActive)
+    //    {
+    //        Transform target = FindClosestEnemy();
+
+    //        if (target != null)
+    //        {
+    //            RotateTowards(target);
+    //            Shoot(target);
+    //            yield return new WaitForSeconds(1f / Mathf.Max(0.01f, fireRate));
+    //        }
+    //        else
+    //        {
+    //            yield return new WaitForSeconds(0.25f);
+    //        }
+    //    }
+    //}
+
+    private float nextShotTime;
+
     IEnumerator TurretSequence()
     {
+        nextShotTime = Time.time;
+
         while (isActive)
         {
             Transform target = FindClosestEnemy();
 
             if (target != null)
             {
-                Shoot(target);
-                yield return new WaitForSeconds(1f / Mathf.Max(0.01f, fireRate));
+                RotateTowards(target); // every frame
+
+                if (Time.time >= nextShotTime)
+                {
+                    Shoot(target);
+                    nextShotTime = Time.time + (1f / Mathf.Max(0.01f, fireRate));
+                }
+
+                yield return null; // IMPORTANT: smooth rotation
             }
             else
             {
-                yield return new WaitForSeconds(0.25f);
+                yield return new WaitForSeconds(0.1f);
             }
         }
     }
+
 
     void Shoot(Transform target)
     {
@@ -74,6 +127,8 @@ public class TurretHandler : MonoBehaviour
                 firePoint.position,
                 Quaternion.LookRotation(direction)
             );
+
+            bulletGO.transform.forward = direction;
 
             Arrow arrow = bulletGO.GetComponent<Arrow>();
             if (arrow != null)
