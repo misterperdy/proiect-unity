@@ -225,9 +225,13 @@ MonoBehaviour:
   timeBetweenJumps: 1.5
   bigJumpDuration: 2
   slamRadius: 4
-  shadowFollowSpeed: 3
+  shadowFollowSpeed: 6
   shadowPrefab: {fileID: 5501144351370663987, guid: baffd2bf2dd15ab4789503c860ff1d08, type: 3}
   slimePuddlePrefab: {fileID: 5114912441938766273, guid: 6932b79d9d6df334c890e1b5bf204c98, type: 3}
+  jumpModelYOffset: 0
+  floorLayer:
+    serializedVersion: 2
+    m_Bits: 0
   currentState: 0
   bossHealthBar: {fileID: 1925417508932620704}
 --- !u!135 &5509379413629473996
