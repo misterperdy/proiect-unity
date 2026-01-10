@@ -13,7 +13,10 @@ public class ItemSO : ScriptableObject
     //assign in inspector
     public ItemType itemType;
     public Sprite itemIcon; // for GUI
-    public GameObject itemPrefab; // for rendering
+    [Header("Prefabs")]
+    public GameObject itemPrefab;      // what happens when you USE it (weapon visual / explosion prefab / turret deployed)
+    public GameObject pickupPrefab;    // what gets spawned when you DROP it (world pickup)
+
 
     public float damage = 10f;
 
