@@ -12,6 +12,8 @@ public class PlayerMovement : MonoBehaviour
 
     public Animator animator;
 
+    public LayerMask floorLayerMask; // asign in inspector
+
 
     // Start is called before the first frame update
     void Start()
@@ -44,5 +46,7 @@ public class PlayerMovement : MonoBehaviour
     {
         //move the rigidbody of the player
         rb.velocity = new Vector3(moveVector.x * movementSpeed, rb.velocity.y, moveVector.z * movementSpeed);
+
+        
     }
 }

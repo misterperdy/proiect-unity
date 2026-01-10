@@ -443,6 +443,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movementSpeed: 8
   animator: {fileID: 8578736067401512780}
+  floorLayerMask:
+    serializedVersion: 2
+    m_Bits: 1024
 --- !u!114 &1047138328821531158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -658,6 +661,7 @@ MonoBehaviour:
   arrowSpeed: 30
   explosionPrefab: {fileID: 0}
   abilityKey: 101
+  explosionCooldown: 6
 --- !u!114 &2838463325287181133
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -707,6 +711,9 @@ MonoBehaviour:
   damageMultiplier: 1
   fireRateMultiplier: 1
   bonusProjectiles: 0
+  luck: 0
+  perkHUD: {fileID: 0}
+  acquiredPerks: []
 --- !u!1 &5983971642464633526
 GameObject:
   m_ObjectHideFlags: 0
