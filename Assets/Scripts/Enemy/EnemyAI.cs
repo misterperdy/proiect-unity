@@ -12,6 +12,8 @@ public class EnemyAI : MonoBehaviour, IDamageable
     public float attackSpeed = 1f;
     public float moveSpeed = 3.5f;
 
+    public float medkitDropChance = 10f; // 0-100
+
 
     private NavMeshAgent agent;
     private Transform player;
@@ -259,6 +261,16 @@ public class EnemyAI : MonoBehaviour, IDamageable
         if (tracker != null)
         {
             tracker.TriggerDeathAnimation();
+        }
+
+        if(DungeonGenerator.instance.medkitPrefab != null)
+        {
+            float randomValue = Random.Range(0f, 100f);
+            if (randomValue <= medkitDropChance)
+            {
+                Vector3 pos = transform.position + new Vector3(0f, 0.3f, 0f);
+                GameObject medkit = Instantiate(DungeonGenerator.instance.medkitPrefab, pos + new Vector3(0, 0.28f, 2.5f), Quaternion.Euler(0, 90, 0));
+            }
         }
 
         if (xpOrbPrefab != null)

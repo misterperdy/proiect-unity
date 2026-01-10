@@ -34,6 +34,8 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
     private Animator acp;
     private bool isDead = false;
 
+    public float medkitDropChance = 10f; // 0-100
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -218,6 +220,17 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
         if (tracker != null)
         {
             tracker.TriggerDeathAnimation();
+        }
+
+        //generate medkit with chance
+        if (DungeonGenerator.instance.medkitPrefab != null)
+        {
+            float randomValue = Random.Range(0f, 100f);
+            if (randomValue <= medkitDropChance)
+            {
+                Vector3 pos = transform.position + new Vector3(0f, 0.3f, 0f);
+                GameObject medkit = Instantiate(DungeonGenerator.instance.medkitPrefab, pos + new Vector3(0, 0.28f, 2.5f), Quaternion.Euler(0, 90, 0));
+            }
         }
 
         if (xpOrbPrefab != null)
