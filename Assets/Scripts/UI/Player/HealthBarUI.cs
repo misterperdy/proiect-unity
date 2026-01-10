@@ -7,6 +7,8 @@ public class HealthBarUI : MonoBehaviour
     public PlayerHealth playerHealth;
     public Slider slider;
 
+    public GameObject HPtextGO;
+
     void Start()
     {
         if (playerHealth == null)
@@ -38,6 +40,11 @@ public class HealthBarUI : MonoBehaviour
         if (slider != null && playerHealth != null)
         {
             slider.value = playerHealth.currentHealth;
+        }
+
+        if(HPtextGO != null)
+        {
+            HPtextGO.GetComponent<Text>().text = playerHealth.currentHealth.ToString();
         }
     }
 }
