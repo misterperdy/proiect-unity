@@ -1,5 +1,8 @@
+using System.Collections;
+using Palmmedia.ReportGenerator.Core.CodeAnalysis;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class EnemyAI : MonoBehaviour, IDamageable
 {
@@ -11,9 +14,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
     public float patrolRadius = 10f;
     public float attackSpeed = 1f;
     public float moveSpeed = 3.5f;
-
     public float medkitDropChance = 10f; // 0-100
-
 
     private NavMeshAgent agent;
     private Transform player;
@@ -28,17 +29,47 @@ public class EnemyAI : MonoBehaviour, IDamageable
     [Header("Loot")]
     public float lootMultiplier = 1f;
 
+    [Header("Hit Effect")]
+    public GameObject hitParticles;
+    public GameObject skeletonMat;
+    public GameObject skeletonRibMat;
+    public float fadeTime = 0.01f; // Higher number means faster fading
+    public Color32 hitColor = new Color32(255,0,0,255);
+    public string rarity;
+
     private enum AIState { Patrolling, Chasing, Attacking, Searching }
     private AIState currentState;
     private Animator acp;
+    private Material hitMat;
+    private Material ribHitMat;
+    private Color32 originalColor = new Color32(255, 255, 255, 0);
 
     void Start()
     {
+        if (rarity != null)
+        {
+            if(rarity == "Magic")
+            {
+                originalColor = new Color32(0, 85, 255, 0);
+            } else if(rarity == "Rare")
+            {
+                originalColor = new Color32(215, 224, 39, 0);
+            }
+            else
+            {
+                originalColor = new Color32(255, 255, 255, 0);
+            }
+        }
+
         currentHealth = maxHealth;
         randomNumber = Random.Range(1, 3);
         agent = GetComponent<NavMeshAgent>();
         acp = GetComponent<Animator>();
         agent.speed = moveSpeed;
+
+        hitMat = skeletonMat.GetComponent<SkinnedMeshRenderer>().material;
+        ribHitMat = skeletonRibMat.GetComponent<MeshRenderer>().material;
+
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj == null && acp == null)
         {
@@ -68,7 +99,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
         StartCoroutine(InitializeAI());
     }
 
-    public void SetupEnemy(int hp, int dmg, float attSpeed, float spd, Color color, float lootMult)
+    public void SetupEnemy(int hp, int dmg, float attSpeed, float spd, Color color, float lootMult, string rrty)
     {
         maxHealth = hp;
         currentHealth = hp;
@@ -76,6 +107,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
         attackSpeed = attSpeed;
         lootMultiplier = lootMult;
         moveSpeed = spd;
+        rarity = rrty;
 
         // Change color of the mesh
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
@@ -246,11 +278,42 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     public void TakeDamage(int amount)
     {
+        StartCoroutine(SetHitEffect());
+        StartCoroutine(SetHitParticles());
+
         currentHealth -= amount;
         if (currentHealth <= 0)
         {
             Die();
         }
+    }
+
+    private IEnumerator SetHitEffect()
+    {
+
+        skeletonMat.GetComponent<SkinnedMeshRenderer>().material = hitMat;
+        skeletonRibMat.GetComponent<MeshRenderer>().material = ribHitMat;
+        hitMat.color = hitColor;
+        ribHitMat.color = hitColor; 
+
+        while (hitMat.color!=originalColor)
+        {
+
+            hitMat.color = Color.Lerp(hitMat.color, originalColor, fadeTime);
+            ribHitMat.color = Color.Lerp(ribHitMat.color, originalColor, fadeTime);
+
+            yield return null;
+        }
+    }
+
+    private IEnumerator SetHitParticles()
+    {
+        hitParticles.SetActive(true);
+
+        yield return new WaitForSeconds(0.1f);
+
+        hitParticles.SetActive(false);
+
     }
 
     void Die()
@@ -263,6 +326,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
             tracker.TriggerDeathAnimation();
         }
 
+        if(DungeonGenerator.instance != null)
         if(DungeonGenerator.instance.medkitPrefab != null)
         {
             float randomValue = Random.Range(0f, 100f);

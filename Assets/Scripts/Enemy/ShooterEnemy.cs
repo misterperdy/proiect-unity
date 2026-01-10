@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -24,23 +25,52 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
 
     [Header("Loot")]
     public float lootMultiplier = 1f;
-    public int projectileDamage = 10; // New variable to control bullet damage
+    public int projectileDamage = 10; // New variable to control bullet damag
 
     public GameObject xpOrbPrefab;
+
+    [Header("Hit Effect")]
+    public GameObject hitParticles;
+    public GameObject skeletonMat;
+    public GameObject skeletonRibMat;
+    public float fadeTime = 0.01f; // Higher number means faster fading
+    public Color32 hitColor = new Color32(255, 0, 0, 255);
+    public string rarity;
 
     private NavMeshAgent agent;
     private Transform player;
     private float nextFireTime;
     private Animator acp;
     private bool isDead = false;
+    private Material hitMat;
+    private Material ribHitMat;
+    private Color32 originalColor = new Color32(255, 255, 255, 0);
 
     public float medkitDropChance = 10f; // 0-100
 
     void Start()
     {
+        if (rarity != null)
+        {
+            if (rarity == "Magic")
+            {
+                originalColor = new Color32(0, 85, 255, 0);
+            }
+            else if (rarity == "Rare")
+            {
+                originalColor = new Color32(215, 224, 39, 0);
+            }
+            else
+            {
+                originalColor = new Color32(255, 255, 255, 0);
+            }
+        }
+
         agent = GetComponent<NavMeshAgent>();
         agent.speed = moveSpeed;
         acp = GetComponent<Animator>();
+        hitMat = skeletonMat.GetComponent<SkinnedMeshRenderer>().material;
+        ribHitMat = skeletonRibMat.GetComponent<MeshRenderer>().material;
 
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
@@ -84,7 +114,7 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
     }
 
     public void SetupEnemy(int hp, int dmg, float fireRateMult, int BPS, float spreadAng,
-        int aimErr, Color color, float lootMult)
+        int aimErr, Color color, float lootMult, string rrty)
     {
         maxHealth = hp;
         currentHealth = hp;
@@ -93,6 +123,7 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
         bulletsPerShot = BPS;
         spreadAngle = spreadAng;
         lootMultiplier = lootMult;
+        rarity = rrty;
 
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
         foreach (var r in renderers) r.material.color = color;
@@ -205,11 +236,43 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
 
     public void TakeDamage(int amount)
     {
+        StartCoroutine(SetHitEffect());
+        StartCoroutine(SetHitParticles());
+
         currentHealth -= amount;
         if (currentHealth <= 0)
         {
+            hitMat.color = Color.Lerp(hitMat.color, originalColor, 1);
+            ribHitMat.color = Color.Lerp(ribHitMat.color, originalColor, 1);
             Die();
         }
+    }
+
+    private IEnumerator SetHitEffect()
+    {
+        skeletonMat.GetComponent<SkinnedMeshRenderer>().material = hitMat;
+        skeletonRibMat.GetComponent<MeshRenderer>().material = ribHitMat;
+        hitMat.color = hitColor;
+        ribHitMat.color = hitColor;
+
+        while (hitMat.color != originalColor)
+        {
+
+            hitMat.color = Color.Lerp(hitMat.color, originalColor, fadeTime);
+            ribHitMat.color = Color.Lerp(ribHitMat.color, originalColor, fadeTime);
+
+            yield return null;
+        }
+    }
+
+    private IEnumerator SetHitParticles()
+    {
+        hitParticles.SetActive(true);
+
+        yield return new WaitForSeconds(0.1f);
+
+        hitParticles.SetActive(false);
+
     }
 
     void Die()
@@ -223,6 +286,7 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
         }
 
         //generate medkit with chance
+        if(DungeonGenerator.instance != null) 
         if (DungeonGenerator.instance.medkitPrefab != null)
         {
             float randomValue = Random.Range(0f, 100f);
