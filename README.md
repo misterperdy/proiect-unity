@@ -49,7 +49,7 @@ Un joc de tip RPG, bazat pe nivele tip dungeon-uri, fiecare cu o tema (ex. Steam
 
 - P - pauza
 
-- M - afișarea în centrul ecranului a minimap-ului din colțul din dreapta sus
+- Tab (Hold) - afișarea în centrul ecranului a minimap-ului din colțul din dreapta sus
 
 ## Versiune Unity:
 2022.3.62f2
