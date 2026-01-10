@@ -78,57 +78,128 @@ public class InventoryManager : MonoBehaviour
         return null; // empty slot
     }
 
+    //public ItemSO DropActiveItem(Vector3 dropPosition)
+    //{
+    //    if (activeSlotIndex < items.Count)
+    //    {
+    //        ItemSO itemToDrop = items[activeSlotIndex];
+
+    //        items.RemoveAt(activeSlotIndex);
+
+    //        if (itemToDrop.itemPrefab != null)
+    //        {
+    //            Vector3 safeDropPosition = dropPosition + Vector3.up * 0.1f;
+
+    //            Debug.Log($"[DROP] Item: {itemToDrop.name}");
+    //            Debug.Log($"[DROP] itemPrefab: {itemToDrop.itemPrefab?.name}");
+    //            Debug.Log($"[DROP] pickupPrefab: {itemToDrop.pickupPrefab?.name}");
+
+
+    //            GameObject droppedGO = Instantiate(itemToDrop.itemPrefab, safeDropPosition, Quaternion.identity);
+
+
+    //            //Debug.Log($"[DROP] dropPrefab chosen: {dropPrefab.name}");
+    //            Debug.Log($"[DROP] droppedGO spawned: {droppedGO.name}");
+
+    //            Rigidbody rb = droppedGO.GetComponent<Rigidbody>();
+    //            if (rb == null)
+    //            {
+    //                rb = droppedGO.AddComponent<Rigidbody>();
+    //            }
+    //            rb.isKinematic = false;
+    //            rb.useGravity = true;
+
+    //            Collider col = droppedGO.GetComponent<Collider>();
+    //            if (col == null)
+    //            {
+    //                col = droppedGO.AddComponent<BoxCollider>();
+    //            }
+    //            col.isTrigger = true;
+
+    //            ItemPickup itemPickup = droppedGO.GetComponent<ItemPickup>();
+    //            if (itemPickup == null)
+    //            {
+    //                itemPickup = droppedGO.AddComponent<ItemPickup>();
+    //            }
+
+    //            itemPickup.item = itemToDrop;
+
+    //            Vector3 dropForce = Vector3.up * 0.5f + new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f)).normalized * 0.5f;
+    //            rb.AddForce(dropForce, ForceMode.Impulse);
+
+    //            StartCoroutine(LockItemHeight(droppedGO, 0.2f));
+    //        }
+
+    //        OnInventoryChanged?.Invoke();
+    //        OnActiveSlotChanged?.Invoke(activeSlotIndex);
+
+    //        return itemToDrop;
+    //    }
+
+    //    return null;
+    //}
+
     public ItemSO DropActiveItem(Vector3 dropPosition)
     {
-        if (activeSlotIndex < items.Count)
+        if (activeSlotIndex < 0 || activeSlotIndex >= items.Count)
+            return null;
+
+        ItemSO itemToDrop = items[activeSlotIndex];
+        items.RemoveAt(activeSlotIndex);
+
+        // Choose what we spawn in the world when dropping:
+        // pickupPrefab (preferred) -> itemPrefab (fallback)
+        GameObject dropPrefab = itemToDrop.pickupPrefab != null
+            ? itemToDrop.pickupPrefab
+            : itemToDrop.itemPrefab;
+
+        Debug.Log($"[DROP] Item: {itemToDrop.name}");
+        Debug.Log($"[DROP] itemPrefab: {(itemToDrop.itemPrefab != null ? itemToDrop.itemPrefab.name : "NULL")}");
+        Debug.Log($"[DROP] pickupPrefab: {(itemToDrop.pickupPrefab != null ? itemToDrop.pickupPrefab.name : "NULL")}");
+        Debug.Log($"[DROP] dropPrefab chosen: {(dropPrefab != null ? dropPrefab.name : "NULL")}");
+
+        if (dropPrefab == null)
         {
-            ItemSO itemToDrop = items[activeSlotIndex];
-
-            items.RemoveAt(activeSlotIndex);
-
-            if (itemToDrop.itemPrefab != null)
-            {
-                Vector3 safeDropPosition = dropPosition + Vector3.up * 0.1f;
-
-                GameObject droppedGO = Instantiate(itemToDrop.itemPrefab, safeDropPosition, Quaternion.identity);
-
-                Rigidbody rb = droppedGO.GetComponent<Rigidbody>();
-                if (rb == null)
-                {
-                    rb = droppedGO.AddComponent<Rigidbody>();
-                }
-                rb.isKinematic = false;
-                rb.useGravity = true;
-
-                Collider col = droppedGO.GetComponent<Collider>();
-                if (col == null)
-                {
-                    col = droppedGO.AddComponent<BoxCollider>();
-                }
-                col.isTrigger = true;
-
-                ItemPickup itemPickup = droppedGO.GetComponent<ItemPickup>();
-                if (itemPickup == null)
-                {
-                    itemPickup = droppedGO.AddComponent<ItemPickup>();
-                }
-
-                itemPickup.item = itemToDrop;
-
-                Vector3 dropForce = Vector3.up * 0.5f + new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f)).normalized * 0.5f;
-                rb.AddForce(dropForce, ForceMode.Impulse);
-
-                StartCoroutine(LockItemHeight(droppedGO, 0.2f));
-            }
-
+            Debug.LogWarning($"[DROP] No prefab to drop for item: {itemToDrop.name}. Dropping removed it from inventory anyway.");
             OnInventoryChanged?.Invoke();
             OnActiveSlotChanged?.Invoke(activeSlotIndex);
-
             return itemToDrop;
         }
 
-        return null;
+        Vector3 safeDropPosition = dropPosition + Vector3.up * 0.1f;
+        GameObject droppedGO = Instantiate(dropPrefab, safeDropPosition, Quaternion.identity);
+        Debug.Log($"[DROP] droppedGO spawned: {droppedGO.name}");
+
+        // Ensure it can be picked up
+        ItemPickup itemPickup = droppedGO.GetComponent<ItemPickup>();
+        if (itemPickup == null) itemPickup = droppedGO.AddComponent<ItemPickup>();
+        itemPickup.item = itemToDrop;
+
+        // Ensure it has a trigger collider (prefer existing colliders)
+        Collider col = droppedGO.GetComponent<Collider>();
+        if (col == null) col = droppedGO.AddComponent<SphereCollider>();
+        col.isTrigger = true;
+
+        // Optional: physics "toss" (only if it has / gets a rigidbody)
+        Rigidbody rb = droppedGO.GetComponent<Rigidbody>();
+        if (rb == null) rb = droppedGO.AddComponent<Rigidbody>();
+        rb.isKinematic = false;
+        rb.useGravity = true;
+
+        Vector3 dropForce =
+            Vector3.up * 0.5f +
+            new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f)).normalized * 0.5f;
+
+        rb.AddForce(dropForce, ForceMode.Impulse);
+
+        StartCoroutine(LockItemHeight(droppedGO, 0.2f));
+
+        OnInventoryChanged?.Invoke();
+        OnActiveSlotChanged?.Invoke(activeSlotIndex);
+
+        return itemToDrop;
     }
+
 
     private IEnumerator LockItemHeight(GameObject droppedItem, float delay)
     {
