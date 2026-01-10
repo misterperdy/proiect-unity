@@ -103,10 +103,16 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
         if (distanceToPlayer > sightRange) return false;
 
-        Vector3 directionToPlayer = (player.position - transform.position).normalized;
+        Vector3 origin = transform.position + Vector3.up;
+        Vector3 target = player.position + Vector3.up;
+
+        Vector3 directionToPlayer = (target - origin).normalized;
+
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, directionToPlayer, out hit, sightRange) && hit.transform == player)
-            return true;
+        if (Physics.Raycast(origin, directionToPlayer, out hit, sightRange))
+        {
+            if (hit.transform == player) return true;
+        }
 
         return false;
     }
