@@ -4,6 +4,7 @@ using UnityEditor.SceneTemplate;
 using UnityEngine;
 using UnityEngine.U2D;
 using static UnityEditor.Progress;
+using static UnityEngine.GraphicsBuffer;
 
 // Manages all player attack logic, including switching between melee and ranged,
 // handling weapon visuals, and managing per-weapon cooldowns.
@@ -41,8 +42,13 @@ public class PlayerAttack : MonoBehaviour
 
     private Coroutine activeSwingCoroutine;
 
-    public float TurretCooldown = 6f;
-    private float turretCooldownEndTime = 0f; // add this
+    [Header("Turret Limits")]
+    public int maxActiveTurrets = 2;
+    public float turretCooldown = 8f;
+
+    private float turretCooldownEndTime = 0f;
+    private readonly List<GameObject> activeTurrets = new();
+
 
 
     // Stores the player's rotation at the start of a melee attack to ensure the swing is not affected by mouse movement during the animation.
@@ -329,11 +335,19 @@ public class PlayerAttack : MonoBehaviour
             return;
         }
 
+        CleanupTurretList();
+
+        if (activeTurrets.Count >= maxActiveTurrets)
+        {
+            Debug.Log($"Max turrets reached ({maxActiveTurrets})");
+            return;
+        }
+
         ItemSO currentItem = InventoryManager.Instance.GetActiveItem();
         if (currentItem == null || currentItem.itemType != ItemType.Turret) return;
         if (currentItem.itemPrefab == null) return;
 
-        float cooldownDuration = currentItem.attackCooldown > 0 ? currentItem.attackCooldown : TurretCooldown;
+        float cooldownDuration = currentItem.attackCooldown > 0 ? currentItem.attackCooldown : turretCooldown;
         turretCooldownEndTime = Time.time + cooldownDuration;
 
         GameObject turretGO = Instantiate(
@@ -341,6 +355,8 @@ public class PlayerAttack : MonoBehaviour
             transform.position,
             Quaternion.identity
         );
+
+        activeTurrets.Add(turretGO);
 
         TurretHandler handler = turretGO.GetComponent<TurretHandler>();
         if (handler != null)
@@ -355,6 +371,14 @@ public class PlayerAttack : MonoBehaviour
         else
         {
             Debug.LogError("FATAL: TurretHandler missing on turret prefab.");
+        }
+    }
+    private void CleanupTurretList()
+    {
+        for (int i = activeTurrets.Count - 1; i >= 0; i--)
+        {
+            if (activeTurrets[i] == null)
+                activeTurrets.RemoveAt(i);
         }
     }
 

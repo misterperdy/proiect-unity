@@ -24,6 +24,11 @@ public class TurretHandler : MonoBehaviour
     public float rotationSpeed = 360f; // degrees per second
 
 
+
+
+    [SerializeField] private float lifetime = 15f;
+
+
     void Awake()
     {
         // Auto-create firePoint if missing
@@ -45,6 +50,9 @@ public class TurretHandler : MonoBehaviour
         }
 
         isActive = true;
+
+        Destroy(gameObject, lifetime);
+
         StartCoroutine(TurretSequence());
     }
 
@@ -65,24 +73,7 @@ public class TurretHandler : MonoBehaviour
         );
     }
 
-    //IEnumerator TurretSequence()
-    //{
-    //    while (isActive)
-    //    {
-    //        Transform target = FindClosestEnemy();
 
-    //        if (target != null)
-    //        {
-    //            RotateTowards(target);
-    //            Shoot(target);
-    //            yield return new WaitForSeconds(1f / Mathf.Max(0.01f, fireRate));
-    //        }
-    //        else
-    //        {
-    //            yield return new WaitForSeconds(0.25f);
-    //        }
-    //    }
-    //}
 
     private float nextShotTime;
 
