@@ -8,7 +8,7 @@ public class Medkit : MonoBehaviour
     {
         PlayerHealth player = other.GetComponent<PlayerHealth>();
 
-        if (player != null)
+        if (player != null && player.currentHealth < player.maxHealth)
         {
             player.Heal(healAmount);
             Destroy(gameObject); 
