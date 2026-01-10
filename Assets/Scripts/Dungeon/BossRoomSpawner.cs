@@ -60,6 +60,13 @@ public class BossRoomSpawner : MonoBehaviour
             exitTeleporter = Instantiate(DungeonGenerator.instance.teleporterPrefab, portalPos, Quaternion.identity);
             exitTeleporter.name = "Teleporter_NextLevel";
 
+            if(DungeonGenerator.instance.medkitPrefab != null)
+            {
+                //spawn a  medkit above teleporter
+                GameObject medkit = Instantiate(DungeonGenerator.instance.medkitPrefab, portalPos + new Vector3(0, 0.28f, 7f), Quaternion.Euler(0,90,0));
+                medkit.name = "Medkit";
+            }
+
             Vector3 nextLevelStart = DungeonGenerator.instance.GenerateNextLevel(portalPos, false);
 
             exitTeleporter.GetComponent<TeleporterBoss>().SetDestination(nextLevelStart);

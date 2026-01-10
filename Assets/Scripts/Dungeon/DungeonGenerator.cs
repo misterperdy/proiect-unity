@@ -107,6 +107,7 @@ public class DungeonGenerator : MonoBehaviour
     public GameObject cornerHallway;
     public GameObject tJunction;
     public GameObject crossIntersection;
+    public GameObject medkitPrefab;
 
     [Header("Container")]
     public Transform dungeonContainer;
