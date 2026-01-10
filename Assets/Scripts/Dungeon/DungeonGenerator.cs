@@ -282,7 +282,7 @@ public class DungeonGenerator : MonoBehaviour
 
         if (player != null && currentBiomeIndex==biomeSpawnIndex)
         {
-            player.position = finalPos + new Vector3(0, 2, 0);
+            player.position = finalPos + new Vector3(0, 0.2f, 0); //LOWERED Y FOR PLAYER
             Rigidbody playerRb = player.GetComponent<Rigidbody>();
             if (playerRb != null) { playerRb.velocity = Vector3.zero; playerRb.position = player.position; }
             player.rotation = Quaternion.identity;
