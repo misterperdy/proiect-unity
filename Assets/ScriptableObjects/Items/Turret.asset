@@ -15,6 +15,7 @@ MonoBehaviour:
   itemType: 4
   itemIcon: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   itemPrefab: {fileID: 943651283491757865, guid: 916d75608e4ff8c47a7eaa00ae011e65, type: 3}
+  pickupPrefab: {fileID: 9079030698199349356, guid: a94b14671d3320347b23474d25ad1ed7, type: 3}
   damage: 30
   attackCooldown: 0.5
   sizeMultiplier: 1
