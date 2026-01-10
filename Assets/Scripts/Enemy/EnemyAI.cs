@@ -263,6 +263,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
             tracker.TriggerDeathAnimation();
         }
 
+        if(DungeonGenerator.instance != null)
         if(DungeonGenerator.instance.medkitPrefab != null)
         {
             float randomValue = Random.Range(0f, 100f);
