@@ -8,6 +8,9 @@ public class HealthBarUI : MonoBehaviour
     public Slider slider;
 
     public GameObject HPtextGO;
+    public float baseWidth = 230f;      // Latimea initiala (cand ai 100 HP)
+
+    private float pixelsPerHP;
 
     void Start()
     {
@@ -27,12 +30,15 @@ public class HealthBarUI : MonoBehaviour
         {
             slider.maxValue = playerHealth.maxHealth;
             slider.value = playerHealth.currentHealth;
+            pixelsPerHP = baseWidth / playerHealth.maxHealth;
             Debug.Log("Health bar initialized successfully!");
         }
         else
         {
             Debug.LogError("Health bar initialization failed. Check for missing components or incorrect tags.");
         }
+
+        UpdateWidth();
     }
 
     void Update()
@@ -46,5 +52,16 @@ public class HealthBarUI : MonoBehaviour
         {
             HPtextGO.GetComponent<Text>().text = playerHealth.currentHealth.ToString();
         }
+    }
+
+    public void UpdateWidth()
+    {
+        if (playerHealth != null)
+        {
+            float newWidth = playerHealth.maxHealth * pixelsPerHP;
+
+            this.gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(newWidth, this.gameObject.GetComponent<RectTransform>().sizeDelta.y);
+        }
+        
     }
 }

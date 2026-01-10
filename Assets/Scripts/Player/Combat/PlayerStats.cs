@@ -66,6 +66,16 @@ public class PlayerStats : MonoBehaviour
             int amountToAdd = Mathf.RoundToInt(playerHealth.maxHealth * percentage);
             playerHealth.maxHealth += amountToAdd;
             playerHealth.Heal(amountToAdd); // Heal the amount we just gained
+
+            GameObject healthBar = GameObject.Find("HealthBar");
+            if (healthBar != null)
+            {
+                HealthBarUI hbUI = healthBar.GetComponent<HealthBarUI>();
+                if (hbUI != null)
+                {
+                    hbUI.UpdateWidth();
+                }
+            }
         }
     }
 
