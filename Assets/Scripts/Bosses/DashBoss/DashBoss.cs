@@ -89,6 +89,7 @@ public class DashBoss : MonoBehaviour, IDamageable
             case BossState.Idle:
                 if (CanSeePlayer())
                 {
+                    if (MusicManager.Instance != null) MusicManager.Instance.PlayBossMusic();
                     currentState = BossState.Chasing;
                 }
                 break;
@@ -258,6 +259,8 @@ public class DashBoss : MonoBehaviour, IDamageable
 
     void Die()
     {
+        if (MusicManager.Instance != null) MusicManager.Instance.PlayGameplayMusic();
+
         Debug.Log("Boss Defeated!");
 
         if(bossHealthBar != null)

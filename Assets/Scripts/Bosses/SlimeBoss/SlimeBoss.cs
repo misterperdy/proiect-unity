@@ -103,6 +103,7 @@ public class SlimeBoss : MonoBehaviour, IDamageable
             case BossState.Idle:
                 if (CanSeePlayer())
                 {
+                    if (MusicManager.Instance != null) MusicManager.Instance.PlayBossMusic();
                     currentState = BossState.Chasing;
                 }
                 break;
@@ -391,6 +392,8 @@ public class SlimeBoss : MonoBehaviour, IDamageable
 
     void Die()
     {
+        if (MusicManager.Instance != null) MusicManager.Instance.PlayGameplayMusic();
+
         if (activeShadow != null) Destroy(activeShadow);
         if (bossHealthBar != null) bossHealthBar.ToggleBar(false);
         Destroy(gameObject);

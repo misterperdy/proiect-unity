@@ -139,7 +139,11 @@ public class LichBoss : MonoBehaviour, IDamageable
         switch (currentState)
         {
             case BossState.Idle:
-                if (CanSeePlayer()) currentState = BossState.Chasing;
+                if (CanSeePlayer())
+                {
+                    if (MusicManager.Instance != null) MusicManager.Instance.PlayBossMusic();
+                    currentState = BossState.Chasing;
+                }
                 break;
             case BossState.Chasing:
                 ChaseAndDecide();
@@ -456,6 +460,8 @@ public class LichBoss : MonoBehaviour, IDamageable
 
     void Die()
     {
+        if (MusicManager.Instance != null) MusicManager.Instance.PlayGameplayMusic();
+
         // Stop logic
         StopAllCoroutines();
         ToggleShield(false);
