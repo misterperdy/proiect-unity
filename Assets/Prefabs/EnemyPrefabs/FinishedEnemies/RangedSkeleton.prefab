@@ -824,6 +824,7 @@ MonoBehaviour:
   lootMultiplier: 1
   projectileDamage: 10
   xpOrbPrefab: {fileID: 7185489140940364686, guid: f6192108dbd2ea144bfd5f2fa392b278, type: 3}
+  medkitDropChance: 10
   maxHealth: 50
   currentHealth: 0
 --- !u!114 &-7350704004215826038
@@ -1513,6 +1514,10 @@ PrefabInstance:
     - target: {fileID: 180010, guid: 2e52ab7b27833a546a0f62de87d98a15, type: 3}
       propertyPath: m_Name
       value: wand04_red
+      objectReference: {fileID: 0}
+    - target: {fileID: 180010, guid: 2e52ab7b27833a546a0f62de87d98a15, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 499022, guid: 2e52ab7b27833a546a0f62de87d98a15, type: 3}
       propertyPath: m_LocalPosition.x
