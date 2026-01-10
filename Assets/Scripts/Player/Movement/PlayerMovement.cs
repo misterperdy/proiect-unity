@@ -14,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
 
     public LayerMask floorLayerMask; // asign in inspector
 
+    public float heightOffset = 0.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -47,6 +48,30 @@ public class PlayerMovement : MonoBehaviour
         //move the rigidbody of the player
         rb.velocity = new Vector3(moveVector.x * movementSpeed, rb.velocity.y, moveVector.z * movementSpeed);
 
-        
+        //cast a forward ray that checks if its something the player should go over with, and handles Y changing
+        RaycastHit hit;
+
+        Vector3 castOrigin = transform.position;
+        if (moveVector.magnitude > 0.1f)
+        {
+            Vector3 dir = new Vector3(moveVector.x, 0, moveVector.z).normalized;
+            castOrigin += dir * 0.4f;
+        }
+
+        castOrigin.y += 2.0f;
+
+        Debug.DrawRay(castOrigin, Vector3.down * 4.0f, Color.red);
+
+        if (Physics.Raycast(castOrigin, Vector3.down, out hit, 4.0f, floorLayerMask))
+        {
+            float targetY = hit.point.y + heightOffset;
+
+            if (Mathf.Abs(transform.position.y - targetY) > 0.01f)
+            {
+                Vector3 newPos = transform.position;
+                newPos.y = Mathf.Lerp(newPos.y, targetY, Time.deltaTime * 15f);
+                transform.position = newPos;
+            }
+        }
     }
 }
