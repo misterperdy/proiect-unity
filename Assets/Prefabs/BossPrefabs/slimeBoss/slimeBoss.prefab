@@ -213,7 +213,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f78e52af3b5d1c408193eecbd4517f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 300
+  maxHealth: 1500
   currentHealth: 0
   contactDamage: 15
   sightRange: 30
