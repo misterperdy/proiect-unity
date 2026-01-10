@@ -95,13 +95,17 @@ public class EnemyAI : MonoBehaviour, IDamageable
     void Update()
     {
         if (isDead) return;
+
+        bool isMoving = agent.velocity.magnitude > 0.1f;
+        acp.SetBool("isChasing", isMoving);
+
         switch (currentState)
         {
             case AIState.Patrolling:
                 Patrol();
                 break;
             case AIState.Chasing:
-                acp.SetBool("isChasing", true);
+                //acp.SetBool("isChasing", true);
                 Chase();
                 break;
             case AIState.Attacking:
@@ -120,11 +124,19 @@ public class EnemyAI : MonoBehaviour, IDamageable
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
         if (distanceToPlayer > sightRange) return false;
 
-        Vector3 directionToPlayer = (player.position - transform.position).normalized;
+        Vector3 origin = transform.position + Vector3.up;
+
+        Vector3 target = player.position + Vector3.up;
+
+        Vector3 directionToPlayer = (target - origin).normalized;
+
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, directionToPlayer, out hit, sightRange) && hit.transform == player)
+        if (Physics.Raycast(origin, directionToPlayer, out hit, sightRange))
         {
-            return true;
+            if (hit.transform == player)
+            {
+                return true;
+            }
         }
         return false;
     }
