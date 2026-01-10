@@ -25,8 +25,8 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float moveX = Input.GetAxis("Horizontal"); // A,D keys or left,right arrows
-        float moveZ = Input.GetAxis("Vertical"); // W,S keys or up,down arrows
+        float moveX = Input.GetAxisRaw("Horizontal"); // A,D keys or left,right arrows
+        float moveZ = Input.GetAxisRaw("Vertical"); // W,S keys or up,down arrows
 
         //create a vector with the inputs from the 2 axis
         moveVector = new Vector3(moveX, 0f, moveZ).normalized;
@@ -38,8 +38,8 @@ public class PlayerMovement : MonoBehaviour
         {
             localMove = Vector3.zero;
         }
-        animator.SetFloat("InputX", localMove.x, 0.01f, Time.deltaTime);
-        animator.SetFloat("InputZ", localMove.z, 0.01f, Time.deltaTime);
+        animator.SetFloat("InputX", localMove.x, 0.15f, Time.deltaTime);
+        animator.SetFloat("InputZ", localMove.z, 0.15f, Time.deltaTime);
     }
 
     //function to handle physics that runs constantly

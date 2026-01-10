@@ -2985,6 +2985,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 331216165488921038, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
+      propertyPath: m_MinVertexDistance
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 3487016196604326121, guid: 35d1dad614fdd4f4a875b5eac9f1c646, type: 3}
       propertyPath: aimLayers.m_Bits
       value: 1911
