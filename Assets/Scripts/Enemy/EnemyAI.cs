@@ -14,6 +14,9 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     public float medkitDropChance = 10f; // 0-100
 
+    private float lastDamageSfxTime = -999f;
+    private const float damageSfxMinInterval = 0.08f;
+
 
     private NavMeshAgent agent;
     private Transform player;
@@ -208,7 +211,14 @@ public class EnemyAI : MonoBehaviour, IDamageable
                 {
                     if (playerHealth != null)
                     {
-                        if(Vector3.Distance(transform.position, player.position) <= attackRange) playerHealth.TakeDamage(damage);
+                        if(Vector3.Distance(transform.position, player.position) <= attackRange)
+                        {
+                            if (MusicManager.Instance != null)
+                            {
+                                MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.enemySwordSwingSfx, transform.position, 1f, 2f, 25f);
+                            }
+                            playerHealth.TakeDamage(damage);
+                        }
                     }
                      lastAttackTime = Time.time;
                 }
@@ -247,6 +257,15 @@ public class EnemyAI : MonoBehaviour, IDamageable
     public void TakeDamage(int amount)
     {
         currentHealth -= amount;
+
+        if (MusicManager.Instance != null && Time.time - lastDamageSfxTime >= damageSfxMinInterval)
+        {
+            string n = gameObject.name.ToLower();
+            AudioClip clip = n.Contains("slime") ? MusicManager.Instance.slimeEnemyTookDamageSfx : MusicManager.Instance.skeletonTookDamageSfx;
+            MusicManager.Instance.PlaySpatialSfx(clip, transform.position, 1f, 2f, 25f);
+            lastDamageSfxTime = Time.time;
+        }
+
         if (currentHealth <= 0)
         {
             Die();
@@ -256,6 +275,11 @@ public class EnemyAI : MonoBehaviour, IDamageable
     void Die()
     {
         Debug.Log("Enemy has died!");
+
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.enemyDiesSfx, transform.position, 1f, 2f, 25f);
+        }
 
         MinimapTracker tracker = GetComponent<MinimapTracker>();
         if (tracker != null)

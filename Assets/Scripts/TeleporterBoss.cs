@@ -68,6 +68,11 @@ public class TeleporterBoss : MonoBehaviour
     {
         isTeleporting = true;
 
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySfx(MusicManager.Instance.bossTeleporterSfx);
+        }
+
         // Disable Physics/Collisions briefly
         if (player != null)
         {

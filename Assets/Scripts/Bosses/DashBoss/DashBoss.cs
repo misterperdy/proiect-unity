@@ -37,6 +37,9 @@ public class DashBoss : MonoBehaviour, IDamageable
     [Header("UI")]
     public BossBarSlider bossHealthBar;
 
+    private float lastDamageSfxTime = -999f;
+    private const float damageSfxMinInterval = 0.08f;
+
     void Start()
     {
         currentHealth = maxHealth;
@@ -89,6 +92,7 @@ public class DashBoss : MonoBehaviour, IDamageable
             case BossState.Idle:
                 if (CanSeePlayer())
                 {
+                    if (MusicManager.Instance != null) MusicManager.Instance.PlayBossMusic();
                     currentState = BossState.Chasing;
                 }
                 break;
@@ -245,6 +249,12 @@ public class DashBoss : MonoBehaviour, IDamageable
     {
         currentHealth -= damage;
 
+        if (MusicManager.Instance != null && Time.time - lastDamageSfxTime >= damageSfxMinInterval)
+        {
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.golemBossTookDamageSfx, transform.position, 1f, 3f, 35f);
+            lastDamageSfxTime = Time.time;
+        }
+
         //update UI
         if (bossHealthBar != null) {
             bossHealthBar.SetHealth(currentHealth);
@@ -258,6 +268,13 @@ public class DashBoss : MonoBehaviour, IDamageable
 
     void Die()
     {
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.bossDiesSfx, transform.position, 1f, 3f, 45f);
+        }
+
+        if (MusicManager.Instance != null) MusicManager.Instance.PlayGameplayMusic();
+
         Debug.Log("Boss Defeated!");
 
         if(bossHealthBar != null)
