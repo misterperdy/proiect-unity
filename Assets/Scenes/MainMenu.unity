@@ -1304,6 +1304,16 @@ MonoBehaviour:
   leechBossTookDamageSfx: {fileID: 8300000, guid: b5b3b9a23fb0f50479ac7e8fa946cb6e, type: 3}
   golemBossTookDamageSfx: {fileID: 8300000, guid: c7155c0e8aa7b324bade16bd96758d1a, type: 3}
   perkSelectedSfx: {fileID: 8300000, guid: 5acdc300f10cb804b8fe0bac5a3348eb, type: 3}
+  playerDashSfx: {fileID: 8300000, guid: 78263a0a2bd83e549982659b70d6d84d, type: 3}
+  enemyDiesSfx: {fileID: 8300000, guid: 724e428d82b973e49bd96b51472de5f2, type: 3}
+  bossDiesSfx: {fileID: 8300000, guid: 6622a0f42d268d14eab49126897bd583, type: 3}
+  playerDiesGameOverSfx: {fileID: 8300000, guid: 69b463e21f29a7b43983645243148d16, type: 3}
+  gamePausedSfx: {fileID: 8300000, guid: 8744978f0ecf6834b8df8557622f000b, type: 3}
+  gameUnpausedSfx: {fileID: 8300000, guid: 2c02e77c2339d6d419e80841cd937324, type: 3}
+  xpPickupSfx: {fileID: 8300000, guid: 60f0d53adf30d2f4c8af631ae66e07db, type: 3}
+  weaponPickupSfx: {fileID: 8300000, guid: d29db9859c42f0943bcafff24c3a5dfa, type: 3}
+  playerMedkitHealingSfx: {fileID: 8300000, guid: 27930724f8fa1ea4ba5e46193cf5f796, type: 3}
+  turretShootSfx: {fileID: 8300000, guid: 2a1f0226f214e9b4f98d54885acf6538, type: 3}
 --- !u!4 &1097437596
 Transform:
   m_ObjectHideFlags: 0
