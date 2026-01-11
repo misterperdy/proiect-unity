@@ -10,7 +10,9 @@ public class BossRoomSpawner : MonoBehaviour
 
     private GameObject exitTeleporter;
 
-    public void Initialize(GameObject bossToSpawn, int roomWidth, int roomHeight, float tileSize)
+    bool finalLevel = false;
+
+    public void Initialize(GameObject bossToSpawn, int roomWidth, int roomHeight, float tileSize, bool finalLevel = false)
     {
         bossPrefab = bossToSpawn;
         triggerCollider = gameObject.AddComponent<BoxCollider>();
@@ -20,6 +22,8 @@ public class BossRoomSpawner : MonoBehaviour
         float sizeZ = (roomHeight * tileSize) - 2.0f;
         triggerCollider.size = new Vector3(sizeX, 10f, sizeZ);
         triggerCollider.center = new Vector3(0, 5f, 0);
+
+        this.finalLevel = finalLevel;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -56,9 +60,21 @@ public class BossRoomSpawner : MonoBehaviour
 
         if (DungeonGenerator.instance != null && DungeonGenerator.instance.teleporterPrefab != null)
         {
-            Vector3 portalPos = transform.position + new Vector3(0f,0.3f,0f); 
-            exitTeleporter = Instantiate(DungeonGenerator.instance.teleporterPrefab, portalPos, Quaternion.identity);
-            exitTeleporter.name = "Teleporter_NextLevel";
+            Vector3 portalPos = transform.position + new Vector3(0f,0.3f,0f);
+            if (!finalLevel)
+            {
+                exitTeleporter = Instantiate(DungeonGenerator.instance.teleporterPrefab, portalPos, Quaternion.identity);
+
+                exitTeleporter.name = "Teleporter_NextLevel";
+            }
+            else
+            {
+                if(DungeonGenerator.instance.finalTeleporterPrefab != null)
+                {
+                    exitTeleporter = Instantiate(DungeonGenerator.instance.finalTeleporterPrefab, portalPos, Quaternion.identity);
+                    exitTeleporter.name = "Teleporter_ending";
+                }
+            }
 
             if(DungeonGenerator.instance.medkitPrefab != null)
             {
