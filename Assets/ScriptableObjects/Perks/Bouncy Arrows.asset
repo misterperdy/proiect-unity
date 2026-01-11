@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   perkName: Bouncy Arrows
   description: +1 bounce off walls
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 530bcabb1501d8148a19a77465ecac03, type: 3}
   type: 5
   amount: 1
   rarity: 3

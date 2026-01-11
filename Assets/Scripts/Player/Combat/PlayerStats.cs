@@ -13,6 +13,7 @@ public class PlayerStats : MonoBehaviour
     public float dashCooldownMultiplier = 1f;
     public float vampirismPercent = 0f;
     public float regenerationPercentPerSecond = 0f;
+    public int extraPerkOptionsBonus = 0;
 
     private float vampirismHealRemainder = 0f;
     private float regenerationHealRemainder = 0f;
@@ -76,6 +77,10 @@ public class PlayerStats : MonoBehaviour
             case PerkType.Regeneration:
                 // Amount is a fraction per second (0.01 = 1% max HP per second). Stacks additively.
                 regenerationPercentPerSecond += Mathf.Max(0f, perk.amount);
+                break;
+            case PerkType.ExtraAdaptive:
+                // Amount is additional perk options offered (1 = 3 -> 4). Typically one-time.
+                extraPerkOptionsBonus += Mathf.Max(0, Mathf.RoundToInt(perk.amount));
                 break;
         }
 

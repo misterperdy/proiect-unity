@@ -54,8 +54,10 @@ public class PerkManager : MonoBehaviour
             Destroy(child.gameObject);
         }
 
+        int effectiveOptionsToOffer = Mathf.Max(1, optionsToOffer + (playerStats != null ? playerStats.extraPerkOptionsBonus : 0));
+
         // Pick random perks
-        List<PerkSO> choices = GetWeightedRandomPerks();
+        List<PerkSO> choices = GetWeightedRandomPerks(effectiveOptionsToOffer);
 
         // Create UI cards
         foreach (PerkSO p in choices)
@@ -86,7 +88,7 @@ public class PerkManager : MonoBehaviour
         }
     }
 
-    List<PerkSO> GetWeightedRandomPerks()
+    List<PerkSO> GetWeightedRandomPerks(int count)
     {
         List<PerkSO> selectedPerks = new List<PerkSO>();
 
@@ -103,8 +105,8 @@ public class PerkManager : MonoBehaviour
             validPool.Add(p);
         }
 
-        // 2. Pick 'optionsToOffer' amount of perks
-        for (int i = 0; i < optionsToOffer; i++)
+        // 2. Pick 'count' amount of perks
+        for (int i = 0; i < count; i++)
         {
             if (validPool.Count == 0) break;
 

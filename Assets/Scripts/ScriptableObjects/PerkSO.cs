@@ -10,7 +10,8 @@ public enum PerkType
     BounceArrows,
     DashCooldownMultiplier,
     Vampirism,
-    Regeneration
+    Regeneration,
+    ExtraAdaptive
 }
 
 public enum PerkRarity
