@@ -19,8 +19,8 @@ public class AuraRingVisual : MonoBehaviour
 
     [Header("Orbit (Clockwise)")]
     // Negative orbital Y makes it spin clockwise (from above) in Unity's left-handed Y-up.
-    public float minOrbitSpeed = -10f;
-    public float maxOrbitSpeed = -18f;
+    public float minOrbitSpeed = -0f;
+    public float maxOrbitSpeed = -3f;
 
     [Header("Colors")]
     [Min(0.01f)] public float colorCycleSpeed = 0.6f;
@@ -113,7 +113,11 @@ public class AuraRingVisual : MonoBehaviour
         var vol = ps.velocityOverLifetime;
         vol.enabled = true;
         vol.space = ParticleSystemSimulationSpace.Local;
+        // Unity requires orbital X/Y/Z curves to all use the same curve mode.
+        // Use TwoConstants for all 3 to avoid intermittent "curves must all be in the same mode" warnings.
+        vol.orbitalX = new ParticleSystem.MinMaxCurve(0f, 0f);
         vol.orbitalY = new ParticleSystem.MinMaxCurve(minOrbitSpeed, maxOrbitSpeed);
+        vol.orbitalZ = new ParticleSystem.MinMaxCurve(0f, 0f);
         vol.radial = 0f;
         vol.speedModifier = 1f;
 
