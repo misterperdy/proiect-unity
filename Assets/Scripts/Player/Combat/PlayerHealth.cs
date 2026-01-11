@@ -39,6 +39,14 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
     }
 
+    public void HealPercent(float percent)
+    {
+        if (isDead) return;
+        float newHp = currentHealth + (percent * maxHealth);
+        currentHealth = (int)Mathf.Min(newHp, maxHealth);
+
+    }
+
 
     public void TakeDamage(int damage)
     {
