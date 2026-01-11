@@ -9,6 +9,7 @@ public class Dash : MonoBehaviour
     public TrailRenderer _trailRenderer;
     private PlayerHealth _playerHealth;
     private Animator animator;
+    private PlayerStats _playerStats;
 
     [Header("Dashing")]
     [SerializeField] private float _dashVelocity = 15f; // Am marit putin valoarea, 1.2 e foarte mic pt MovePosition
@@ -26,6 +27,7 @@ public class Dash : MonoBehaviour
         if(_trailRenderer == null)
         _trailRenderer = GetComponentInChildren<TrailRenderer>();
         _playerHealth = GetComponent<PlayerHealth>();
+        _playerStats = GetComponent<PlayerStats>();
         // Atentie: Daca scriptul e pe parinte si animatorul pe copil, foloseste GetComponentInChildren
         animator = GetComponentInChildren<Animator>();
     }
@@ -105,7 +107,10 @@ public class Dash : MonoBehaviour
         if (_playerHealth != null) _playerHealth.canTakeDamage = true;
 
         // Asteptam cooldown-ul
-        yield return new WaitForSeconds(_dashCooldown);
+        float finalCooldown = (_playerStats != null)
+            ? _playerStats.GetModifiedDashCooldown(_dashCooldown)
+            : _dashCooldown;
+        yield return new WaitForSeconds(finalCooldown);
         _canDash = true;
     }
 }

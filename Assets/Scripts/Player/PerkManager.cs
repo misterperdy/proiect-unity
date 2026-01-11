@@ -17,7 +17,7 @@ public class PerkManager : MonoBehaviour
 
     [Header("Luck Balancing")]
     // How much weight does 1 Luck point add to these rarities?
-    public int luckBonusCommon = 0;
+    public int luckBonusCommon = -5;
     public int luckBonusRare = 5;      // 10 Luck = +50 Weight
     public int luckBonusEpic = 2;
     public int luckBonusLegendary = 1;

@@ -9,6 +9,7 @@ public class PlayerStats : MonoBehaviour
     public float fireRateMultiplier = 1f;
     public int bonusProjectiles = 0;
     public int bonusBounces = 0;
+    public float dashCooldownMultiplier = 1f;
 
     private PlayerHealth playerHealth;
 
@@ -54,6 +55,11 @@ public class PlayerStats : MonoBehaviour
                 break;
             case PerkType.BounceArrows:
                 bonusBounces += Mathf.RoundToInt(perk.amount);
+                break;
+            case PerkType.DashCooldownMultiplier:
+                // Amount is a multiplier (0.5 = half cooldown). Clamp to avoid 0/negative.
+                float mult = (perk.amount <= 0f) ? 1f : perk.amount;
+                dashCooldownMultiplier *= Mathf.Clamp(mult, 0.05f, 10f);
                 break;
         }
 
@@ -107,5 +113,10 @@ public class PlayerStats : MonoBehaviour
     {
         // Higher multiplier = Lower cooldown
         return baseCooldown / fireRateMultiplier;
+    }
+
+    public float GetModifiedDashCooldown(float baseCooldown)
+    {
+        return Mathf.Max(0.01f, baseCooldown * dashCooldownMultiplier);
     }
 }

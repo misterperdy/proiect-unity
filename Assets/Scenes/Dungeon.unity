@@ -1950,6 +1950,18 @@ PrefabInstance:
       propertyPath: playerStats
       value: 
       objectReference: {fileID: 1506223950468363471}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.data[4]
+      value: 
+      objectReference: {fileID: 11400000, guid: 7f6f0a3a7f7c4d7c9f960b8bf3b12f2a, type: 2}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.data[5]
+      value: 
+      objectReference: {fileID: 11400000, guid: 4fb6db7d4c7d4f7fb6c8e2cf9d3a6c11, type: 2}
     - target: {fileID: 8480918194969402737, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
       propertyPath: m_Name
       value: PerkCanvas

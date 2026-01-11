@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb6b6c33d30516946a6cb6f97ed22c46, type: 3}
-  m_Name: Bouncy Arrows
+  m_Name: Half Dash Cooldown
   m_EditorClassIdentifier: 
-  perkName: Bouncy Arrows
-  description: +1 bounce off walls
-  icon: {fileID: 21300000, guid: 530bcabb1501d8148a19a77465ecac03, type: 3}
-  type: 5
-  amount: 1
-  rarity: 3
-  baseWeight: 100
-  isOneTimeOnly: 0
+  perkName: Half Dash Cooldown
+  description: Dash cooldown is reduced by 50%
+  icon: {fileID: 0}
+  type: 6
+  amount: 0.5
+  rarity: 2
+  baseWeight: 40
+  isOneTimeOnly: 1
