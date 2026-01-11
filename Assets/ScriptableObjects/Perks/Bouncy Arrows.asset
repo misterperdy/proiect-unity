@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Bouncy Arrows
   m_EditorClassIdentifier: 
   perkName: Bouncy Arrows
-  description: +1 bounce off walls
+  description: Arrows bounce +1 time. (One-time)
   icon: {fileID: 21300000, guid: 530bcabb1501d8148a19a77465ecac03, type: 3}
   type: 5
   amount: 1

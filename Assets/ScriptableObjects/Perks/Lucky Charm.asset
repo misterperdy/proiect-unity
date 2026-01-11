@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Lucky Charm
   m_EditorClassIdentifier: 
   perkName: Lucky Charm
-  description: +1 Luck (rarer perks more likely)
+  description: Gain +1 Luck (rarer perks more likely). (Stacks)
   icon: {fileID: 21300000, guid: f06abfea095148e44821e4feb740ea25, type: 3}
   type: 4
   amount: 1

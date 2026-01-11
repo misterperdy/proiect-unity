@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Multi-Shot
   m_EditorClassIdentifier: 
   perkName: Multi-Shot
-  description: +1 Projectile
+  description: Gain +1 projectile. (Stacks)
   icon: {fileID: 21300000, guid: 8d95bcf261f259f4786a397bc66e3705, type: 3}
   type: 2
   amount: 1
