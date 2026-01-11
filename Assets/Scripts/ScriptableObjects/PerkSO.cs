@@ -11,7 +11,8 @@ public enum PerkType
     DashCooldownMultiplier,
     Vampirism,
     Regeneration,
-    ExtraAdaptive
+    ExtraAdaptive,
+    ProximityDamageAura
 }
 
 public enum PerkRarity

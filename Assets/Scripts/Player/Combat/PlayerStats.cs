@@ -14,6 +14,10 @@ public class PlayerStats : MonoBehaviour
     public float vampirismPercent = 0f;
     public float regenerationPercentPerSecond = 0f;
     public int extraPerkOptionsBonus = 0;
+    public float proximityDamagePercentPerSecond = 0f;
+
+    [Header("Auras")]
+    public float proximityDamageRadius = 4f;
 
     private float vampirismHealRemainder = 0f;
     private float regenerationHealRemainder = 0f;
@@ -34,6 +38,7 @@ public class PlayerStats : MonoBehaviour
         if (perkHUD == null) perkHUD = FindObjectOfType<PerkHUD>();
 
         StartCoroutine(RegenerationLoop());
+        StartCoroutine(ProximityDamageLoop());
     }
 
     void Awake()
@@ -81,6 +86,10 @@ public class PlayerStats : MonoBehaviour
             case PerkType.ExtraAdaptive:
                 // Amount is additional perk options offered (1 = 3 -> 4). Typically one-time.
                 extraPerkOptionsBonus += Mathf.Max(0, Mathf.RoundToInt(perk.amount));
+                break;
+            case PerkType.ProximityDamageAura:
+                // Amount is a fraction per second of enemy max HP (0.02 = 2%). Stacks additively.
+                proximityDamagePercentPerSecond += Mathf.Max(0f, perk.amount);
                 break;
         }
 
@@ -175,5 +184,109 @@ public class PlayerStats : MonoBehaviour
             regenerationHealRemainder -= healAmount;
             playerHealth.Heal(healAmount);
         }
+    }
+
+    private IEnumerator ProximityDamageLoop()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1f);
+
+            if (proximityDamagePercentPerSecond <= 0f) continue;
+            if (proximityDamageRadius <= 0f) continue;
+
+            Collider[] hits = Physics.OverlapSphere(transform.position, proximityDamageRadius);
+            if (hits == null || hits.Length == 0) continue;
+
+            HashSet<int> damagedInstanceIds = new HashSet<int>();
+
+            foreach (Collider hit in hits)
+            {
+                if (hit == null) continue;
+
+                // Ignore self
+                if (hit.transform != null && hit.transform.root == transform.root) continue;
+
+                if (!TryGetDamageableWithMaxHealth(hit, out IDamageable damageable, out Component damageableComponent, out int maxHealth))
+                {
+                    continue;
+                }
+
+                int id = damageableComponent.GetInstanceID();
+                if (damagedInstanceIds.Contains(id)) continue;
+                damagedInstanceIds.Add(id);
+
+                int damage = Mathf.RoundToInt(maxHealth * proximityDamagePercentPerSecond);
+                if (damage <= 0) damage = 1;
+
+                damageable.TakeDamage(damage);
+                ReportDamageDealt(damage);
+            }
+        }
+    }
+
+    private static bool TryGetDamageableWithMaxHealth(Collider hit, out IDamageable damageable, out Component damageableComponent, out int maxHealth)
+    {
+        damageable = null;
+        damageableComponent = null;
+        maxHealth = 0;
+
+        if (hit == null) return false;
+
+        EnemyAI enemy = hit.GetComponentInParent<EnemyAI>();
+        if (enemy != null)
+        {
+            damageable = enemy;
+            damageableComponent = enemy;
+            maxHealth = enemy.maxHealth;
+            return maxHealth > 0;
+        }
+
+        ShooterEnemy shooter = hit.GetComponentInParent<ShooterEnemy>();
+        if (shooter != null)
+        {
+            damageable = shooter;
+            damageableComponent = shooter;
+            maxHealth = shooter.maxHealth;
+            return maxHealth > 0;
+        }
+
+        KamikazeEnemyAI kamikaze = hit.GetComponentInParent<KamikazeEnemyAI>();
+        if (kamikaze != null)
+        {
+            damageable = kamikaze;
+            damageableComponent = kamikaze;
+            maxHealth = kamikaze.maxHealth;
+            return maxHealth > 0;
+        }
+
+        SlimeBoss slimeBoss = hit.GetComponentInParent<SlimeBoss>();
+        if (slimeBoss != null)
+        {
+            damageable = slimeBoss;
+            damageableComponent = slimeBoss;
+            maxHealth = slimeBoss.maxHealth;
+            return maxHealth > 0;
+        }
+
+        LichBoss lichBoss = hit.GetComponentInParent<LichBoss>();
+        if (lichBoss != null)
+        {
+            damageable = lichBoss;
+            damageableComponent = lichBoss;
+            maxHealth = lichBoss.maxHealth;
+            return maxHealth > 0;
+        }
+
+        DashBoss dashBoss = hit.GetComponentInParent<DashBoss>();
+        if (dashBoss != null)
+        {
+            damageable = dashBoss;
+            damageableComponent = dashBoss;
+            maxHealth = dashBoss.maxHealth;
+            return maxHealth > 0;
+        }
+
+        return false;
     }
 }
