@@ -13,7 +13,8 @@ public enum PerkType
     Regeneration,
     ExtraAdaptive,
     ProximityDamageAura,
-    DashDamageOnHit
+    DashDamageOnHit,
+    XpMultiplier
 }
 
 public enum PerkRarity

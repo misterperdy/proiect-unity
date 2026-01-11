@@ -13,6 +13,8 @@ public class LevelingSystem : MonoBehaviour
     public int currentAmountGained = 0;
     public PerkManager perkManager;
 
+    private PlayerStats _playerStats;
+
     [Header("Debug")]
     public int previousLevelCost = 0; // Tracks "Cost(n-1)" for formula
 
@@ -26,6 +28,8 @@ public class LevelingSystem : MonoBehaviour
 
     void Start()
     {
+        _playerStats = GetComponent<PlayerStats>();
+
         // Initial setup for Level 1 -> 2
         // Formula: currentLevel(1) * 10 + previous(0) = 10
         CalculateNextLevelCost();
@@ -72,9 +76,15 @@ public class LevelingSystem : MonoBehaviour
 
     public void GainXP(int amount)
     {
-        currentXP += amount;
+        if (amount <= 0) return;
 
-        currentAmountGained = amount;
+        float mult = (_playerStats != null) ? _playerStats.GetXpMultiplier() : 1f;
+        int finalAmount = Mathf.RoundToInt(amount * mult);
+        if (finalAmount < 1) finalAmount = 1;
+
+        currentXP += finalAmount;
+
+        currentAmountGained = finalAmount;
 
         // Check for Level Up (While loop in case we get huge XP and skip multiple levels)
         while (currentXP >= xpRequiredForNextLevel)

@@ -8,6 +8,7 @@ public class PlayerStats : MonoBehaviour
     public float healthMultiplier = 1f;
     public float damageMultiplier = 1f;
     public float fireRateMultiplier = 1f;
+    public float xpMultiplierBonus = 0f;
     public int bonusProjectiles = 0;
     public int bonusBounces = 0;
     public float dashCooldownMultiplier = 1f;
@@ -113,6 +114,10 @@ public class PlayerStats : MonoBehaviour
                 // Amount is +% damage added to dash damage (0.10 = +10%). Stacks additively.
                 dashDamageBonusPercent += Mathf.Max(0f, perk.amount);
                 break;
+            case PerkType.XpMultiplier:
+                // Amount is +multiplier added to XP gain (0.10 = +10% XP). Stacks additively.
+                xpMultiplierBonus += Mathf.Max(0f, perk.amount);
+                break;
         }
 
         if (perkHUD != null) perkHUD.UpdateDisplay();
@@ -165,6 +170,12 @@ public class PlayerStats : MonoBehaviour
     {
         // Higher multiplier = Lower cooldown
         return baseCooldown / fireRateMultiplier;
+    }
+
+    public float GetXpMultiplier()
+    {
+        // Bonus stacks additively on top of baseline 1x.
+        return Mathf.Max(0f, 1f + xpMultiplierBonus);
     }
 
     public float GetModifiedDashCooldown(float baseCooldown)

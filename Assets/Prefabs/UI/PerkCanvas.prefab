@@ -270,6 +270,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f45eb84ab7e748cb90e3d9a816886398, type: 2}
   - {fileID: 11400000, guid: f4bf6273b773422bbe18b1920de3921e, type: 2}
   - {fileID: 11400000, guid: 47e918def22e4dabb369b18054b14ae1, type: 2}
+  - {fileID: 11400000, guid: 2f7d34c917e25e444acf03e2b44b0f1b, type: 2}
   optionsToOffer: 3
   luckBonusCommon: 0
   luckBonusRare: 5

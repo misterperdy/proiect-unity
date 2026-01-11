@@ -1952,7 +1952,7 @@ PrefabInstance:
       objectReference: {fileID: 1506223950468363471}
     - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
       propertyPath: allPerks.Array.size
-      value: 12
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
       propertyPath: allPerks.Array.data[4]
@@ -1986,6 +1986,14 @@ PrefabInstance:
       propertyPath: allPerks.Array.data[11]
       value: 
       objectReference: {fileID: 11400000, guid: 47e918def22e4dabb369b18054b14ae1, type: 2}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.data[12]
+      value: 
+      objectReference: {fileID: 11400000, guid: 2f7d34c917e25e444acf03e2b44b0f1b, type: 2}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.data[13]
+      value: 
+      objectReference: {fileID: 11400000, guid: 2f7d34c917e25e444acf03e2b44b0f1b, type: 2}
     - target: {fileID: 8480918194969402737, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
       propertyPath: m_Name
       value: PerkCanvas
