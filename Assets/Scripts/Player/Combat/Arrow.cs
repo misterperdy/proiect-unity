@@ -16,6 +16,8 @@ public class Arrow : MonoBehaviour
     private Rigidbody rb;
     private float lifeTime = 5f; // Arrow will destroy itself after 5 seconds if it hits nothing
 
+    private PlayerStats ownerStats;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -31,11 +33,13 @@ public class Arrow : MonoBehaviour
         }
     }
 
-    public void Fire(float bulletSpeed, float bulletDamage, int bounceCount)
+    public void Fire(float bulletSpeed, float bulletDamage, int bounceCount, PlayerStats owner = null)
     {
         speed = bulletSpeed;
         damage = bulletDamage;
         maxBounces = bounceCount;
+
+        ownerStats = owner;
 
         remainingBounces = maxBounces;
 
@@ -72,7 +76,9 @@ public class Arrow : MonoBehaviour
 
         if (isEnemyHit)
         {
-            damageableTarget.TakeDamage((int)damage);
+            int dealt = (int)damage;
+            damageableTarget.TakeDamage(dealt);
+            if (ownerStats != null) ownerStats.ReportDamageDealt(dealt);
             Debug.Log("Arrow hit an enemy: " + collision.gameObject.name);
 
             // Bounce perk is meant for walls/obstacles, not enemies.

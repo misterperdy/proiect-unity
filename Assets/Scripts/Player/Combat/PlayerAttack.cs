@@ -200,7 +200,7 @@ public class PlayerAttack : MonoBehaviour
 
             if (arrow != null)
             {
-                arrow.Fire(this.arrowSpeed, finalDamage , bounces);
+                arrow.Fire(this.arrowSpeed, finalDamage , bounces, stats);
             }
         }
     }
@@ -269,6 +269,7 @@ public class PlayerAttack : MonoBehaviour
                 handler.damage = currentItem.explosionDamage;
                 handler.radius = currentItem.explosionRadius;
                 handler.delay = currentItem.explosionDelay;
+                handler.ownerStats = stats;
 
                 handler.StartExplosion();
             }
@@ -298,7 +299,9 @@ public class PlayerAttack : MonoBehaviour
 
         if (damageableTarget != null)
         {
-            damageableTarget.TakeDamage((int)currentDamage);
+            int dealt = (int)currentDamage;
+            damageableTarget.TakeDamage(dealt);
+            if (stats != null) stats.ReportDamageDealt(dealt);
         }
     }
 
@@ -392,6 +395,7 @@ public class PlayerAttack : MonoBehaviour
             handler.damage = currentItem.damageTurret;
             handler.fireRate = currentItem.fireRateTurret;
             handler.projectiles = currentItem.projectilesperTurret;
+            handler.ownerStats = stats;
 
             handler.StartTurret();
         }

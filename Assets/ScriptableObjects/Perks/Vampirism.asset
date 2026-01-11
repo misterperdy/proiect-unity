@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb6b6c33d30516946a6cb6f97ed22c46, type: 3}
-  m_Name: Lucky Charm
+  m_Name: Vampirism
   m_EditorClassIdentifier: 
-  perkName: Lucky Charm
-  description: +1 Luck (rarer perks more likely)
-  icon: {fileID: 21300000, guid: f06abfea095148e44821e4feb740ea25, type: 3}
-  type: 4
-  amount: 1
-  rarity: 1
-  baseWeight: 60
+  perkName: Vampirism
+  description: Heal for 1% of damage dealt (stacks)
+  icon: {fileID: 21300000, guid: 2bb02b871b3de264084da35529482ade, type: 3}
+  type: 7
+  amount: 0.02
+  rarity: 2
+  baseWeight: 40
   isOneTimeOnly: 0

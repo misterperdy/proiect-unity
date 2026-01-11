@@ -17,6 +17,8 @@ public class TurretHandler : MonoBehaviour
     public LayerMask enemyLayer;          // set to Enemy layer (recommended)
     public string enemyTag = "Enemy";     // fallback if you use tags
 
+    public PlayerStats ownerStats;
+
     private bool isActive;
 
     [Header("Rotation")]
@@ -130,7 +132,7 @@ public class TurretHandler : MonoBehaviour
             Arrow arrow = bulletGO.GetComponent<Arrow>();
             if (arrow != null)
             {
-                arrow.Fire(20f, damage, 0);
+                arrow.Fire(20f, damage, 0, ownerStats);
             }
             else
             {

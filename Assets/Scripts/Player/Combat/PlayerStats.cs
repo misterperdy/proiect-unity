@@ -10,6 +10,9 @@ public class PlayerStats : MonoBehaviour
     public int bonusProjectiles = 0;
     public int bonusBounces = 0;
     public float dashCooldownMultiplier = 1f;
+    public float vampirismPercent = 0f;
+
+    private float vampirismHealRemainder = 0f;
 
     private PlayerHealth playerHealth;
 
@@ -60,6 +63,10 @@ public class PlayerStats : MonoBehaviour
                 // Amount is a multiplier (0.5 = half cooldown). Clamp to avoid 0/negative.
                 float mult = (perk.amount <= 0f) ? 1f : perk.amount;
                 dashCooldownMultiplier *= Mathf.Clamp(mult, 0.05f, 10f);
+                break;
+            case PerkType.Vampirism:
+                // Amount is a fraction (0.01 = 1%). Stacks additively.
+                vampirismPercent += Mathf.Max(0f, perk.amount);
                 break;
         }
 
@@ -118,5 +125,21 @@ public class PlayerStats : MonoBehaviour
     public float GetModifiedDashCooldown(float baseCooldown)
     {
         return Mathf.Max(0.01f, baseCooldown * dashCooldownMultiplier);
+    }
+
+    public void ReportDamageDealt(int damageDealt)
+    {
+        if (damageDealt <= 0) return;
+        if (vampirismPercent <= 0f) return;
+        if (playerHealth == null) return;
+
+        // Accumulate fractional healing so 1% works at low damage.
+        vampirismHealRemainder += damageDealt * vampirismPercent;
+
+        int healAmount = Mathf.FloorToInt(vampirismHealRemainder);
+        if (healAmount <= 0) return;
+
+        vampirismHealRemainder -= healAmount;
+        playerHealth.Heal(healAmount);
     }
 }

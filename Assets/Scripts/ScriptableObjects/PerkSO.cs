@@ -8,7 +8,8 @@ public enum PerkType
     FireRate,
     LuckBoost, // Added Luck as a perk type too!
     BounceArrows,
-    DashCooldownMultiplier
+    DashCooldownMultiplier,
+    Vampirism
 }
 
 public enum PerkRarity
