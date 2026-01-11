@@ -821,9 +821,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slider: {fileID: 2335137460302182230}
   canvas: {fileID: 5942819184743154020}
-  haveTwoBars: 0
-  bar1: {fileID: 0}
-  bar2: {fileID: 0}
 --- !u!1 &7414021618824668156
 GameObject:
   m_ObjectHideFlags: 0
@@ -926,9 +923,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slider: {fileID: 3439615341461267045}
   canvas: {fileID: 5942819184743154020}
-  haveTwoBars: 0
-  bar1: {fileID: 0}
-  bar2: {fileID: 0}
 --- !u!1 &7508938758042458193
 GameObject:
   m_ObjectHideFlags: 0
@@ -1165,6 +1159,18 @@ PrefabInstance:
       propertyPath: bossHealthBar
       value: 
       objectReference: {fileID: 4664059008177923400}
+    - target: {fileID: 1006560436630557556, guid: 4cb0d2e093ae49e4692ea6d19559269b, type: 3}
+      propertyPath: contactDamage
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1006560436630557556, guid: 4cb0d2e093ae49e4692ea6d19559269b, type: 3}
+      propertyPath: shadowFollowSpeed
+      value: 9.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1006560436630557556, guid: 4cb0d2e093ae49e4692ea6d19559269b, type: 3}
+      propertyPath: smallJumpDistance
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 2001432429122068684, guid: 4cb0d2e093ae49e4692ea6d19559269b, type: 3}
       propertyPath: m_Name
       value: slimeBoss
