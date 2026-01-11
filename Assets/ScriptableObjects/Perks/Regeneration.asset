@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb6b6c33d30516946a6cb6f97ed22c46, type: 3}
-  m_Name: Multi-Shot
+  m_Name: Regeneration
   m_EditorClassIdentifier: 
-  perkName: Multi-Shot
-  description: Gain +1 projectile. (Stacks)
-  icon: {fileID: 21300000, guid: 8d95bcf261f259f4786a397bc66e3705, type: 3}
-  type: 2
-  amount: 1
+  perkName: Regeneration
+  description: Heal 1% max HP per second. (Stacks)
+  icon: {fileID: 21300000, guid: ad07527a07f828544b6f6a2a7f00e678, type: 3}
+  type: 8
+  amount: 0.01
+  rarity: 2
+  baseWeight: 40
+  isOneTimeOnly: 0

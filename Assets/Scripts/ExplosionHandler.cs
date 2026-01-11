@@ -10,6 +10,8 @@ public class ExplosionHandler : MonoBehaviour
     public float radius = 4f;
     public float delay = 1.0f;
 
+    public PlayerStats ownerStats;
+
     public int explosionDamage { get { return damage; } }
     public float explosionRadius { get { return radius; } }
     public float explosionDelay { get { return delay; } }
@@ -50,10 +52,12 @@ public class ExplosionHandler : MonoBehaviour
                 if (enemy != null)
                 {
                     enemy.TakeDamage(damage);
+                    if (ownerStats != null) ownerStats.ReportDamageDealt(damage);
                 }
                 else if (boss != null)
                 {
                     boss.TakeDamage(damage);
+                    if (ownerStats != null) ownerStats.ReportDamageDealt(damage);
                 }
 
                 Rigidbody rb = hit.GetComponent<Rigidbody>();

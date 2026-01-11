@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sharp Blade
   m_EditorClassIdentifier: 
   perkName: Sharp Blade
-  description: +20% Damage
+  description: Gain +20% damage. (Stacks)
   icon: {fileID: 21300000, guid: 3925691c2a021aa429c1dc89712a1253, type: 3}
   type: 1
   amount: 0.2

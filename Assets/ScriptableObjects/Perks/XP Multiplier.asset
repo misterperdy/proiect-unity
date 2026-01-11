@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb6b6c33d30516946a6cb6f97ed22c46, type: 3}
-  m_Name: Multi-Shot
+  m_Name: XP Multiplier
   m_EditorClassIdentifier: 
-  perkName: Multi-Shot
-  description: Gain +1 projectile. (Stacks)
-  icon: {fileID: 21300000, guid: 8d95bcf261f259f4786a397bc66e3705, type: 3}
-  type: 2
-  amount: 1
+  perkName: XP Multiplier
+  description: Gain +10% XP. (Stacks)
+  icon: {fileID: 21300000, guid: 45a544502f29c1d4e91d8150cfa1d9f6, type: 3}
+  type: 12
+  amount: 0.1
+  rarity: 1
+  baseWeight: 70
+  isOneTimeOnly: 0

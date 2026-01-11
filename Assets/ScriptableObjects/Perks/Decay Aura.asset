@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb6b6c33d30516946a6cb6f97ed22c46, type: 3}
-  m_Name: Multi-Shot
+  m_Name: Decay Aura
   m_EditorClassIdentifier: 
-  perkName: Multi-Shot
-  description: Gain +1 projectile. (Stacks)
-  icon: {fileID: 21300000, guid: 8d95bcf261f259f4786a397bc66e3705, type: 3}
-  type: 2
-  amount: 1
+  perkName: Decay Aura
+  description: Deal 2% enemy max HP/sec to nearby enemies. (Stacks)
+  icon: {fileID: 21300000, guid: 03e6f50b7a998ed46a4c3f9f8cb0855e, type: 3}
+  type: 10
+  amount: 0.02
+  rarity: 2
+  baseWeight: 25
+  isOneTimeOnly: 0

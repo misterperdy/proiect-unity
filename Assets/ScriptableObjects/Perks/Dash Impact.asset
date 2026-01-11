@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb6b6c33d30516946a6cb6f97ed22c46, type: 3}
-  m_Name: Multi-Shot
+  m_Name: Dash Impact
   m_EditorClassIdentifier: 
-  perkName: Multi-Shot
-  description: Gain +1 projectile. (Stacks)
-  icon: {fileID: 21300000, guid: 8d95bcf261f259f4786a397bc66e3705, type: 3}
-  type: 2
-  amount: 1
+  perkName: Dash Impact
+  description: Dash damages nearby enemies (+10% per stack). (Stacks)
+  icon: {fileID: 21300000, guid: 4029a9cfeb86f134c9c5af05993eaac8, type: 3}
+  type: 11
+  amount: 0.1
+  rarity: 0
+  baseWeight: 67
+  isOneTimeOnly: 0
