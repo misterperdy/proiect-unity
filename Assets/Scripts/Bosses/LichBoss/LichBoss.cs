@@ -71,6 +71,9 @@ public class LichBoss : MonoBehaviour, IDamageable
     public Animator animator;
     public BossBarSlider bossHealthBar;
 
+    [Header("Hit Effect")]
+    public GameObject hitParticles;
+
     private Transform player;
     private PlayerHealth playerHealth;
     private bool isAttacking = false;
@@ -455,6 +458,8 @@ public class LichBoss : MonoBehaviour, IDamageable
         // IMMUNITY: Phase 2 Transition OR Phase 3 (Survive)
         if (isInvulnerable) return;
 
+        StartCoroutine(SetHitParticles());
+
         currentHealth -= damage;
 
         if (MusicManager.Instance != null && Time.time - lastDamageSfxTime >= damageSfxMinInterval)
@@ -466,6 +471,16 @@ public class LichBoss : MonoBehaviour, IDamageable
         if (bossHealthBar != null) bossHealthBar.SetHealth((int)currentHealth);
 
         if (currentHealth <= 0) Die();
+    }
+
+    private IEnumerator SetHitParticles()
+    {
+        hitParticles.SetActive(true);
+
+        yield return new WaitForSeconds(0.1f);
+
+        hitParticles.SetActive(false);
+
     }
 
     void Die()

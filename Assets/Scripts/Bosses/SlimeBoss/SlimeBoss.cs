@@ -42,6 +42,9 @@ public class SlimeBoss : MonoBehaviour, IDamageable
     public float jumpModelYOffset = 0.0f;
     public LayerMask floorLayer;
 
+    [Header("Hit Effect")]
+    public GameObject hitParticles;
+
     public enum BossState { Idle, Chasing, PreparingJump, Jumping, BigJumping, Recovering }
     public BossState currentState;
 
@@ -390,6 +393,8 @@ public class SlimeBoss : MonoBehaviour, IDamageable
 
         if (bossHealthBar != null) bossHealthBar.SetHealth(currentHealth);
 
+        StartCoroutine(SetHitParticles());
+
         float healthPercent = (float)currentHealth / maxHealth;
 
         if (healthPercent <= 0.25f) speedMultiplier = 0.5f; 
@@ -398,6 +403,16 @@ public class SlimeBoss : MonoBehaviour, IDamageable
         
         
         if (currentHealth <= 0) Die();
+    }
+
+    private IEnumerator SetHitParticles()
+    {
+        hitParticles.SetActive(true);
+
+        yield return new WaitForSeconds(0.1f);
+
+        hitParticles.SetActive(false);
+
     }
 
     void Die()

@@ -108,7 +108,8 @@ public class RoomEnemySpawner : MonoBehaviour
             int dmg = Mathf.RoundToInt(melee.damage * statMult);
             float attSpeed = melee.attackSpeed * statMult;
             float spd = melee.moveSpeed + statMult;
-            melee.SetupEnemy(hp, dmg, attSpeed, spd, settings.color, settings.lootMult);
+            float lootMult = statMult * settings.lootMult;
+            melee.SetupEnemy(hp, dmg, attSpeed, spd, settings.color, lootMult, rarity.ToString());
         }
         else if (enemyObj.TryGetComponent(out ShooterEnemy shooter))
         {
@@ -118,14 +119,16 @@ public class RoomEnemySpawner : MonoBehaviour
             int BPS = Mathf.RoundToInt(shooter.bulletsPerShot * statMult);
             float spreadAng = shooter.spreadAngle * statMult;
             int aimErr = Mathf.RoundToInt(shooter.aimError);
+            float lootMult = statMult * settings.lootMult;
             shooter.SetupEnemy(hp, dmg, fireRateMult, BPS, spreadAng,
-            aimErr, settings.color, settings.lootMult);
+            aimErr, settings.color, lootMult, rarity.ToString());
         }
         else if (enemyObj.TryGetComponent(out KamikazeEnemyAI kami))
         {
             int hp = Mathf.RoundToInt(kami.maxHealth * statMult);
             int dmg = Mathf.RoundToInt(kami.explosionDamage * statMult);
-            kami.SetupEnemy(hp, dmg, settings.color, settings.lootMult);
+            float lootMult = statMult * settings.lootMult;
+            kami.SetupEnemy(hp, dmg, settings.color, lootMult, rarity.ToString());
         }
     }
 

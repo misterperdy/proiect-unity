@@ -403,9 +403,37 @@ PrefabInstance:
       value: MeleeSkeleton
       objectReference: {fileID: 0}
     - target: {fileID: 5968278701187641690, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
+      propertyPath: hitMat
+      value: 
+      objectReference: {fileID: 2100000, guid: d20f0da2ae41a4443bcc9dfbc515d5a7, type: 2}
+    - target: {fileID: 5968278701187641690, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
+      propertyPath: sValue
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968278701187641690, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
+      propertyPath: fadeTime
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968278701187641690, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
+      propertyPath: hValueHit
+      value: 220
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968278701187641690, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
+      propertyPath: sValueHit
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968278701187641690, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
+      propertyPath: vValueHit
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968278701187641690, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
       propertyPath: attackSpeed
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5968278701187641690, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
+      propertyPath: skeletonMat
+      value: 
+      objectReference: {fileID: 1230965243}
     - target: {fileID: 5968278701187641690, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
       propertyPath: lootMultiplier
       value: 40
@@ -748,6 +776,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: e823cd5b5d27c0f4b8256e7c12ee3e6d, type: 2}
     - target: {fileID: 7358855410454227394, guid: 9b7dbfb4ce0e5684c9a63379270b0db4, type: 3}
+      propertyPath: maxHealth
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 7358855410454227394, guid: 9b7dbfb4ce0e5684c9a63379270b0db4, type: 3}
       propertyPath: lootMultiplier
       value: 1000
       objectReference: {fileID: 0}
@@ -1068,6 +1100,7 @@ MonoBehaviour:
   player: {fileID: 101914347}
   destination: {fileID: 956338305}
   teleportCooldown: 1
+  targetLevelIndex: -1
 --- !u!1 &628072019
 GameObject:
   m_ObjectHideFlags: 0
@@ -1596,6 +1629,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1023212908}
   m_CullTransparentMesh: 1
+--- !u!1 &1068779838 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7128728240170976908, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
+  m_PrefabInstance: {fileID: 1389545472}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1126465251
 GameObject:
   m_ObjectHideFlags: 0
@@ -1638,6 +1676,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1230965243 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7128728240170976908, guid: 500f79c723b01d44b8b7f259f3a859ff, type: 3}
+  m_PrefabInstance: {fileID: 166553326}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1281841405
 GameObject:
   m_ObjectHideFlags: 0
@@ -1761,9 +1804,21 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2643672567416820092, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
+      propertyPath: hitMat
+      value: 
+      objectReference: {fileID: 2100000, guid: d20f0da2ae41a4443bcc9dfbc515d5a7, type: 2}
+    - target: {fileID: 2643672567416820092, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
       propertyPath: aimError
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2643672567416820092, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
+      propertyPath: fadeTime
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2643672567416820092, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
+      propertyPath: skeletonMat
+      value: 
+      objectReference: {fileID: 1068779838}
     - target: {fileID: 2643672567416820092, guid: 339c70ad88b58fb4fb87645418124c6c, type: 3}
       propertyPath: spreadAngle
       value: 15

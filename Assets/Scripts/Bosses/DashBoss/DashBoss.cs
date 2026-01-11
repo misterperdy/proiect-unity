@@ -31,6 +31,9 @@ public class DashBoss : MonoBehaviour, IDamageable
     private float defaultAcceleration;
     private bool isAttacking = false;
 
+    [Header("Hit Effect")]
+    public GameObject hitParticles;
+
     public enum BossState { Idle, Chasing, ChargingDash, Dashing, Recovering }
     public BossState currentState;
 
@@ -249,6 +252,7 @@ public class DashBoss : MonoBehaviour, IDamageable
     {
         currentHealth -= damage;
 
+        StartCoroutine(SetHitParticles());
         if (MusicManager.Instance != null && Time.time - lastDamageSfxTime >= damageSfxMinInterval)
         {
             MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.golemBossTookDamageSfx, transform.position, 1f, 3f, 35f);
@@ -264,6 +268,16 @@ public class DashBoss : MonoBehaviour, IDamageable
         {
             Die();
         }
+    }
+
+    private IEnumerator SetHitParticles()
+    {
+        hitParticles.SetActive(true);
+
+        yield return new WaitForSeconds(0.1f);
+
+        hitParticles.SetActive(false);
+
     }
 
     void Die()
