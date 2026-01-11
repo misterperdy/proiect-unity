@@ -1289,7 +1289,8 @@ MonoBehaviour:
   bossMusic: {fileID: 8300000, guid: 24abe016e3922904aaf14eef92c4fd18, type: 3}
   uiHoverSfx: {fileID: 8300000, guid: 2a359d16a183ea34bab09a4281de3222, type: 3}
   uiClickSfx: {fileID: 8300000, guid: 1e1a7b2d3a63aca41a394d336d016f7c, type: 3}
-  playerWalkingSfx: {fileID: 8300000, guid: 74f6e8539edf6ee439f95b159f022d4c, type: 3}
+  playerWalkingSfx: {fileID: 8300000, guid: 2120f92297ee1654fa47a9567e1e8135, type: 3}
+  playerRunningSfx: {fileID: 8300000, guid: e0a1320842e037744b9b88e3f2463eff, type: 3}
   playerMeleeSwingSfx: {fileID: 8300000, guid: a928621185ae0254fb7edc169d48e399, type: 3}
   normalTeleporterSfx: {fileID: 8300000, guid: ed99a9599444a5248968288f8fc5be94, type: 3}
   bossTeleporterSfx: {fileID: 8300000, guid: 806d0f5f83f05824981abe8b6874fa7b, type: 3}
