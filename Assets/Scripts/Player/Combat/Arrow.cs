@@ -74,6 +74,10 @@ public class Arrow : MonoBehaviour
         {
             damageableTarget.TakeDamage((int)damage);
             Debug.Log("Arrow hit an enemy: " + collision.gameObject.name);
+
+            // Bounce perk is meant for walls/obstacles, not enemies.
+            BulletPool.Instance.ReturnBullet(gameObject);
+            return;
         }
         else
         {

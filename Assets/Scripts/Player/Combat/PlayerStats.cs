@@ -8,6 +8,7 @@ public class PlayerStats : MonoBehaviour
     public float damageMultiplier = 1f;
     public float fireRateMultiplier = 1f;
     public int bonusProjectiles = 0;
+    public int bonusBounces = 0;
 
     private PlayerHealth playerHealth;
 
@@ -51,6 +52,9 @@ public class PlayerStats : MonoBehaviour
             case PerkType.LuckBoost:
                 luck += Mathf.RoundToInt(perk.amount);
                 break;
+            case PerkType.BounceArrows:
+                bonusBounces += Mathf.RoundToInt(perk.amount);
+                break;
         }
 
         if (perkHUD != null) perkHUD.UpdateDisplay();
@@ -92,6 +96,11 @@ public class PlayerStats : MonoBehaviour
     public int GetModifiedProjectileCount(int baseCount)
     {
         return baseCount + bonusProjectiles;
+    }
+
+    public int GetModifiedBounceCount(int baseCount)
+    {
+        return Mathf.Max(0, baseCount + bonusBounces);
     }
 
     public float GetModifiedCooldown(float baseCooldown)

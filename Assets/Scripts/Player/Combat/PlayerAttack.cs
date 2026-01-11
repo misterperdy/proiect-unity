@@ -174,7 +174,9 @@ public class PlayerAttack : MonoBehaviour
         if (finalProjectiles >= 10) spread = (180*(1+finalProjectiles/2f)) / (finalProjectiles);
         else spread = (90 * (1 + finalProjectiles / 2f)) / (12-finalProjectiles);
 
-        int bounces = currentItem.maxBounces;
+        int bounces = (stats != null)
+            ? stats.GetModifiedBounceCount(currentItem.maxBounces)
+            : currentItem.maxBounces;
 
         for (int i = 0; i < projectiles; i++)
         {
