@@ -49,6 +49,17 @@ public class PlayerAttack : MonoBehaviour
     private float turretCooldownEndTime = 0f;
     private readonly List<GameObject> activeTurrets = new();
 
+    [Header("Equipped Visual Spawn")]
+    public Transform equippedVisualParent; // e.g. your swordLocation / hand socket
+    private GameObject equippedVisualInstance;
+
+    [Header("In-hand visuals (existing children under swordLocation)")]
+    public GameObject swordInHand;
+    public GameObject hammerInHand;
+    public GameObject bowInHand;
+
+
+
 
 
     // Stores the player's rotation at the start of a melee attack to ensure the swing is not affected by mouse movement during the animation.
@@ -134,15 +145,42 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    // This method is called by the InventoryManager whenever the player changes their active hotbar slot.
+
     public void UpdateEquippedItem(int newSlotIndex)
     {
         currentItem = InventoryManager.Instance.GetActiveItem();
         activeItemType = (currentItem != null) ? currentItem.itemType : ItemType.None;
 
-        // Toggle weapon visuals based on the type of item equipped.
+        // Turn everything off first
+        if (swordInHand) swordInHand.SetActive(false);
+        if (hammerInHand) hammerInHand.SetActive(false);
+        if (bowInHand) bowInHand.SetActive(false);
+
+        // Also handle your ranged visual holder if you still use it
         if (bowVisual != null) bowVisual.SetActive(activeItemType == ItemType.Ranged);
+
+        if (currentItem == null) return;
+
+        // Show the in-hand model based on what the item DOES
+        switch (currentItem.itemType)
+        {
+            case ItemType.Melee:
+                if (swordInHand) swordInHand.SetActive(true);
+                break;
+
+            case ItemType.Turret:
+                if (hammerInHand) hammerInHand.SetActive(true);
+                break;
+
+            case ItemType.Ranged:
+                if (bowInHand) bowInHand.SetActive(true);
+                break;
+
+            default:
+                break;
+        }
     }
+
 
     private void PerformRangedAttack()
     {
@@ -357,6 +395,8 @@ public class PlayerAttack : MonoBehaviour
         );
 
         activeTurrets.Add(turretGO);
+        animator.SetTrigger("t_melee");
+
 
         TurretHandler handler = turretGO.GetComponent<TurretHandler>();
         if (handler != null)
