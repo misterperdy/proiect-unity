@@ -26,6 +26,11 @@ public class CameraZoom : MonoBehaviour
 
     void Update()
     {
+        if (MinimapController.Instance != null && MinimapController.Instance.IsFullscreen)
+        {
+            return;
+        }
+
         if (cameraFollow == null) return;
 
         float scrollInput = Input.GetAxis("Mouse ScrollWheel");

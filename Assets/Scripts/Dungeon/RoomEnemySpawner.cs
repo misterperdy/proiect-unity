@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Drawing;
 using UnityEngine;
 using Color = UnityEngine.Color;
@@ -18,6 +19,9 @@ public class RoomEnemySpawner : MonoBehaviour
         [Range(0, 1)] public float spawnChance; // Chance to upgrade to this rarity
     }
 
+    [Header("TeleportSpawn")]
+    public GameObject teleporter;
+
     // Data passed from DungeonGenerator
     private List<GameObject> enemyPrefabs;
     private float difficultyMultiplier; // Based on distance
@@ -25,7 +29,10 @@ public class RoomEnemySpawner : MonoBehaviour
     private RaritySettings[] rarities;
     private int minEnemies;
     private int maxEnemies;
+    private int nrEnemies;
 
+    // Tracking
+    private List<GameObject> activeEnemies = new List<GameObject>();
     private bool hasSpawned = false;
     private BoxCollider triggerCollider;
 
@@ -62,10 +69,12 @@ public class RoomEnemySpawner : MonoBehaviour
     void SpawnEnemies()
     {
         hasSpawned = true;
+        activeEnemies.Clear();
         if (enemyPrefabs == null || enemyPrefabs.Count == 0) return;
 
-        // Determine how many to spawn (Scaling with difficulty slightly?)
         int count = Random.Range(minEnemies, maxEnemies + 1);
+
+        nrEnemies = count;
 
         for (int i = 0; i < count; i++)
         {
@@ -73,6 +82,45 @@ public class RoomEnemySpawner : MonoBehaviour
         }
 
         Destroy(triggerCollider); // Don't trigger again
+
+        StartCoroutine(TrackEnemies());
+    }
+
+    IEnumerator TrackEnemies()
+    {
+        // Wait a frame to ensure all spawns are registered
+        yield return null;
+
+        while (activeEnemies.Count > 0)
+        {
+            // Remove any enemies that have been destroyed (are null)
+            // 'x == null' works because Unity overloads the equality operator for destroyed objects
+            activeEnemies.RemoveAll(x => x == null);
+
+            if (activeEnemies.Count == 0)
+            {
+                // All dead!
+                SpawnTeleporter();
+                yield break; // Exit coroutine
+            }
+
+            // Check every 0.5 seconds to save performance
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        // Catch-case if 0 enemies spawned (e.g. minEnemies was 0)
+        SpawnTeleporter();
+    }
+
+    void SpawnTeleporter()
+    {
+        Debug.Log("Room Cleared!");
+        if (teleporter != null)
+        {
+            // Spawn in the center of the room, slightly above ground
+            Vector3 centerPos = new Vector3(transform.position.x, transform.position.y + 0.33f, transform.position.z);
+            Instantiate(teleporter, centerPos, Quaternion.identity);
+        }
     }
 
     void SpawnSingleEnemy()
@@ -92,6 +140,8 @@ public class RoomEnemySpawner : MonoBehaviour
 
         // 3. Instantiate
         GameObject enemyObj = Instantiate(prefab, spawnPos, Quaternion.identity);
+
+        activeEnemies.Add(enemyObj);
 
         // 4. Calculate Rarity & Stats
         EnemyRarity rarity = DetermineRarity();

@@ -78,9 +78,22 @@ public class TeleporterBoss : MonoBehaviour
     {
         isTeleporting = true;
 
+        int indexToLoad = targetLevelIndex;
+
         if (MusicManager.Instance != null)
         {
             MusicManager.Instance.PlaySfx(MusicManager.Instance.bossTeleporterSfx);
+        }
+
+        if (gameObject.name.Contains("NextLevel"))
+        {
+            // The newest level is always the last one in the history list
+            indexToLoad = DungeonGenerator.instance.levelHistory.Count - 1;
+        }
+
+        if (indexToLoad >= 0)
+        {
+            DungeonGenerator.instance.LoadLevelMap(indexToLoad);
         }
 
         // Disable Physics/Collisions briefly
