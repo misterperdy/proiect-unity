@@ -1058,6 +1058,8 @@ MonoBehaviour:
   destination: {fileID: 956338305}
   teleportCooldown: 1
   targetLevelIndex: -1
+  endGameTeleporter: 0
+  sceneToLoad: WinScene
 --- !u!1 &628072019
 GameObject:
   m_ObjectHideFlags: 0
@@ -2126,6 +2128,8 @@ MonoBehaviour:
   destination: {fileID: 762394571}
   teleportCooldown: 1
   targetLevelIndex: -1
+  endGameTeleporter: 0
+  sceneToLoad: WinScene
 --- !u!114 &1562330427 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6354052995541759393, guid: 3369479e3a009b946a02796361a179d5, type: 3}
@@ -3212,7 +3216,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 25.409973, y: 173.65}
+  m_AnchoredPosition: {x: 25.409912, y: 173.65}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0, y: 0}
 --- !u!1001 &1506223950468363468
@@ -3764,6 +3768,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 219880546}
     - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
+      propertyPath: finalTeleporterPrefab
+      value: 
+      objectReference: {fileID: 4760204197776211381, guid: 8df688b50e194374e81cf939cba3c8b6, type: 3}
+    - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
       propertyPath: biomes.Array.data[0].bossPrefab
       value: 
       objectReference: {fileID: 2001432429122068684, guid: b32a827e8fe65db4294eb3694c2cb632, type: 3}
@@ -3773,6 +3781,10 @@ PrefabInstance:
       objectReference: {fileID: 2001432429122068684, guid: 4cb0d2e093ae49e4692ea6d19559269b, type: 3}
     - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
       propertyPath: biomes.Array.data[2].bossPrefab
+      value: 
+      objectReference: {fileID: 653186965495279664, guid: db91322c7cd3abe43afa8bd0fbe3598a, type: 3}
+    - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
+      propertyPath: biomes.Array.data[3].bossPrefab
       value: 
       objectReference: {fileID: 8647202866375485264, guid: bbfd7877e303be9449fd901555bbfd26, type: 3}
     - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}

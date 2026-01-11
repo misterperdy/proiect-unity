@@ -19,6 +19,7 @@ public class DungeonGenerator : MonoBehaviour
 
     [Header("Teleporters")]
     public GameObject teleporterPrefab;
+    public GameObject finalTeleporterPrefab;
 
     [System.Serializable]
     public struct BiomeConfig
@@ -437,11 +438,14 @@ public class DungeonGenerator : MonoBehaviour
 
                 BossRoomSpawner spawner = bossObj.AddComponent<BossRoomSpawner>();
 
+                bool isFinalLevel = (biomeIndex >= biomes.Count - 1);
+
                 spawner.Initialize(
                     biomes[biomeIndex].bossPrefab,
                     bossRoomWidth,
                     bossRoomHeight,
-                    tileSize
+                    tileSize,
+                    isFinalLevel
                 );
 
 

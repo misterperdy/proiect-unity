@@ -24,6 +24,11 @@ public class DashBoss : MonoBehaviour, IDamageable
     public LineRenderer lineRenderer;
     public Animator animator;
 
+    [Header("Dash Visuals")]
+    public Material dashIndicatorMaterial; // Trage aici un material cu Shader "Mobile/Particles/Additive"
+    public float dashLineScrollSpeed = -5.0f; // Viteza anima?iei
+    public float dashLineTiling = 5.0f; // De câte ori se repet? textura
+
     private NavMeshAgent agent;
     private Transform player;
     private PlayerHealth playerHealth; // reference to plyaerHealth scirpt
@@ -48,14 +53,36 @@ public class DashBoss : MonoBehaviour, IDamageable
         currentHealth = maxHealth;
         agent = GetComponent<NavMeshAgent>();
 
-        //setup line renderer
         lineRenderer = GetComponent<LineRenderer>();
         lineRenderer.enabled = false;
-        lineRenderer.startWidth = 0.2f;
-        lineRenderer.endWidth = 0.2f;
-        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        lineRenderer.startColor = Color.red;
-        lineRenderer.endColor = Color.red;
+
+        // 1. WIDTH: Facem linia conic? (lat? la boss, sub?ire la juc?tor)
+        lineRenderer.widthCurve = new AnimationCurve(
+            new Keyframe(0, 0.6f),  // Start (Boss)
+            new Keyframe(1, 0.1f)   // Final (Juc?tor)
+        );
+
+        // 2. MATERIAL: Folosim materialul asignat în inspector
+        if (dashIndicatorMaterial != null)
+        {
+            lineRenderer.material = dashIndicatorMaterial;
+            lineRenderer.textureMode = LineTextureMode.Tile; // Esen?ial pentru anima?ie!
+        }
+        else
+        {
+            // Fallback dac? ai uitat s? pui materialul
+            lineRenderer.material = new Material(Shader.Find("Mobile/Particles/Additive"));
+        }
+
+        // 3. GRADIENT: Fade out spre final
+        Gradient gradient = new Gradient();
+        gradient.SetKeys(
+            new GradientColorKey[] { new GradientColorKey(Color.red, 0.0f), new GradientColorKey(new Color(1f, 0.5f, 0f), 1.0f) },
+            new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(0.0f, 1.0f) }
+        );
+        lineRenderer.colorGradient = gradient;
+
+        // -------------------------------------------------------------
 
         //save normal speed
         defaultSpeed = agent.speed;
@@ -166,6 +193,15 @@ public class DashBoss : MonoBehaviour, IDamageable
 
             lineRenderer.SetPosition(0, transform.position);
             lineRenderer.SetPosition(1, player.position);
+
+            // --- ADAG? ACEST BLOC PENTRU ANIMA?IE ---
+            if (lineRenderer.material != null)
+            {
+                // Scroll Texture
+                float offset = Time.time * dashLineScrollSpeed;
+                lineRenderer.material.mainTextureOffset = new Vector2(offset, 0);
+                lineRenderer.material.mainTextureScale = new Vector2(dashLineTiling, 1);
+            }
 
             yield return null;
         }
