@@ -3796,6 +3796,10 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
+      propertyPath: biomes.Array.data[2].bonusWeaponPrefab
+      value: 
+      objectReference: {fileID: 9079030698199349356, guid: a94b14671d3320347b23474d25ad1ed7, type: 3}
+    - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
       propertyPath: rarityDefinitions.Array.data[1].statMult
       value: 1.3
       objectReference: {fileID: 0}

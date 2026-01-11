@@ -39,6 +39,9 @@ public class DungeonGenerator : MonoBehaviour
         [Header("Enemy Settings")]
         public int minEnemies; 
         public int maxEnemies;
+
+        [Header("Bonus Loot")]
+        public GameObject bonusWeaponPrefab;
     }
 
     [System.Serializable]
@@ -283,6 +286,12 @@ public class DungeonGenerator : MonoBehaviour
         ApplyThemeRecursively(startRoomObj, theme);
         Instantiate(meleeWeapon, finalPos + Vector3.up + Vector3.right*3, Quaternion.identity, levelParent);
         Instantiate(rangedWeapon, finalPos + Vector3.up + Vector3.left*3, Quaternion.identity, levelParent);
+
+        if (theme.bonusWeaponPrefab != null)
+        {
+            Vector3 bonusPos = finalPos + Vector3.up + (Vector3.forward * 2);
+            Instantiate(theme.bonusWeaponPrefab, bonusPos, Quaternion.identity, levelParent);
+        }
 
         if (player != null && currentBiomeIndex==biomeSpawnIndex)
         {
