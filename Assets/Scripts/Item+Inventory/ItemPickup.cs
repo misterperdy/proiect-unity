@@ -21,6 +21,11 @@ public class ItemPickup : MonoBehaviour
 
             if (wasPickedUp)
             {
+                if (MusicManager.Instance != null && item != null && item.itemType != ItemType.None)
+                {
+                    MusicManager.Instance.PlaySfx(MusicManager.Instance.weaponPickupSfx);
+                }
+
                 Destroy(gameObject); // destroy item on ground
             }
         }

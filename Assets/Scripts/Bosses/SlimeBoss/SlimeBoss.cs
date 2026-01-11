@@ -48,6 +48,9 @@ public class SlimeBoss : MonoBehaviour, IDamageable
     [Header("UI")]
     public BossBarSlider bossHealthBar;
 
+    private float lastDamageSfxTime = -999f;
+    private const float damageSfxMinInterval = 0.08f;
+
     void Start()
     {
         currentHealth = maxHealth;
@@ -378,6 +381,13 @@ public class SlimeBoss : MonoBehaviour, IDamageable
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
+
+        if (MusicManager.Instance != null && Time.time - lastDamageSfxTime >= damageSfxMinInterval)
+        {
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.slimeBossTookDamageSfx, transform.position, 1f, 3f, 35f);
+            lastDamageSfxTime = Time.time;
+        }
+
         if (bossHealthBar != null) bossHealthBar.SetHealth(currentHealth);
 
         float healthPercent = (float)currentHealth / maxHealth;
@@ -392,6 +402,11 @@ public class SlimeBoss : MonoBehaviour, IDamageable
 
     void Die()
     {
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.bossDiesSfx, transform.position, 1f, 3f, 45f);
+        }
+
         if (MusicManager.Instance != null) MusicManager.Instance.PlayGameplayMusic();
 
         if (activeShadow != null) Destroy(activeShadow);

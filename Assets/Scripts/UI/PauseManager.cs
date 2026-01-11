@@ -102,6 +102,12 @@ public class PauseManager : MonoBehaviour
     public void PauseGame()
     {   
         isPaused = true;
+
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySfx(MusicManager.Instance.gamePausedSfx);
+        }
+
         Time.timeScale = 0f; // This freezes the game
         Debug.Log("Game Paused");
     }
@@ -109,6 +115,12 @@ public class PauseManager : MonoBehaviour
     public void ResumeGame()
     {
         isPaused = false;
+
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySfx(MusicManager.Instance.gameUnpausedSfx);
+        }
+
         Time.timeScale = 1f; // This resumes the game
         Debug.Log("Game Resumed");
     }

@@ -27,6 +27,10 @@ public class PerkUIItem : MonoBehaviour
 
     void OnClick()
     {
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySfx(MusicManager.Instance.perkSelectedSfx);
+        }
         manager.SelectPerk(myPerk);
     }
 }

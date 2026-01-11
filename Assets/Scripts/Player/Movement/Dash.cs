@@ -78,6 +78,11 @@ public class Dash : MonoBehaviour
         _canDash = false;
         _isDashing = true;
 
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySfx(MusicManager.Instance.playerDashSfx);
+        }
+
         // AICI ESTE FIX-UL: Declansam animatia o singura data, la inceput
         animator.SetTrigger("t_dash");
 

@@ -43,6 +43,11 @@ public class XPOrb : MonoBehaviour
                 if (levels != null)
                 {
                     levels.GainXP(xpAmount);
+
+                    if (MusicManager.Instance != null)
+                    {
+                        MusicManager.Instance.PlaySfx(MusicManager.Instance.xpPickupSfx);
+                    }
                 }
                 Destroy(gameObject);
             }

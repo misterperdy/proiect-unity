@@ -16,10 +16,30 @@ public class PlayerMovement : MonoBehaviour
 
     public float heightOffset = 0.0f;
 
+    [Header("SFX")]
+    public AudioClip walkingSfx;
+    public float walkingSfxVolumeMultiplier = 1f;
+    public float walkingMoveThreshold = 0.1f;
+    private AudioSource walkingSource;
+
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+
+        if (walkingSfx == null && MusicManager.Instance != null && MusicManager.Instance.playerWalkingSfx != null)
+        {
+            walkingSfx = MusicManager.Instance.playerWalkingSfx;
+        }
+        if (walkingSfx == null) walkingSfx = MusicManager.FindClipByName("sfx_player_is_walking");
+
+        // Dedicated footsteps source (avoid hijacking any other AudioSource on the player).
+        walkingSource = gameObject.AddComponent<AudioSource>();
+
+        walkingSource.playOnAwake = false;
+        walkingSource.loop = true;
+        walkingSource.spatialBlend = 0f; // 2D footsteps (simple + consistent)
+        walkingSource.clip = walkingSfx;
     }
 
     // Update is called once per frame
@@ -40,6 +60,49 @@ public class PlayerMovement : MonoBehaviour
         }
         animator.SetFloat("InputX", localMove.x, 0.15f, Time.deltaTime);
         animator.SetFloat("InputZ", localMove.z, 0.15f, Time.deltaTime);
+
+        UpdateWalkingSfx();
+    }
+
+    private void UpdateWalkingSfx()
+    {
+        if (walkingSource == null) return;
+
+        // In case the clip wasn't available at Start, retry.
+        if (walkingSfx == null)
+        {
+            if (MusicManager.Instance != null && MusicManager.Instance.playerWalkingSfx != null)
+            {
+                walkingSfx = MusicManager.Instance.playerWalkingSfx;
+            }
+            if (walkingSfx == null) walkingSfx = MusicManager.FindClipByName("sfx_player_is_walking");
+            walkingSource.clip = walkingSfx;
+        }
+
+        if (walkingSfx == null) return;
+
+        // Stop footsteps when paused
+        if (Time.timeScale == 0f)
+        {
+            if (walkingSource.isPlaying) walkingSource.Stop();
+            return;
+        }
+
+        bool isMoving = moveVector.magnitude > walkingMoveThreshold;
+
+        if (isMoving)
+        {
+            // Keep volume synced with SFX volume slider
+            float baseVol = (MusicManager.Instance != null) ? MusicManager.Instance.sfxVolume : 1f;
+            walkingSource.volume = baseVol * walkingSfxVolumeMultiplier;
+
+            if (walkingSource.clip != walkingSfx) walkingSource.clip = walkingSfx;
+            if (!walkingSource.isPlaying) walkingSource.Play();
+        }
+        else
+        {
+            if (walkingSource.isPlaying) walkingSource.Stop();
+        }
     }
 
     //function to handle physics that runs constantly

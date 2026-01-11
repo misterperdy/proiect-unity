@@ -15,6 +15,47 @@ public class MainMenuManager : MonoBehaviour
     public AudioClip gameplayMusic;
     public AudioClip bossMusic;
 
+    [Header("UI SFX")]
+    public AudioClip uiHoverSfx;
+    public AudioClip uiClickSfx;
+
+    [Header("Gameplay SFX")]
+    public AudioClip playerWalkingSfx;
+    public AudioClip playerMeleeSwingSfx;
+
+    [Header("Teleporter SFX")]
+    public AudioClip normalTeleporterSfx;
+    public AudioClip bossTeleporterSfx;
+
+    [Header("Combat SFX")]
+    public AudioClip playerBowShootSfx;
+    public AudioClip playerStaffUseSfx;
+    public AudioClip enemyBowShootSfx;
+    public AudioClip enemySwordSwingSfx;
+
+    [Header("Damage SFX")]
+    public AudioClip playerTookDamageSfx;
+    public AudioClip skeletonTookDamageSfx;
+    public AudioClip slimeEnemyTookDamageSfx;
+    public AudioClip slimeBossTookDamageSfx;
+    public AudioClip leechBossTookDamageSfx;
+    public AudioClip golemBossTookDamageSfx;
+
+    [Header("Perk SFX")]
+    public AudioClip perkSelectedSfx;
+
+    [Header("Other SFX")]
+    public AudioClip playerDashSfx;
+    public AudioClip enemyDiesSfx;
+    public AudioClip bossDiesSfx;
+    public AudioClip playerDiesGameOverSfx;
+    public AudioClip gamePausedSfx;
+    public AudioClip gameUnpausedSfx;
+    public AudioClip xpPickupSfx;
+    public AudioClip weaponPickupSfx;
+    public AudioClip playerMedkitHealingSfx;
+    public AudioClip turretShootSfx;
+
     private void Awake()
     {
         InitializeMusic();
@@ -41,6 +82,28 @@ public class MainMenuManager : MonoBehaviour
         if (MusicManager.Instance != null)
         {
              MusicManager.Instance.SetClips(mainMenuMusic, gameplayMusic, bossMusic);
+               MusicManager.Instance.SetUISfxClips(uiHoverSfx, uiClickSfx);
+               MusicManager.Instance.SetGameplaySfxClips(playerWalkingSfx, playerMeleeSwingSfx);
+               MusicManager.Instance.SetTeleporterSfxClips(normalTeleporterSfx, bossTeleporterSfx);
+
+               MusicManager.Instance.SetPlayerCombatSfxClips(playerBowShootSfx, playerStaffUseSfx, playerTookDamageSfx);
+               MusicManager.Instance.SetEnemyCombatSfxClips(enemyBowShootSfx, enemySwordSwingSfx);
+               MusicManager.Instance.SetEnemyDamageSfxClips(skeletonTookDamageSfx, slimeEnemyTookDamageSfx);
+               MusicManager.Instance.SetBossDamageSfxClips(slimeBossTookDamageSfx, leechBossTookDamageSfx, golemBossTookDamageSfx);
+               MusicManager.Instance.SetPerkSfxClips(perkSelectedSfx);
+
+               MusicManager.Instance.SetAdditionalSfxClips(
+                   playerDashSfx,
+                   enemyDiesSfx,
+                   bossDiesSfx,
+                   playerDiesGameOverSfx,
+                   gamePausedSfx,
+                   gameUnpausedSfx,
+                   xpPickupSfx,
+                   weaponPickupSfx,
+                   playerMedkitHealingSfx,
+                   turretShootSfx);
+
              MusicManager.Instance.PlayMainMenuMusic();
         }
         else
