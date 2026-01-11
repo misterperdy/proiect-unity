@@ -56,7 +56,7 @@ public class BossRoomSpawner : MonoBehaviour
 
         if (DungeonGenerator.instance != null && DungeonGenerator.instance.teleporterPrefab != null)
         {
-            Vector3 portalPos = transform.position + new Vector3(0f,0.3f,0f); 
+            Vector3 portalPos = transform.position + new Vector3(0f,0.3f,0f);
             exitTeleporter = Instantiate(DungeonGenerator.instance.teleporterPrefab, portalPos, Quaternion.identity);
             exitTeleporter.name = "Teleporter_NextLevel";
 
