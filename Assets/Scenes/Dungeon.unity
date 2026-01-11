@@ -3738,7 +3738,7 @@ PrefabInstance:
     - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
       propertyPath: biomes.Array.data[2].bossPrefab
       value: 
-      objectReference: {fileID: 8647202866375485264, guid: bbfd7877e303be9449fd901555bbfd26, type: 3}
+      objectReference: {fileID: 653186965495279664, guid: db91322c7cd3abe43afa8bd0fbe3598a, type: 3}
     - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
       propertyPath: biomes.Array.data[3].bossPrefab
       value: 
