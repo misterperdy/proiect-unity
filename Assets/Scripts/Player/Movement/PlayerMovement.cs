@@ -15,7 +15,12 @@ public class PlayerMovement : MonoBehaviour
 
     private bool isActionPressed;
     private PlayerHealth playerHealth;
+    private bool isInBossRoom;
 
+    public void SetBossRoomState(bool state)
+    {
+        isInBossRoom = state;
+    }
 
 
     private Rigidbody rb; 
@@ -78,6 +83,16 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("isRunning", false);
             return;
         }
+
+        if (isInBossRoom)
+        {
+            animator.SetBool("isRunning", true);
+            speedTimer = 0f;
+            movementSpeed = normalSpeed;
+            animator.SetBool("isRunning", false);
+            return;
+        }
+
 
 
 
