@@ -45,6 +45,7 @@ public class MusicManager : MonoBehaviour
 
     [Header("Gameplay SFX")]
     public AudioClip playerWalkingSfx;
+    public AudioClip playerRunningSfx;
     public AudioClip playerMeleeSwingSfx;
     public AudioClip playerBowShootSfx;
     public AudioClip playerStaffUseSfx;
@@ -204,9 +205,10 @@ public class MusicManager : MonoBehaviour
         if (click != null) uiClickSfx = click;
     }
 
-    public void SetGameplaySfxClips(AudioClip walking, AudioClip meleeSwing)
+    public void SetGameplaySfxClips(AudioClip walking, AudioClip running, AudioClip meleeSwing)
     {
         if (walking != null) playerWalkingSfx = walking;
+        if (running != null) playerRunningSfx = running;
         if (meleeSwing != null) playerMeleeSwingSfx = meleeSwing;
     }
 
@@ -358,7 +360,11 @@ public class MusicManager : MonoBehaviour
 
     private void EnsureDefaultGameplaySfx()
     {
+        if (playerWalkingSfx == null) playerWalkingSfx = FindClipByName("fix_sfx_player_is_walking");
         if (playerWalkingSfx == null) playerWalkingSfx = FindClipByName("sfx_player_is_walking");
+
+        if (playerRunningSfx == null) playerRunningSfx = FindClipByName("sfx_player_is_running");
+        if (playerRunningSfx == null) playerRunningSfx = FindClipByName("fix_sfx_player_is_running");
         if (playerMeleeSwingSfx == null) playerMeleeSwingSfx = FindClipByName("sfx_sword_swing");
         if (playerBowShootSfx == null) playerBowShootSfx = FindClipByName("sfx_bow_release");
         if (playerStaffUseSfx == null) playerStaffUseSfx = FindClipByName("sfx_staff_was_used_and_explodes");

@@ -21,6 +21,7 @@ public class MainMenuManager : MonoBehaviour
 
     [Header("Gameplay SFX")]
     public AudioClip playerWalkingSfx;
+    public AudioClip playerRunningSfx;
     public AudioClip playerMeleeSwingSfx;
 
     [Header("Teleporter SFX")]
@@ -83,7 +84,7 @@ public class MainMenuManager : MonoBehaviour
         {
              MusicManager.Instance.SetClips(mainMenuMusic, gameplayMusic, bossMusic);
                MusicManager.Instance.SetUISfxClips(uiHoverSfx, uiClickSfx);
-               MusicManager.Instance.SetGameplaySfxClips(playerWalkingSfx, playerMeleeSwingSfx);
+               MusicManager.Instance.SetGameplaySfxClips(playerWalkingSfx, playerRunningSfx, playerMeleeSwingSfx);
                MusicManager.Instance.SetTeleporterSfxClips(normalTeleporterSfx, bossTeleporterSfx);
 
                MusicManager.Instance.SetPlayerCombatSfxClips(playerBowShootSfx, playerStaffUseSfx, playerTookDamageSfx);
