@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,8 +12,10 @@ public class PlayerStats : MonoBehaviour
     public int bonusBounces = 0;
     public float dashCooldownMultiplier = 1f;
     public float vampirismPercent = 0f;
+    public float regenerationPercentPerSecond = 0f;
 
     private float vampirismHealRemainder = 0f;
+    private float regenerationHealRemainder = 0f;
 
     private PlayerHealth playerHealth;
 
@@ -28,6 +31,8 @@ public class PlayerStats : MonoBehaviour
     {
         // Auto-find if forgot to drag
         if (perkHUD == null) perkHUD = FindObjectOfType<PerkHUD>();
+
+        StartCoroutine(RegenerationLoop());
     }
 
     void Awake()
@@ -67,6 +72,10 @@ public class PlayerStats : MonoBehaviour
             case PerkType.Vampirism:
                 // Amount is a fraction (0.01 = 1%). Stacks additively.
                 vampirismPercent += Mathf.Max(0f, perk.amount);
+                break;
+            case PerkType.Regeneration:
+                // Amount is a fraction per second (0.01 = 1% max HP per second). Stacks additively.
+                regenerationPercentPerSecond += Mathf.Max(0f, perk.amount);
                 break;
         }
 
@@ -141,5 +150,25 @@ public class PlayerStats : MonoBehaviour
 
         vampirismHealRemainder -= healAmount;
         playerHealth.Heal(healAmount);
+    }
+
+    private IEnumerator RegenerationLoop()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1f);
+
+            if (regenerationPercentPerSecond <= 0f) continue;
+            if (playerHealth == null) continue;
+
+            // Heal based on current max health; accumulate fractional healing.
+            regenerationHealRemainder += playerHealth.maxHealth * regenerationPercentPerSecond;
+
+            int healAmount = Mathf.FloorToInt(regenerationHealRemainder);
+            if (healAmount <= 0) continue;
+
+            regenerationHealRemainder -= healAmount;
+            playerHealth.Heal(healAmount);
+        }
     }
 }
