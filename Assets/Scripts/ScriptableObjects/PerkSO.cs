@@ -12,7 +12,8 @@ public enum PerkType
     Vampirism,
     Regeneration,
     ExtraAdaptive,
-    ProximityDamageAura
+    ProximityDamageAura,
+    DashDamageOnHit
 }
 
 public enum PerkRarity

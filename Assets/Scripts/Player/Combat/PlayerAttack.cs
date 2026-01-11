@@ -46,6 +46,11 @@ public class PlayerAttack : MonoBehaviour
 
     private Coroutine activeSwingCoroutine;
 
+    public float GetCurrentItemBaseDamage(float fallback = 10f)
+    {
+        return currentItem != null ? currentItem.damage : fallback;
+    }
+
     [Header("Turret Limits")]
     public int maxActiveTurrets = 2;
     public float turretCooldown = 8f;

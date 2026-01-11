@@ -15,9 +15,13 @@ public class PlayerStats : MonoBehaviour
     public float regenerationPercentPerSecond = 0f;
     public int extraPerkOptionsBonus = 0;
     public float proximityDamagePercentPerSecond = 0f;
+    public float dashDamageBonusPercent = 0f;
 
     [Header("Auras")]
     public float proximityDamageRadius = 4f;
+
+    [Header("Dash Damage")]
+    public float dashDamageRadius = 1.25f;
 
     [Header("Aura Visuals")]
     public bool showProximityAuraVisual = true;
@@ -104,6 +108,10 @@ public class PlayerStats : MonoBehaviour
                 // Amount is a fraction per second of enemy max HP (0.02 = 2%). Stacks additively.
                 proximityDamagePercentPerSecond += Mathf.Max(0f, perk.amount);
                 UpdateProximityAuraVisual();
+                break;
+            case PerkType.DashDamageOnHit:
+                // Amount is +% damage added to dash damage (0.10 = +10%). Stacks additively.
+                dashDamageBonusPercent += Mathf.Max(0f, perk.amount);
                 break;
         }
 
