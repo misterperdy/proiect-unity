@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEditor.SceneTemplate;
 using UnityEngine;
 using UnityEngine.U2D;
+using static UnityEditor.Progress;
+using static UnityEngine.GraphicsBuffer;
 
 // Manages all player attack logic, including switching between melee and ranged,
 // handling weapon visuals, and managing per-weapon cooldowns.
@@ -17,6 +19,10 @@ public class PlayerAttack : MonoBehaviour
     public float attackDuration = 0.2f;
     public LayerMask enemyLayer;
     public AnimationCurve swingCurve;
+
+    [Header("Melee SFX")]
+    public AudioClip meleeSwingSfx;
+    public float meleeSwingSfxVolumeMultiplier = 1f;
 
     [Header("Ranged Attack Settings")]
     public GameObject bowVisual;
@@ -40,6 +46,26 @@ public class PlayerAttack : MonoBehaviour
 
     private Coroutine activeSwingCoroutine;
 
+    [Header("Turret Limits")]
+    public int maxActiveTurrets = 2;
+    public float turretCooldown = 8f;
+
+    private float turretCooldownEndTime = 0f;
+    private readonly List<GameObject> activeTurrets = new();
+
+    [Header("Equipped Visual Spawn")]
+    public Transform equippedVisualParent; // e.g. your swordLocation / hand socket
+    private GameObject equippedVisualInstance;
+
+    [Header("In-hand visuals (existing children under swordLocation)")]
+    public GameObject swordInHand;
+    public GameObject hammerInHand;
+    public GameObject bowInHand;
+
+
+
+
+
     // Stores the player's rotation at the start of a melee attack to ensure the swing is not affected by mouse movement during the animation.
     private Quaternion initialAttackRotation;
 
@@ -51,6 +77,12 @@ public class PlayerAttack : MonoBehaviour
     private void Start()
     {
         stats = GetComponent<PlayerStats>();
+
+        if (meleeSwingSfx == null && MusicManager.Instance != null && MusicManager.Instance.playerMeleeSwingSfx != null)
+        {
+            meleeSwingSfx = MusicManager.Instance.playerMeleeSwingSfx;
+        }
+        if (meleeSwingSfx == null) meleeSwingSfx = MusicManager.FindClipByName("sfx_sword_swing");
 
         // Subscribe to the inventory manager's event to know when the active item changes.
         InventoryManager.Instance.OnActiveSlotChanged += UpdateEquippedItem;
@@ -115,24 +147,59 @@ public class PlayerAttack : MonoBehaviour
                         PerformRangedAttack();
                         animator.SetTrigger("t_shoot");
                         break;
+                    case ItemType.Turret:
+                        useTurret();
+                        break;
                 }
             }
         }
     }
 
-    // This method is called by the InventoryManager whenever the player changes their active hotbar slot.
+
     public void UpdateEquippedItem(int newSlotIndex)
     {
         currentItem = InventoryManager.Instance.GetActiveItem();
         activeItemType = (currentItem != null) ? currentItem.itemType : ItemType.None;
 
-        // Toggle weapon visuals based on the type of item equipped.
+        // Turn everything off first
+        if (swordInHand) swordInHand.SetActive(false);
+        if (hammerInHand) hammerInHand.SetActive(false);
+        if (bowInHand) bowInHand.SetActive(false);
+
+        // Also handle your ranged visual holder if you still use it
         if (bowVisual != null) bowVisual.SetActive(activeItemType == ItemType.Ranged);
+
+        if (currentItem == null) return;
+
+        // Show the in-hand model based on what the item DOES
+        switch (currentItem.itemType)
+        {
+            case ItemType.Melee:
+                if (swordInHand) swordInHand.SetActive(true);
+                break;
+
+            case ItemType.Turret:
+                if (hammerInHand) hammerInHand.SetActive(true);
+                break;
+
+            case ItemType.Ranged:
+                if (bowInHand) bowInHand.SetActive(true);
+                break;
+
+            default:
+                break;
+        }
     }
+
 
     private void PerformRangedAttack()
     {
         int activeSlot = InventoryManager.Instance.activeSlotIndex;
+
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySfx(MusicManager.Instance.playerBowShootSfx);
+        }
 
         float finalDamage = stats.GetModifiedDamage(currentItem.damage);
         int finalProjectiles = stats.GetModifiedProjectileCount(currentItem.projectilesPerShot);
@@ -188,6 +255,11 @@ public class PlayerAttack : MonoBehaviour
 
         ResetMeleeVisuals();
 
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySfx(meleeSwingSfx, meleeSwingSfxVolumeMultiplier);
+        }
+
         enemiesHitThisSwing = new List<Collider>();
         initialAttackRotation = transform.rotation;
 
@@ -206,6 +278,11 @@ public class PlayerAttack : MonoBehaviour
 
         if (currentItem != null && currentItem.itemType == ItemType.Magic)
         {
+
+            if (MusicManager.Instance != null)
+            {
+                MusicManager.Instance.PlaySfx(MusicManager.Instance.playerStaffUseSfx);
+            }
 
             if (currentItem.itemPrefab == null)
             {
@@ -312,4 +389,64 @@ public class PlayerAttack : MonoBehaviour
 
         activeSwingCoroutine = null;
     }
+
+    void useTurret()
+    {
+        if (Time.time < turretCooldownEndTime)
+        {
+            Debug.Log("Turret on cooldown");
+            return;
+        }
+
+        CleanupTurretList();
+
+        if (activeTurrets.Count >= maxActiveTurrets)
+        {
+            Debug.Log($"Max turrets reached ({maxActiveTurrets})");
+            return;
+        }
+
+        ItemSO currentItem = InventoryManager.Instance.GetActiveItem();
+        if (currentItem == null || currentItem.itemType != ItemType.Turret) return;
+        if (currentItem.itemPrefab == null) return;
+
+        float cooldownDuration = currentItem.attackCooldown > 0 ? currentItem.attackCooldown : turretCooldown;
+        turretCooldownEndTime = Time.time + cooldownDuration;
+
+        GameObject turretGO = Instantiate(
+            currentItem.itemPrefab,
+            transform.position,
+            Quaternion.identity
+        );
+
+        activeTurrets.Add(turretGO);
+        animator.SetTrigger("t_melee");
+
+
+        TurretHandler handler = turretGO.GetComponent<TurretHandler>();
+        if (handler != null)
+        {
+            // Optional: pass stats from item
+            handler.damage = currentItem.damageTurret;
+            handler.fireRate = currentItem.fireRateTurret;
+            handler.projectiles = currentItem.projectilesperTurret;
+
+            handler.StartTurret();
+        }
+        else
+        {
+            Debug.LogError("FATAL: TurretHandler missing on turret prefab.");
+        }
+    }
+    private void CleanupTurretList()
+    {
+        for (int i = activeTurrets.Count - 1; i >= 0; i--)
+        {
+            if (activeTurrets[i] == null)
+                activeTurrets.RemoveAt(i);
+        }
+    }
+
+
+
 }

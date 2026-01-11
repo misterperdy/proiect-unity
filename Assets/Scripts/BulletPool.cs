@@ -25,7 +25,7 @@ public class BulletPool : MonoBehaviour
             actionOnGet: (obj) => obj.SetActive(true),
             actionOnRelease: (obj) => obj.SetActive(false),
             actionOnDestroy: (obj) => Destroy(obj),
-            collectionCheck: false,
+            collectionCheck: true,
             defaultCapacity: defaultCapacity,
             maxSize: maxCapacity
             );
@@ -40,6 +40,10 @@ public class BulletPool : MonoBehaviour
     //optional,can be done directly with SetActive(false)
     public void ReturnBullet(GameObject bullet)
     {
+        if (!bullet.activeSelf)
+        {
+            return;
+        }
         _pool.Release(bullet);
     }
 }

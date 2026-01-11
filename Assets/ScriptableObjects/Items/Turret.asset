@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0435c8136addaa40882bad7c70f6a20, type: 3}
+  m_Name: Turret
+  m_EditorClassIdentifier: 
+  itemType: 4
+  itemIcon: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  itemPrefab: {fileID: 943651283491757865, guid: 916d75608e4ff8c47a7eaa00ae011e65, type: 3}
+  pickupPrefab: {fileID: 9079030698199349356, guid: a94b14671d3320347b23474d25ad1ed7, type: 3}
+  damage: 30
+  attackCooldown: 0.5
+  sizeMultiplier: 1
+  fireRateMultiplier: 1
+  projectilesPerShot: 1
+  spreadAngle: 0
+  maxBounces: 0
+  explosionDamage: 40
+  explosionRadius: 4
+  explosionDelay: 1
+  explosionForce: 1000
+  damageTurret: 40
+  fireRateTurret: 1
+  projectilesperTurret: 1
+  equippedVisualPrefab: {fileID: 8757240130092320926, guid: 47c994beb54ff8f40be0a8ebd43844ff, type: 3}

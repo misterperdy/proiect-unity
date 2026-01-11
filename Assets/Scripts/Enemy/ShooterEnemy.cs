@@ -48,6 +48,9 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
 
     public float medkitDropChance = 10f; // 0-100
 
+    private float lastDamageSfxTime = -999f;
+    private const float damageSfxMinInterval = 0.08f;
+
     void Start()
     {
         if (rarity != null)
@@ -156,6 +159,12 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
 
     public void Shoot()
     {
+        if (MusicManager.Instance != null)
+        {
+            Vector3 pos = (firePoint != null) ? firePoint.position : transform.position;
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.enemyBowShootSfx, pos, 1f, 2f, 30f);
+        }
+
         projectilePrefab.GetComponent<EnemyProjectile>().damage = projectileDamage;
 
         if (projectilePrefab == null)
@@ -240,6 +249,15 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
         StartCoroutine(SetHitParticles());
 
         currentHealth -= amount;
+
+        if (MusicManager.Instance != null && Time.time - lastDamageSfxTime >= damageSfxMinInterval)
+        {
+            string n = gameObject.name.ToLower();
+            AudioClip clip = n.Contains("slime") ? MusicManager.Instance.slimeEnemyTookDamageSfx : MusicManager.Instance.skeletonTookDamageSfx;
+            MusicManager.Instance.PlaySpatialSfx(clip, transform.position, 1f, 2f, 25f);
+            lastDamageSfxTime = Time.time;
+        }
+
         if (currentHealth <= 0)
         {
             hitMat.color = Color.Lerp(hitMat.color, originalColor, 1);
@@ -278,6 +296,11 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
     void Die()
     {
         Debug.Log("Enemy has died!");
+
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.enemyDiesSfx, transform.position, 1f, 2f, 25f);
+        }
 
         MinimapTracker tracker = GetComponent<MinimapTracker>();
         if (tracker != null)

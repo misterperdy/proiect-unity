@@ -10,6 +10,11 @@ public class Medkit : MonoBehaviour
 
         if (player != null && player.currentHealth < player.maxHealth)
         {
+            if (MusicManager.Instance != null)
+            {
+                MusicManager.Instance.PlaySfx(MusicManager.Instance.playerMedkitHealingSfx);
+            }
+
             player.Heal(healAmount);
             Destroy(gameObject); 
         }

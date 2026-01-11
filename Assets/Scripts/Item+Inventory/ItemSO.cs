@@ -5,7 +5,7 @@ using UnityEngine;
 //scriptable object blueprint for items
 //to create an item : right click in assets and go to "Create" -> "New Item"
 
-public enum ItemType { None, Melee, Ranged, Magic}; // here we use an enum like a bool but with multiple choices
+public enum ItemType { None, Melee, Ranged, Magic, Turret }; // here we use an enum like a bool but with multiple choices
 
 [CreateAssetMenu(fileName = "Item", menuName = "New Item")]
 public class ItemSO : ScriptableObject
@@ -13,7 +13,10 @@ public class ItemSO : ScriptableObject
     //assign in inspector
     public ItemType itemType;
     public Sprite itemIcon; // for GUI
-    public GameObject itemPrefab; // for rendering
+    [Header("Prefabs")]
+    public GameObject itemPrefab;      // what happens when you USE it (weapon visual / explosion prefab / turret deployed)
+    public GameObject pickupPrefab;    // what gets spawned when you DROP it (world pickup)
+
 
     public float damage = 10f;
 
@@ -32,5 +35,14 @@ public class ItemSO : ScriptableObject
     public float explosionRadius = 4f;
     public float explosionDelay = 1.0f;
     public float explosionForce = 1000f;
+
+    [Header("Turret Settings")]
+    public int damageTurret = 40;
+    public float fireRateTurret = 1f;
+    public int projectilesperTurret = 1;
+
+    [Header("Equipped Visual (in-hand)")]
+    public GameObject equippedVisualPrefab; // optional: hammer/sword/etc shown on player
+
 
 }

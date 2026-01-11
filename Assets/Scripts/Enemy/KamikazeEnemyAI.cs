@@ -42,6 +42,9 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
     private Material hitMat;
     private Color32 originalColor = new Color32(255, 255, 255, 0);
 
+    private float lastDamageSfxTime = -999f;
+    private const float damageSfxMinInterval = 0.08f;
+
 
     private enum AIState { Patrolling, Chasing, Exploding, Searching }
     private AIState currentState;
@@ -271,6 +274,15 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
         if (isExploding) return;
 
         currentHealth -= amount;
+
+        if (MusicManager.Instance != null && Time.time - lastDamageSfxTime >= damageSfxMinInterval)
+        {
+            string n = gameObject.name.ToLower();
+            AudioClip clip = n.Contains("slime") ? MusicManager.Instance.slimeEnemyTookDamageSfx : MusicManager.Instance.skeletonTookDamageSfx;
+            MusicManager.Instance.PlaySpatialSfx(clip, transform.position, 1f, 2f, 25f);
+            lastDamageSfxTime = Time.time;
+        }
+
         if (currentHealth <= 0)
         {
             Die();
@@ -303,6 +315,11 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
 
     void Die()
     {
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.enemyDiesSfx, transform.position, 1f, 2f, 25f);
+        }
+
         MinimapTracker tracker = GetComponent<MinimapTracker>();
         if (tracker != null)
         {

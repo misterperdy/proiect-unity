@@ -10,6 +10,8 @@ public class ItemPickup : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log($"[PICKUP PREFAB] Spawned: {gameObject.name}");
+
         if (other.CompareTag("Player"))
         {
             // if the item on the ground collided with a player, try to add it in inventory
@@ -19,6 +21,11 @@ public class ItemPickup : MonoBehaviour
 
             if (wasPickedUp)
             {
+                if (MusicManager.Instance != null && item != null && item.itemType != ItemType.None)
+                {
+                    MusicManager.Instance.PlaySfx(MusicManager.Instance.weaponPickupSfx);
+                }
+
                 Destroy(gameObject); // destroy item on ground
             }
         }
