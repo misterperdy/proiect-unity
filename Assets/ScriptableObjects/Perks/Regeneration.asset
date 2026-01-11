@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   perkName: Regeneration
   description: Heal 1% of max health every second (stacks)
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: ad07527a07f828544b6f6a2a7f00e678, type: 3}
   type: 8
   amount: 0.01
   rarity: 2
