@@ -15,6 +15,8 @@ public class PlayerHealth : MonoBehaviour
     public float invincibilityDuration = 2f;
     public float flashInterval = 0.15f;
 
+    public bool IsHurt { get; private set; }
+
     private bool isDead = false;
     private Renderer[] modelRenderers;
     public GameOverManager gameOverManager;
@@ -46,6 +48,7 @@ public class PlayerHealth : MonoBehaviour
         {
             damage = Mathf.Max(0, damage);
             currentHealth -= damage;
+            IsHurt = true;
             animator.SetTrigger("t_damage");
 
             if (currentHealth <= 0)
@@ -54,6 +57,7 @@ public class PlayerHealth : MonoBehaviour
             }
             else
             {
+                StartCoroutine(HurtRecoveryRoutine());
                 StartCoroutine(InvincibilityRoutine());
             }
         }
@@ -144,4 +148,9 @@ public class PlayerHealth : MonoBehaviour
         SceneManager.LoadScene("GameOver");
     }
 
+    private IEnumerator HurtRecoveryRoutine()
+    {
+        yield return new WaitForSeconds(0.6f); 
+        IsHurt = false;
+    }
 }

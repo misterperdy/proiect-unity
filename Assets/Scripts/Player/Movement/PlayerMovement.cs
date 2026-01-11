@@ -14,6 +14,8 @@ public class PlayerMovement : MonoBehaviour
     public float fastAnimSpeed = 2f;
 
     private bool isActionPressed;
+    private PlayerHealth playerHealth;
+
 
 
     private Rigidbody rb; 
@@ -30,6 +32,8 @@ public class PlayerMovement : MonoBehaviour
     {
         
         rb = GetComponent<Rigidbody>();
+        playerHealth = GetComponent<PlayerHealth>();
+
     }
     void ReadInput()
     {
@@ -65,6 +69,16 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("isRunning", true);
             movementSpeed = runningSpeed;
         }
+
+        if (playerHealth != null && playerHealth.IsHurt)
+        {
+            animator.SetBool("isRunning", true);
+            speedTimer = 0f;
+            movementSpeed = normalSpeed;
+            animator.SetBool("isRunning", false);
+            return;
+        }
+
 
 
 
