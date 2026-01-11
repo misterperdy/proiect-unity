@@ -21,6 +21,7 @@ public class DungeonGenerator : MonoBehaviour
     public GameObject teleporterPrefab;
     public GameObject roomTeleporter;
 
+    public GameObject finalTeleporterPrefab;
 
     [System.Serializable]
     public struct BiomeConfig
@@ -40,6 +41,9 @@ public class DungeonGenerator : MonoBehaviour
         [Header("Enemy Settings")]
         public int minEnemies; 
         public int maxEnemies;
+
+        [Header("Bonus Loot")]
+        public GameObject bonusWeaponPrefab;
     }
 
     [System.Serializable]
@@ -283,7 +287,13 @@ public class DungeonGenerator : MonoBehaviour
         GameObject startRoomObj = Instantiate(startRoomPrefab, finalPos, Quaternion.identity, levelParent);
         ApplyThemeRecursively(startRoomObj, theme);
 
-        if (currentBiomeIndex == 0)
+        if (theme.bonusWeaponPrefab != null)
+        {
+            Vector3 bonusPos = finalPos + Vector3.up + (Vector3.forward * 2);
+            Instantiate(theme.bonusWeaponPrefab, bonusPos, Quaternion.identity, levelParent);
+        }
+
+        if (player != null && currentBiomeIndex==biomeSpawnIndex)
         {
             Instantiate(meleeWeapon, finalPos + Vector3.up + Vector3.right * 3, Quaternion.identity, levelParent);
             Instantiate(rangedWeapon, finalPos + Vector3.up + Vector3.left * 3, Quaternion.identity, levelParent);
@@ -448,11 +458,14 @@ public class DungeonGenerator : MonoBehaviour
 
                 BossRoomSpawner spawner = bossObj.AddComponent<BossRoomSpawner>();
 
+                bool isFinalLevel = (biomeIndex >= biomes.Count - 1);
+
                 spawner.Initialize(
                     biomes[biomeIndex].bossPrefab,
                     bossRoomWidth,
                     bossRoomHeight,
-                    tileSize
+                    tileSize,
+                    isFinalLevel
                 );
 
 

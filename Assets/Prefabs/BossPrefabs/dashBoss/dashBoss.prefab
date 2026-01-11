@@ -64,6 +64,9 @@ MonoBehaviour:
   attackCooldown: 2
   lineRenderer: {fileID: 0}
   animator: {fileID: 6292022428554794608}
+  dashIndicatorMaterial: {fileID: 2100000, guid: e90c1ff25db7d6a488dc8a514e08aa7b, type: 2}
+  dashLineScrollSpeed: -5
+  dashLineTiling: 5
   hitParticles: {fileID: 3235364324114048653}
   currentState: 0
   bossHealthBar: {fileID: 1925417508932620704}

@@ -1062,6 +1062,8 @@ MonoBehaviour:
   destination: {fileID: 956338305}
   teleportCooldown: 1
   targetLevelIndex: -1
+  endGameTeleporter: 0
+  sceneToLoad: WinScene
 --- !u!1 &628072019
 GameObject:
   m_ObjectHideFlags: 0
@@ -2088,6 +2090,50 @@ PrefabInstance:
       propertyPath: playerStats
       value: 
       objectReference: {fileID: 1506223950468363471}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.size
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.data[4]
+      value: 
+      objectReference: {fileID: 11400000, guid: 7f6f0a3a7f7c4d7c9f960b8bf3b12f2a, type: 2}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.data[5]
+      value: 
+      objectReference: {fileID: 11400000, guid: 4fb6db7d4c7d4f7fb6c8e2cf9d3a6c11, type: 2}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.data[6]
+      value: 
+      objectReference: {fileID: 11400000, guid: 2a6a7b1c44a44b2f9e6711b0e2edc8a1, type: 2}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.data[7]
+      value: 
+      objectReference: {fileID: 11400000, guid: 8d1b0c2e2d2b4a5b9f0f3c1a7a6b2d10, type: 2}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.data[8]
+      value: 
+      objectReference: {fileID: 11400000, guid: 1f1c5f2a2e1f4f26a8b6c9d2f7a1b3c4, type: 2}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.data[9]
+      value: 
+      objectReference: {fileID: 11400000, guid: f45eb84ab7e748cb90e3d9a816886398, type: 2}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.data[10]
+      value: 
+      objectReference: {fileID: 11400000, guid: f4bf6273b773422bbe18b1920de3921e, type: 2}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.data[11]
+      value: 
+      objectReference: {fileID: 11400000, guid: 47e918def22e4dabb369b18054b14ae1, type: 2}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.data[12]
+      value: 
+      objectReference: {fileID: 11400000, guid: 2f7d34c917e25e444acf03e2b44b0f1b, type: 2}
+    - target: {fileID: 4641060426418327173, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
+      propertyPath: allPerks.Array.data[13]
+      value: 
+      objectReference: {fileID: 11400000, guid: 2f7d34c917e25e444acf03e2b44b0f1b, type: 2}
     - target: {fileID: 8480918194969402737, guid: eb4463796c2c8fe469b4bc9d6f9e1726, type: 3}
       propertyPath: m_Name
       value: PerkCanvas
@@ -2220,6 +2266,8 @@ MonoBehaviour:
   destination: {fileID: 762394571}
   teleportCooldown: 1
   targetLevelIndex: -1
+  endGameTeleporter: 0
+  sceneToLoad: WinScene
 --- !u!114 &1562330427 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6354052995541759393, guid: 3369479e3a009b946a02796361a179d5, type: 3}
@@ -3311,7 +3359,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 25.409973, y: 173.65}
+  m_AnchoredPosition: {x: 25.409912, y: 173.65}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0, y: 0}
 --- !u!1001 &1506223950468363468
@@ -3875,6 +3923,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 219880546}
     - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
+      propertyPath: finalTeleporterPrefab
+      value: 
+      objectReference: {fileID: 4760204197776211381, guid: 8df688b50e194374e81cf939cba3c8b6, type: 3}
+    - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
       propertyPath: biomes.Array.data[0].bossPrefab
       value: 
       objectReference: {fileID: 2001432429122068684, guid: b32a827e8fe65db4294eb3694c2cb632, type: 3}
@@ -3885,6 +3937,10 @@ PrefabInstance:
     - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
       propertyPath: biomes.Array.data[2].bossPrefab
       value: 
+      objectReference: {fileID: 653186965495279664, guid: db91322c7cd3abe43afa8bd0fbe3598a, type: 3}
+    - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
+      propertyPath: biomes.Array.data[3].bossPrefab
+      value: 
       objectReference: {fileID: 8647202866375485264, guid: bbfd7877e303be9449fd901555bbfd26, type: 3}
     - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
       propertyPath: biomes.Array.data[1].statMultiplier
@@ -3894,6 +3950,10 @@ PrefabInstance:
       propertyPath: biomes.Array.data[2].statMultiplier
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
+      propertyPath: biomes.Array.data[2].bonusWeaponPrefab
+      value: 
+      objectReference: {fileID: 9079030698199349356, guid: a94b14671d3320347b23474d25ad1ed7, type: 3}
     - target: {fileID: 1941467527987434211, guid: de6901724d28b9d47b9920021a788027, type: 3}
       propertyPath: rarityDefinitions.Array.data[1].statMult
       value: 1.3

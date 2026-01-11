@@ -132,7 +132,7 @@ MonoBehaviour:
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 0
+  m_ChildControlWidth: 1
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
@@ -213,10 +213,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -262,6 +262,15 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c43ec8c728aaf0844ae4116f412df373, type: 2}
   - {fileID: 11400000, guid: d72035179c337a844ac0fd65f5524856, type: 2}
   - {fileID: 11400000, guid: de1776f5f48ee5a40b3a0b96e2baeec1, type: 2}
+  - {fileID: 11400000, guid: 7f6f0a3a7f7c4d7c9f960b8bf3b12f2a, type: 2}
+  - {fileID: 11400000, guid: 4fb6db7d4c7d4f7fb6c8e2cf9d3a6c11, type: 2}
+  - {fileID: 11400000, guid: 2a6a7b1c44a44b2f9e6711b0e2edc8a1, type: 2}
+  - {fileID: 11400000, guid: 8d1b0c2e2d2b4a5b9f0f3c1a7a6b2d10, type: 2}
+  - {fileID: 11400000, guid: 1f1c5f2a2e1f4f26a8b6c9d2f7a1b3c4, type: 2}
+  - {fileID: 11400000, guid: f45eb84ab7e748cb90e3d9a816886398, type: 2}
+  - {fileID: 11400000, guid: f4bf6273b773422bbe18b1920de3921e, type: 2}
+  - {fileID: 11400000, guid: 47e918def22e4dabb369b18054b14ae1, type: 2}
+  - {fileID: 11400000, guid: 2f7d34c917e25e444acf03e2b44b0f1b, type: 2}
   optionsToOffer: 3
   luckBonusCommon: 0
   luckBonusRare: 5

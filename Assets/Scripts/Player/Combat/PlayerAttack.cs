@@ -46,6 +46,11 @@ public class PlayerAttack : MonoBehaviour
 
     private Coroutine activeSwingCoroutine;
 
+    public float GetCurrentItemBaseDamage(float fallback = 10f)
+    {
+        return currentItem != null ? currentItem.damage : fallback;
+    }
+
     [Header("Turret Limits")]
     public int maxActiveTurrets = 2;
     public float turretCooldown = 8f;
@@ -212,7 +217,9 @@ public class PlayerAttack : MonoBehaviour
         if (finalProjectiles >= 10) spread = (180*(1+finalProjectiles/2f)) / (finalProjectiles);
         else spread = (90 * (1 + finalProjectiles / 2f)) / (12-finalProjectiles);
 
-        int bounces = currentItem.maxBounces;
+        int bounces = (stats != null)
+            ? stats.GetModifiedBounceCount(currentItem.maxBounces)
+            : currentItem.maxBounces;
 
         for (int i = 0; i < projectiles; i++)
         {
@@ -236,7 +243,7 @@ public class PlayerAttack : MonoBehaviour
 
             if (arrow != null)
             {
-                arrow.Fire(this.arrowSpeed, finalDamage , bounces);
+                arrow.Fire(this.arrowSpeed, finalDamage , bounces, stats);
             }
         }
     }
@@ -305,6 +312,7 @@ public class PlayerAttack : MonoBehaviour
                 handler.damage = currentItem.explosionDamage;
                 handler.radius = currentItem.explosionRadius;
                 handler.delay = currentItem.explosionDelay;
+                handler.ownerStats = stats;
 
                 handler.StartExplosion();
             }
@@ -334,7 +342,9 @@ public class PlayerAttack : MonoBehaviour
 
         if (damageableTarget != null)
         {
-            damageableTarget.TakeDamage((int)currentDamage);
+            int dealt = (int)currentDamage;
+            damageableTarget.TakeDamage(dealt);
+            if (stats != null) stats.ReportDamageDealt(dealt);
         }
     }
 
@@ -430,6 +440,7 @@ public class PlayerAttack : MonoBehaviour
             handler.damage = currentItem.damageTurret;
             handler.fireRate = currentItem.fireRateTurret;
             handler.projectiles = currentItem.projectilesperTurret;
+            handler.ownerStats = stats;
 
             handler.StartTurret();
         }

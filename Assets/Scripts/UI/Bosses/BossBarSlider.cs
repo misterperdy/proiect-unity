@@ -26,6 +26,6 @@ public class BossBarSlider : MonoBehaviour
 
     public void ToggleBar(bool state)
     {
-        canvas.SetActive(state);
+        this.transform.parent.gameObject.SetActive(state);
     }
 }

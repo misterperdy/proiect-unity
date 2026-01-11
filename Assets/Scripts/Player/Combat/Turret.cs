@@ -17,6 +17,8 @@ public class TurretHandler : MonoBehaviour
     public LayerMask enemyLayer;          // set to Enemy layer (recommended)
     public string enemyTag = "Enemy";     // fallback if you use tags
 
+    public PlayerStats ownerStats;
+
     private bool isActive;
 
     [Header("Rotation")]
@@ -112,7 +114,12 @@ public class TurretHandler : MonoBehaviour
         if (MusicManager.Instance != null)
         {
             // Spatial so it attenuates with distance.
-            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.turretShootSfx, firePoint.position, 1f, 2f, 25f);
+            AudioClip clip = MusicManager.Instance.turretShootSfx;
+            if (clip == null) clip = MusicManager.FindClipByName("sfx_turret_is_shooting_arrow");
+            if (clip != null)
+            {
+                MusicManager.Instance.PlaySpatialSfx(clip, firePoint.position, 1f, 2f, 25f);
+            }
         }
 
         Vector3 direction = (target.position - firePoint.position).normalized;
@@ -130,7 +137,7 @@ public class TurretHandler : MonoBehaviour
             Arrow arrow = bulletGO.GetComponent<Arrow>();
             if (arrow != null)
             {
-                arrow.Fire(20f, damage, 0);
+                arrow.Fire(20f, damage, 0, ownerStats);
             }
             else
             {

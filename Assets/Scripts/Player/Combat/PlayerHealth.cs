@@ -15,6 +15,8 @@ public class PlayerHealth : MonoBehaviour
     public float invincibilityDuration = 2f;
     public float flashInterval = 0.15f;
 
+    public bool IsHurt { get; private set; }
+
     private bool isDead = false;
     private Renderer[] modelRenderers;
     public GameOverManager gameOverManager;
@@ -39,6 +41,14 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
     }
 
+    public void HealPercent(float percent)
+    {
+        if (isDead) return;
+        float newHp = currentHealth + (percent * maxHealth);
+        currentHealth = (int)Mathf.Min(newHp, maxHealth);
+
+    }
+
 
     public void TakeDamage(int damage)
     {
@@ -46,6 +56,7 @@ public class PlayerHealth : MonoBehaviour
         {
             damage = Mathf.Max(0, damage);
             currentHealth -= damage;
+            IsHurt = true;
             animator.SetTrigger("t_damage");
 
             if (MusicManager.Instance != null)
@@ -59,6 +70,7 @@ public class PlayerHealth : MonoBehaviour
             }
             else
             {
+                StartCoroutine(HurtRecoveryRoutine());
                 StartCoroutine(InvincibilityRoutine());
             }
         }
@@ -154,4 +166,9 @@ public class PlayerHealth : MonoBehaviour
         SceneManager.LoadScene("GameOver");
     }
 
+    private IEnumerator HurtRecoveryRoutine()
+    {
+        yield return new WaitForSeconds(0.6f); 
+        IsHurt = false;
+    }
 }

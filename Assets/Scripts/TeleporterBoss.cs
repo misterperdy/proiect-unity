@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TeleporterBoss : MonoBehaviour
 {
@@ -13,6 +14,10 @@ public class TeleporterBoss : MonoBehaviour
 
     private bool playerInZone = false;
     private bool isTeleporting = false;
+
+    public bool endGameTeleporter = false;
+    public string sceneToLoad = "WinScene";
+
     public void SetDestination(Vector3 pos)
     {
         // We create a temporary empty object to act as the transform target
@@ -33,17 +38,22 @@ public class TeleporterBoss : MonoBehaviour
     private void Update() // Changed from FixedUpdate for better Input response
     {
         // Removed PauseManager check for simplicity, add back if needed
-
-        if (playerInZone && Input.GetKeyDown(KeyCode.F) && !isTeleporting) // Changed to F key or Input Button
+        if(!endGameTeleporter)
         {
-            if (destination != null)
+            if (playerInZone && Input.GetKeyDown(KeyCode.F) && !isTeleporting) // Changed to F key or Input Button
             {
-                StartCoroutine(TeleportPlayer());
+                if (destination != null)
+                {
+                    StartCoroutine(TeleportPlayer());
+                }
+                else
+                {
+                    Debug.LogWarning("Teleporter has no destination!");
+                }
             }
-            else
-            {
-                Debug.LogWarning("Teleporter has no destination!");
-            }
+        }else if(playerInZone && Input.GetKeyDown(KeyCode.F))
+        {
+            SceneManager.LoadScene(sceneToLoad);
         }
     }
 

@@ -14,6 +14,13 @@ public class PlayerMovement : MonoBehaviour
     public float fastAnimSpeed = 2f;
 
     private bool isActionPressed;
+    private PlayerHealth playerHealth;
+    private bool isInBossRoom;
+
+    public void SetBossRoomState(bool state)
+    {
+        isInBossRoom = state;
+    }
 
 
     private Rigidbody rb; 
@@ -27,7 +34,9 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("SFX")]
     public AudioClip walkingSfx;
+    public AudioClip runningSfx;
     public float walkingSfxVolumeMultiplier = 1f;
+    public float runningSfxVolumeMultiplier = 1f;
     public float walkingMoveThreshold = 0.1f;
     private AudioSource walkingSource;
 
@@ -36,12 +45,22 @@ public class PlayerMovement : MonoBehaviour
     {
         
         rb = GetComponent<Rigidbody>();
+        playerHealth = GetComponent<PlayerHealth>();
+
 
         if (walkingSfx == null && MusicManager.Instance != null && MusicManager.Instance.playerWalkingSfx != null)
         {
             walkingSfx = MusicManager.Instance.playerWalkingSfx;
         }
+        if (walkingSfx == null) walkingSfx = MusicManager.FindClipByName("fix_sfx_player_is_walking");
         if (walkingSfx == null) walkingSfx = MusicManager.FindClipByName("sfx_player_is_walking");
+
+        if (runningSfx == null && MusicManager.Instance != null && MusicManager.Instance.playerRunningSfx != null)
+        {
+            runningSfx = MusicManager.Instance.playerRunningSfx;
+        }
+        if (runningSfx == null) runningSfx = MusicManager.FindClipByName("sfx_player_is_running");
+        if (runningSfx == null) runningSfx = MusicManager.FindClipByName("fix_sfx_player_is_running");
 
         // Dedicated footsteps source (avoid hijacking any other AudioSource on the player).
         walkingSource = gameObject.AddComponent<AudioSource>();
@@ -86,6 +105,28 @@ public class PlayerMovement : MonoBehaviour
             movementSpeed = runningSpeed;
         }
 
+        if (playerHealth != null && playerHealth.IsHurt)
+        {
+            if (walkingSource != null && walkingSource.isPlaying) walkingSource.Stop();
+            animator.SetBool("isRunning", true);
+            speedTimer = 0f;
+            movementSpeed = normalSpeed;
+            animator.SetBool("isRunning", false);
+            return;
+        }
+
+        if (isInBossRoom)
+        {
+            if (walkingSource != null && walkingSource.isPlaying) walkingSource.Stop();
+            animator.SetBool("isRunning", true);
+            speedTimer = 0f;
+            movementSpeed = normalSpeed;
+            animator.SetBool("isRunning", false);
+            return;
+        }
+
+
+
 
 
 
@@ -115,8 +156,20 @@ public class PlayerMovement : MonoBehaviour
             {
                 walkingSfx = MusicManager.Instance.playerWalkingSfx;
             }
+            if (walkingSfx == null) walkingSfx = MusicManager.FindClipByName("fix_sfx_player_is_walking");
             if (walkingSfx == null) walkingSfx = MusicManager.FindClipByName("sfx_player_is_walking");
             walkingSource.clip = walkingSfx;
+        }
+
+        // In case the clip wasn't available at Start, retry.
+        if (runningSfx == null)
+        {
+            if (MusicManager.Instance != null && MusicManager.Instance.playerRunningSfx != null)
+            {
+                runningSfx = MusicManager.Instance.playerRunningSfx;
+            }
+            if (runningSfx == null) runningSfx = MusicManager.FindClipByName("sfx_player_is_running");
+            if (runningSfx == null) runningSfx = MusicManager.FindClipByName("fix_sfx_player_is_running");
         }
 
         if (walkingSfx == null) return;
@@ -130,13 +183,23 @@ public class PlayerMovement : MonoBehaviour
 
         bool isMoving = moveVector.magnitude > walkingMoveThreshold;
 
+        bool isRunning = movementSpeed > normalSpeed + 0.01f;
+        AudioClip desiredClip = (isRunning && runningSfx != null) ? runningSfx : walkingSfx;
+        float desiredMultiplier = isRunning ? runningSfxVolumeMultiplier : walkingSfxVolumeMultiplier;
+
         if (isMoving)
         {
             // Keep volume synced with SFX volume slider
             float baseVol = (MusicManager.Instance != null) ? MusicManager.Instance.sfxVolume : 1f;
-            walkingSource.volume = baseVol * walkingSfxVolumeMultiplier;
+            walkingSource.volume = baseVol * desiredMultiplier;
 
-            if (walkingSource.clip != walkingSfx) walkingSource.clip = walkingSfx;
+            if (walkingSource.clip != desiredClip)
+            {
+                bool wasPlaying = walkingSource.isPlaying;
+                walkingSource.Stop();
+                walkingSource.clip = desiredClip;
+                if (wasPlaying) walkingSource.Play();
+            }
             if (!walkingSource.isPlaying) walkingSource.Play();
         }
         else

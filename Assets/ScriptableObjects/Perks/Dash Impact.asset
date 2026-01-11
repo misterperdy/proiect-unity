@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb6b6c33d30516946a6cb6f97ed22c46, type: 3}
+  m_Name: Dash Impact
+  m_EditorClassIdentifier: 
+  perkName: Dash Impact
+  description: Dash damages nearby enemies (+10% per stack). (Stacks)
+  icon: {fileID: 21300000, guid: 4029a9cfeb86f134c9c5af05993eaac8, type: 3}
+  type: 11
+  amount: 0.1
+  rarity: 0
+  baseWeight: 67
+  isOneTimeOnly: 0

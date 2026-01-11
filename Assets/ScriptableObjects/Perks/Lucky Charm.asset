@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb6b6c33d30516946a6cb6f97ed22c46, type: 3}
+  m_Name: Lucky Charm
+  m_EditorClassIdentifier: 
+  perkName: Lucky Charm
+  description: Gain +1 Luck (rarer perks more likely). (Stacks)
+  icon: {fileID: 21300000, guid: f06abfea095148e44821e4feb740ea25, type: 3}
+  type: 4
+  amount: 1
+  rarity: 1
+  baseWeight: 60
+  isOneTimeOnly: 0

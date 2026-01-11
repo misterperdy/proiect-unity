@@ -58,6 +58,7 @@ public class HealthBarUI : MonoBehaviour
     {
         if (playerHealth != null)
         {
+            slider.maxValue = playerHealth.maxHealth;
             float newWidth = playerHealth.maxHealth * pixelsPerHP;
 
             this.gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(newWidth, this.gameObject.GetComponent<RectTransform>().sizeDelta.y);

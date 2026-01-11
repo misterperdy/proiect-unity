@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Medkit : MonoBehaviour
 {
-    public int healAmount = 25;
+    public float healAmount = 0.25f;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -15,7 +15,7 @@ public class Medkit : MonoBehaviour
                 MusicManager.Instance.PlaySfx(MusicManager.Instance.playerMedkitHealingSfx);
             }
 
-            player.Heal(healAmount);
+            player.HealPercent(healAmount);
             Destroy(gameObject); 
         }
     }
