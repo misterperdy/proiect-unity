@@ -42,6 +42,7 @@ public class InventoryManager : MonoBehaviour
         int itemIndex = items.Count; // index of array where the item will be added
         items.Add(item); // added
 
+
         OnInventoryChanged?.Invoke(); // invoke inventory change , used in UI updating
 
         if (itemIndex == activeSlotIndex)

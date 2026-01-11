@@ -54,7 +54,7 @@ public class LevelingSystem : MonoBehaviour
 
     void CalculateNextLevelCost()
     {
-        // Formula: currentLevel * 10 + previousLevelCost
-        xpRequiredForNextLevel = (currentLevel * 10) + previousLevelCost;
+        // Formula: currentLevel * 5 + previousLevelCost
+        xpRequiredForNextLevel = (currentLevel * 5) + previousLevelCost;
     }
 }

@@ -51,6 +51,11 @@ public class PlayerHealth : MonoBehaviour
             IsHurt = true;
             animator.SetTrigger("t_damage");
 
+            if (MusicManager.Instance != null)
+            {
+                MusicManager.Instance.PlaySfx(MusicManager.Instance.playerTookDamageSfx);
+            }
+
             if (currentHealth <= 0)
             {
                 Die();
@@ -110,6 +115,11 @@ public class PlayerHealth : MonoBehaviour
         if (isDead) return;
         isDead = true;
         Debug.Log("Player has died!");
+
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySfx(MusicManager.Instance.playerDiesGameOverSfx);
+        }
 
         animator.SetTrigger("t_dead");
 

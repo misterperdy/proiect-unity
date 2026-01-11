@@ -31,11 +31,17 @@ public class DashBoss : MonoBehaviour, IDamageable
     private float defaultAcceleration;
     private bool isAttacking = false;
 
+    [Header("Hit Effect")]
+    public GameObject hitParticles;
+
     public enum BossState { Idle, Chasing, ChargingDash, Dashing, Recovering }
     public BossState currentState;
 
     [Header("UI")]
     public BossBarSlider bossHealthBar;
+
+    private float lastDamageSfxTime = -999f;
+    private const float damageSfxMinInterval = 0.08f;
 
     void Start()
     {
@@ -89,6 +95,7 @@ public class DashBoss : MonoBehaviour, IDamageable
             case BossState.Idle:
                 if (CanSeePlayer())
                 {
+                    if (MusicManager.Instance != null) MusicManager.Instance.PlayBossMusic();
                     currentState = BossState.Chasing;
                 }
                 break;
@@ -245,6 +252,13 @@ public class DashBoss : MonoBehaviour, IDamageable
     {
         currentHealth -= damage;
 
+        StartCoroutine(SetHitParticles());
+        if (MusicManager.Instance != null && Time.time - lastDamageSfxTime >= damageSfxMinInterval)
+        {
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.golemBossTookDamageSfx, transform.position, 1f, 3f, 35f);
+            lastDamageSfxTime = Time.time;
+        }
+
         //update UI
         if (bossHealthBar != null) {
             bossHealthBar.SetHealth(currentHealth);
@@ -256,8 +270,25 @@ public class DashBoss : MonoBehaviour, IDamageable
         }
     }
 
+    private IEnumerator SetHitParticles()
+    {
+        hitParticles.SetActive(true);
+
+        yield return new WaitForSeconds(0.1f);
+
+        hitParticles.SetActive(false);
+
+    }
+
     void Die()
     {
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.bossDiesSfx, transform.position, 1f, 3f, 45f);
+        }
+
+        if (MusicManager.Instance != null) MusicManager.Instance.PlayGameplayMusic();
+
         Debug.Log("Boss Defeated!");
 
         if(bossHealthBar != null)

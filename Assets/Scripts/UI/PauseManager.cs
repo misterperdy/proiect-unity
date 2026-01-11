@@ -56,20 +56,58 @@ public class PauseManager : MonoBehaviour
 
             // Define the area for the pause menu text
             float menuWidth = 400;
-            float menuHeight = 200;
+            float menuHeight = 350; // Increased height for sliders
             float screenWidth = Screen.width;
             float screenHeight = Screen.height;
             Rect menuRect = new Rect((screenWidth - menuWidth) / 2, (screenHeight - menuHeight) / 2, menuWidth, menuHeight);
 
             // Draw the title and subtitle
-            GUI.Label(new Rect(menuRect.x, menuRect.y, menuRect.width, menuRect.height - 50), "Game Paused", titleStyle);
-            GUI.Label(new Rect(menuRect.x, menuRect.y + 100, menuRect.width, menuRect.height - 150), "Press P to resume", subtitleStyle);
+            float currentY = menuRect.y;
+            GUI.Label(new Rect(menuRect.x, currentY, menuRect.width, 50), "Game Paused", titleStyle);
+            currentY += 60;
+            GUI.Label(new Rect(menuRect.x, currentY, menuRect.width, 30), "Press P to resume", subtitleStyle);
+            currentY += 50;
+
+            // --- Sliders ---
+            // Music Volume
+            GUI.Label(new Rect(menuRect.x, currentY, menuRect.width, 30), "Music Volume", subtitleStyle);
+            currentY += 35;
+            
+            float currentMusicVol = 1f;
+            if(MusicManager.Instance != null) currentMusicVol = MusicManager.Instance.musicVolume;
+            
+            float newMusicVol = GUI.HorizontalSlider(new Rect(menuRect.x + 50, currentY, menuRect.width - 100, 20), currentMusicVol, 0f, 1f);
+            if(newMusicVol != currentMusicVol && MusicManager.Instance != null)
+            {
+                MusicManager.Instance.SetMusicVolume(newMusicVol);
+            }
+            currentY += 40;
+
+            // SFX Volume
+            GUI.Label(new Rect(menuRect.x, currentY, menuRect.width, 30), "SFX Volume", subtitleStyle);
+            currentY += 35;
+
+            float currentSFXVol = 1f;
+            if (MusicManager.Instance != null) currentSFXVol = MusicManager.Instance.sfxVolume;
+
+            float newSFXVol = GUI.HorizontalSlider(new Rect(menuRect.x + 50, currentY, menuRect.width - 100, 20), currentSFXVol, 0f, 1f);
+            if (newSFXVol != currentSFXVol && MusicManager.Instance != null)
+            {
+                MusicManager.Instance.SetSFXVolume(newSFXVol);
+            }
+            // ----------------
         }
     }
 
     public void PauseGame()
     {   
         isPaused = true;
+
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySfx(MusicManager.Instance.gamePausedSfx);
+        }
+
         Time.timeScale = 0f; // This freezes the game
         Debug.Log("Game Paused");
     }
@@ -77,6 +115,12 @@ public class PauseManager : MonoBehaviour
     public void ResumeGame()
     {
         isPaused = false;
+
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySfx(MusicManager.Instance.gameUnpausedSfx);
+        }
+
         Time.timeScale = 1f; // This resumes the game
         Debug.Log("Game Resumed");
     }

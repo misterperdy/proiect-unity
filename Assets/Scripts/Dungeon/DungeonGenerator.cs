@@ -139,6 +139,8 @@ public class DungeonGenerator : MonoBehaviour
     {
         if (navMeshSurface == null) navMeshSurface = GetComponent<NavMeshSurface>();
 
+        if (MusicManager.Instance != null) MusicManager.Instance.PlayGameplayMusic();
+
         GenerateCurrentLevel();
     }
 

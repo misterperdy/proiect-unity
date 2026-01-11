@@ -25,14 +25,25 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
 
     [Header("Loot")]
     public float lootMultiplier = 1f;
-
     public GameObject xpOrbPrefab;
+
+    [Header("Hit Effect")]
+    public GameObject hitParticles;
+    public GameObject kamikazeMat;
+    public float fadeTime = 0.01f; // Higher number means faster fading
+    public Color32 hitColor = new Color32(255, 0, 0, 255);
+    public string rarity;
 
     private Rigidbody rb;
     private NavMeshAgent agent;
     private Transform player;
     private PlayerHealth playerHealth;
     private bool isExploding = false;
+    private Material hitMat;
+    private Color32 originalColor = new Color32(255, 255, 255, 0);
+
+    private float lastDamageSfxTime = -999f;
+    private const float damageSfxMinInterval = 0.08f;
 
 
     private enum AIState { Patrolling, Chasing, Exploding, Searching }
@@ -40,6 +51,24 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
 
     void Start()
     {
+        if (rarity != null)
+        {
+            if (rarity == "Magic")
+            {
+                originalColor = new Color32(0, 85, 255, 0);
+            }
+            else if (rarity == "Rare")
+            {
+                originalColor = new Color32(215, 224, 39, 0);
+            }
+            else
+            {
+                originalColor = new Color32(255, 255, 255, 0);
+            }
+        }
+
+        hitMat = kamikazeMat.GetComponent<SkinnedMeshRenderer>().material;
+
         currentHealth = maxHealth;
 
         agent = GetComponent<NavMeshAgent>();
@@ -85,12 +114,13 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
         }
     }
 
-    public void SetupEnemy(int hp, int dmg, Color color, float lootMult)
+    public void SetupEnemy(int hp, int dmg, Color color, float lootMult, string rrty)
     {
         maxHealth = hp;
         currentHealth = hp;
         explosionDamage = dmg;
         lootMultiplier = lootMult;
+        rarity = rrty;
 
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
         foreach (var r in renderers) r.material.color = color;
@@ -238,17 +268,58 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
     //to be able to kill it
     public void TakeDamage(int amount)
     {
+        StartCoroutine(SetHitEffect());
+        StartCoroutine(SetHitParticles());
+
         if (isExploding) return;
 
         currentHealth -= amount;
+
+        if (MusicManager.Instance != null && Time.time - lastDamageSfxTime >= damageSfxMinInterval)
+        {
+            string n = gameObject.name.ToLower();
+            AudioClip clip = n.Contains("slime") ? MusicManager.Instance.slimeEnemyTookDamageSfx : MusicManager.Instance.skeletonTookDamageSfx;
+            MusicManager.Instance.PlaySpatialSfx(clip, transform.position, 1f, 2f, 25f);
+            lastDamageSfxTime = Time.time;
+        }
+
         if (currentHealth <= 0)
         {
             Die();
         }
     }
 
+    private IEnumerator SetHitEffect()
+    {
+
+        kamikazeMat.GetComponent<SkinnedMeshRenderer>().material = hitMat;
+        hitMat.color = hitColor;
+
+        while (hitMat.color != originalColor)
+        {
+            hitMat.color = Color.Lerp(hitMat.color, originalColor, fadeTime);
+
+            yield return null;
+        }
+    }
+
+    private IEnumerator SetHitParticles()
+    {
+        hitParticles.SetActive(true);
+
+        yield return new WaitForSeconds(0.1f);
+
+        hitParticles.SetActive(false);
+
+    }
+
     void Die()
     {
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.enemyDiesSfx, transform.position, 1f, 2f, 25f);
+        }
+
         MinimapTracker tracker = GetComponent<MinimapTracker>();
         if (tracker != null)
         {
