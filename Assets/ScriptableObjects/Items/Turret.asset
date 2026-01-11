@@ -30,3 +30,4 @@ MonoBehaviour:
   damageTurret: 40
   fireRateTurret: 1
   projectilesperTurret: 1
+  equippedVisualPrefab: {fileID: 8757240130092320926, guid: 47c994beb54ff8f40be0a8ebd43844ff, type: 3}

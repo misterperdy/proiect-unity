@@ -41,4 +41,8 @@ public class ItemSO : ScriptableObject
     public float fireRateTurret = 1f;
     public int projectilesperTurret = 1;
 
+    [Header("Equipped Visual (in-hand)")]
+    public GameObject equippedVisualPrefab; // optional: hammer/sword/etc shown on player
+
+
 }
