@@ -19,10 +19,15 @@ public class PlayerStats : MonoBehaviour
     [Header("Auras")]
     public float proximityDamageRadius = 4f;
 
+    [Header("Aura Visuals")]
+    public bool showProximityAuraVisual = true;
+
     private float vampirismHealRemainder = 0f;
     private float regenerationHealRemainder = 0f;
 
     private PlayerHealth playerHealth;
+
+    private AuraRingVisual proximityAuraVisual;
 
     [Header("Luck")]
     public int luck = 0;
@@ -39,6 +44,14 @@ public class PlayerStats : MonoBehaviour
 
         StartCoroutine(RegenerationLoop());
         StartCoroutine(ProximityDamageLoop());
+
+        // In case stats are preloaded (debug), ensure visuals match.
+        UpdateProximityAuraVisual();
+    }
+
+    void Update()
+    {
+        UpdateProximityAuraVisual();
     }
 
     void Awake()
@@ -90,6 +103,7 @@ public class PlayerStats : MonoBehaviour
             case PerkType.ProximityDamageAura:
                 // Amount is a fraction per second of enemy max HP (0.02 = 2%). Stacks additively.
                 proximityDamagePercentPerSecond += Mathf.Max(0f, perk.amount);
+                UpdateProximityAuraVisual();
                 break;
         }
 
@@ -223,6 +237,35 @@ public class PlayerStats : MonoBehaviour
                 ReportDamageDealt(damage);
             }
         }
+    }
+
+    private void UpdateProximityAuraVisual()
+    {
+        bool shouldShow = showProximityAuraVisual && proximityDamagePercentPerSecond > 0f;
+
+        if (!shouldShow)
+        {
+            if (proximityAuraVisual != null && proximityAuraVisual.gameObject.activeSelf)
+                proximityAuraVisual.gameObject.SetActive(false);
+            return;
+        }
+
+        if (proximityAuraVisual == null)
+        {
+            GameObject vfx = new GameObject("Decay Aura Visual");
+            vfx.transform.SetParent(transform);
+            vfx.transform.localPosition = Vector3.zero;
+            vfx.transform.localRotation = Quaternion.identity;
+            vfx.transform.localScale = Vector3.one;
+
+            proximityAuraVisual = vfx.AddComponent<AuraRingVisual>();
+            proximityAuraVisual.radius = proximityDamageRadius;
+        }
+
+        if (!proximityAuraVisual.gameObject.activeSelf)
+            proximityAuraVisual.gameObject.SetActive(true);
+
+        proximityAuraVisual.SetRadius(proximityDamageRadius);
     }
 
     private static bool TryGetDamageableWithMaxHealth(Collider hit, out IDamageable damageable, out Component damageableComponent, out int maxHealth)
