@@ -20,6 +20,10 @@ public class PlayerAttack : MonoBehaviour
     public LayerMask enemyLayer;
     public AnimationCurve swingCurve;
 
+    [Header("Melee SFX")]
+    public AudioClip meleeSwingSfx;
+    public float meleeSwingSfxVolumeMultiplier = 1f;
+
     [Header("Ranged Attack Settings")]
     public GameObject bowVisual;
     public GameObject arrowPrefab;
@@ -73,6 +77,12 @@ public class PlayerAttack : MonoBehaviour
     private void Start()
     {
         stats = GetComponent<PlayerStats>();
+
+        if (meleeSwingSfx == null && MusicManager.Instance != null && MusicManager.Instance.playerMeleeSwingSfx != null)
+        {
+            meleeSwingSfx = MusicManager.Instance.playerMeleeSwingSfx;
+        }
+        if (meleeSwingSfx == null) meleeSwingSfx = MusicManager.FindClipByName("sfx_sword_swing");
 
         // Subscribe to the inventory manager's event to know when the active item changes.
         InventoryManager.Instance.OnActiveSlotChanged += UpdateEquippedItem;
@@ -186,6 +196,11 @@ public class PlayerAttack : MonoBehaviour
     {
         int activeSlot = InventoryManager.Instance.activeSlotIndex;
 
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySfx(MusicManager.Instance.playerBowShootSfx);
+        }
+
         float finalDamage = stats.GetModifiedDamage(currentItem.damage);
         int finalProjectiles = stats.GetModifiedProjectileCount(currentItem.projectilesPerShot);
 
@@ -240,6 +255,11 @@ public class PlayerAttack : MonoBehaviour
 
         ResetMeleeVisuals();
 
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySfx(meleeSwingSfx, meleeSwingSfxVolumeMultiplier);
+        }
+
         enemiesHitThisSwing = new List<Collider>();
         initialAttackRotation = transform.rotation;
 
@@ -258,6 +278,11 @@ public class PlayerAttack : MonoBehaviour
 
         if (currentItem != null && currentItem.itemType == ItemType.Magic)
         {
+
+            if (MusicManager.Instance != null)
+            {
+                MusicManager.Instance.PlaySfx(MusicManager.Instance.playerStaffUseSfx);
+            }
 
             if (currentItem.itemPrefab == null)
             {

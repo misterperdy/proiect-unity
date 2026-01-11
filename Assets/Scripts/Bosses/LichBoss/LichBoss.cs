@@ -13,6 +13,9 @@ public class LichBoss : MonoBehaviour, IDamageable
     private bool isPhaseTwo = false;
     private bool isSurvivePhase = false; // Phase 3
 
+    private float lastDamageSfxTime = -999f;
+    private const float damageSfxMinInterval = 0.08f;
+
     [Header("Detection")]
     public float sightRange = 10f;
     public Transform castPoint;
@@ -139,7 +142,11 @@ public class LichBoss : MonoBehaviour, IDamageable
         switch (currentState)
         {
             case BossState.Idle:
-                if (CanSeePlayer()) currentState = BossState.Chasing;
+                if (CanSeePlayer())
+                {
+                    if (MusicManager.Instance != null) MusicManager.Instance.PlayBossMusic();
+                    currentState = BossState.Chasing;
+                }
                 break;
             case BossState.Chasing:
                 ChaseAndDecide();
@@ -449,6 +456,13 @@ public class LichBoss : MonoBehaviour, IDamageable
         if (isInvulnerable) return;
 
         currentHealth -= damage;
+
+        if (MusicManager.Instance != null && Time.time - lastDamageSfxTime >= damageSfxMinInterval)
+        {
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.leechBossTookDamageSfx, transform.position, 1f, 3f, 35f);
+            lastDamageSfxTime = Time.time;
+        }
+
         if (bossHealthBar != null) bossHealthBar.SetHealth((int)currentHealth);
 
         if (currentHealth <= 0) Die();
@@ -456,6 +470,13 @@ public class LichBoss : MonoBehaviour, IDamageable
 
     void Die()
     {
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.bossDiesSfx, transform.position, 1f, 3f, 45f);
+        }
+
+        if (MusicManager.Instance != null) MusicManager.Instance.PlayGameplayMusic();
+
         // Stop logic
         StopAllCoroutines();
         ToggleShield(false);

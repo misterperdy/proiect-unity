@@ -21,6 +21,12 @@ public class Teleport : MonoBehaviour
     private IEnumerator TeleportPlayer()
     {
         isTeleporting = true;
+
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySfx(MusicManager.Instance.normalTeleporterSfx);
+        }
+
         //Oprirea collider pentru a nu te teleporta din greseala la loc de unde ai plecat
         if (receiver != null)
         {

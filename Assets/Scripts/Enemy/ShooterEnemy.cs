@@ -34,6 +34,11 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
     private Animator acp;
     private bool isDead = false;
 
+    public float medkitDropChance = 10f; // 0-100
+
+    private float lastDamageSfxTime = -999f;
+    private const float damageSfxMinInterval = 0.08f;
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -123,6 +128,12 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
 
     public void Shoot()
     {
+        if (MusicManager.Instance != null)
+        {
+            Vector3 pos = (firePoint != null) ? firePoint.position : transform.position;
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.enemyBowShootSfx, pos, 1f, 2f, 30f);
+        }
+
         projectilePrefab.GetComponent<EnemyProjectile>().damage = projectileDamage;
 
         if (projectilePrefab == null)
@@ -204,6 +215,15 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
     public void TakeDamage(int amount)
     {
         currentHealth -= amount;
+
+        if (MusicManager.Instance != null && Time.time - lastDamageSfxTime >= damageSfxMinInterval)
+        {
+            string n = gameObject.name.ToLower();
+            AudioClip clip = n.Contains("slime") ? MusicManager.Instance.slimeEnemyTookDamageSfx : MusicManager.Instance.skeletonTookDamageSfx;
+            MusicManager.Instance.PlaySpatialSfx(clip, transform.position, 1f, 2f, 25f);
+            lastDamageSfxTime = Time.time;
+        }
+
         if (currentHealth <= 0)
         {
             Die();
@@ -214,10 +234,26 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
     {
         Debug.Log("Enemy has died!");
 
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.enemyDiesSfx, transform.position, 1f, 2f, 25f);
+        }
+
         MinimapTracker tracker = GetComponent<MinimapTracker>();
         if (tracker != null)
         {
             tracker.TriggerDeathAnimation();
+        }
+
+        //generate medkit with chance
+        if (DungeonGenerator.instance.medkitPrefab != null)
+        {
+            float randomValue = Random.Range(0f, 100f);
+            if (randomValue <= medkitDropChance)
+            {
+                Vector3 pos = transform.position + new Vector3(0f, 0.3f, 0f);
+                GameObject medkit = Instantiate(DungeonGenerator.instance.medkitPrefab, pos + new Vector3(0, 0.28f, 2.5f), Quaternion.Euler(0, 90, 0));
+            }
         }
 
         if (xpOrbPrefab != null)

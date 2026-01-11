@@ -109,6 +109,12 @@ public class TurretHandler : MonoBehaviour
     {
         if (firePoint == null) return;
 
+        if (MusicManager.Instance != null)
+        {
+            // Spatial so it attenuates with distance.
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.turretShootSfx, firePoint.position, 1f, 2f, 25f);
+        }
+
         Vector3 direction = (target.position - firePoint.position).normalized;
 
         for (int i = 0; i < Mathf.Max(1, projectiles); i++)

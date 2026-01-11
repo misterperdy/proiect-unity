@@ -35,7 +35,7 @@ public class BossRoomSpawner : MonoBehaviour
         if (bossPrefab == null) return;
         hasSpawned = true;
 
-        Vector3 spawnPos = transform.position + new Vector3(0, 2f, 0);
+        Vector3 spawnPos = transform.position + new Vector3(0, 0.2f, 0); //CHANGED HEIGHT WHERE IT SPAWNS
         activeBoss = Instantiate(bossPrefab, spawnPos, Quaternion.identity);
 
         Destroy(triggerCollider);
@@ -60,9 +60,17 @@ public class BossRoomSpawner : MonoBehaviour
             exitTeleporter = Instantiate(DungeonGenerator.instance.teleporterPrefab, portalPos, Quaternion.identity);
             exitTeleporter.name = "Teleporter_NextLevel";
 
-            Vector3 nextLevelStart = DungeonGenerator.instance.GenerateNextLevel(portalPos);
+            if(DungeonGenerator.instance.medkitPrefab != null)
+            {
+                //spawn a  medkit above teleporter
+                GameObject medkit = Instantiate(DungeonGenerator.instance.medkitPrefab, portalPos + new Vector3(0, 0.28f, 7f), Quaternion.Euler(0,90,0));
+                medkit.name = "Medkit";
+            }
+
+            Vector3 nextLevelStart = DungeonGenerator.instance.GenerateNextLevel(portalPos, false);
 
             exitTeleporter.GetComponent<TeleporterBoss>().SetDestination(nextLevelStart);
+            exitTeleporter.GetComponent<TeleporterBoss>().targetLevelIndex = DungeonGenerator.instance.currentBiomeIndex;
         }
     }
 

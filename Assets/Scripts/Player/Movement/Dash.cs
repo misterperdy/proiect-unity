@@ -6,7 +6,7 @@ using UnityEngine;
 public class Dash : MonoBehaviour
 {
     private Rigidbody _rigidBody;
-    private TrailRenderer _trailRenderer;
+    public TrailRenderer _trailRenderer;
     private PlayerHealth _playerHealth;
     private Animator animator;
 
@@ -22,7 +22,9 @@ public class Dash : MonoBehaviour
     void Start()
     {
         _rigidBody = GetComponent<Rigidbody>();
-        _trailRenderer = GetComponent<TrailRenderer>();
+
+        if(_trailRenderer == null)
+        _trailRenderer = GetComponentInChildren<TrailRenderer>();
         _playerHealth = GetComponent<PlayerHealth>();
         // Atentie: Daca scriptul e pe parinte si animatorul pe copil, foloseste GetComponentInChildren
         animator = GetComponentInChildren<Animator>();
@@ -75,6 +77,11 @@ public class Dash : MonoBehaviour
     {
         _canDash = false;
         _isDashing = true;
+
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySfx(MusicManager.Instance.playerDashSfx);
+        }
 
         // AICI ESTE FIX-UL: Declansam animatia o singura data, la inceput
         animator.SetTrigger("t_dash");

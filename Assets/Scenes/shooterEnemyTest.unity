@@ -386,7 +386,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3740bbe4629fb243ae2d9ef22507832, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
+  player: {fileID: 101914347}
   destination: {fileID: 1126465252}
   receiver: {fileID: 1628640633}
   teleportCooldown: 1
@@ -1972,7 +1972,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3740bbe4629fb243ae2d9ef22507832, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
+  player: {fileID: 101914347}
   destination: {fileID: 327340253}
   receiver: {fileID: 135183638}
   teleportCooldown: 1

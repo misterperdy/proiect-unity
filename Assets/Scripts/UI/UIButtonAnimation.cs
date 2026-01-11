@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections;
 
-public class UIButtonAnimation : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class UIButtonAnimation : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     private Vector3 originalScale;
     public float hoverScale = 1.1f;
@@ -56,6 +56,7 @@ public class UIButtonAnimation : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (MusicManager.Instance != null) MusicManager.Instance.PlayUIHoverSfx();
         StopAllCoroutines();
         StartCoroutine(ScaleTo(originalScale * hoverScale));
     }
@@ -64,6 +65,11 @@ public class UIButtonAnimation : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         StopAllCoroutines();
         StartCoroutine(ScaleTo(originalScale));
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (MusicManager.Instance != null) MusicManager.Instance.PlayUIClickSfx();
     }
 
     private IEnumerator ScaleTo(Vector3 target)

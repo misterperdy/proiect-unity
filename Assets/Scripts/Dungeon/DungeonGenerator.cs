@@ -40,6 +40,17 @@ public class DungeonGenerator : MonoBehaviour
         public int maxEnemies;
     }
 
+    [System.Serializable]
+    public class LevelData
+    {
+        public int[,] grid;
+        public Vector3 worldOffset;
+        public List<Vector2Int> discoveredTiles;
+    }
+
+    [Header("Levels History")]
+    public List<LevelData> levelHistory = new List<LevelData>();
+
     [Header("Enemy Rarity Settings")]
     public RoomEnemySpawner.RaritySettings[] rarityDefinitions;
 
@@ -96,6 +107,7 @@ public class DungeonGenerator : MonoBehaviour
     public GameObject cornerHallway;
     public GameObject tJunction;
     public GameObject crossIntersection;
+    public GameObject medkitPrefab;
 
     [Header("Container")]
     public Transform dungeonContainer;
@@ -105,6 +117,9 @@ public class DungeonGenerator : MonoBehaviour
 
     [Header("UI")]
     public MinimapController minimapController; //asign in inspector
+
+    [Header("Debug")]
+    public Vector3 currentBossPosition;
 
     // --- Internal State ---
     private int[,] grid;
@@ -124,17 +139,19 @@ public class DungeonGenerator : MonoBehaviour
     {
         if (navMeshSurface == null) navMeshSurface = GetComponent<NavMeshSurface>();
 
+        if (MusicManager.Instance != null) MusicManager.Instance.PlayGameplayMusic();
+
         GenerateCurrentLevel();
     }
 
-    public Vector3 GenerateNextLevel(Vector3 positionToReturnTo)
+    public Vector3 GenerateNextLevel(Vector3 positionToReturnTo, bool updateMinimap = false)
     {
         currentBiomeIndex++;
         if (currentBiomeIndex >= biomes.Count) currentBiomeIndex = biomes.Count - 1;
 
         currentWorldOffset += levelDistanceOffset;
 
-        GenerateCurrentLevel();
+        GenerateCurrentLevel(updateMinimap);
 
         float cx = ((startRoomWidth - 1) * tileSize) / 2f;
         float cy = ((startRoomHeight - 1) * tileSize) / 2f;
@@ -149,15 +166,27 @@ public class DungeonGenerator : MonoBehaviour
             GameObject backPortal = Instantiate(teleporterPrefab, newStartPos + new Vector3(0f, 0.3f, 0f) + Vector3.back * 3, Quaternion.identity);
             backPortal.name = "Teleporter_Back";
             backPortal.GetComponent<TeleporterBoss>().SetDestination(positionToReturnTo);
+            backPortal.GetComponent<TeleporterBoss>().targetLevelIndex = currentBiomeIndex - 1;
         }
 
         return newStartPos;
     }
 
-    void GenerateCurrentLevel()
+    void GenerateCurrentLevel(bool updateMinimap = true)
     {
+        if (minimapController == null)
+        {
+            minimapController = FindObjectOfType<MinimapController>();
+            if (minimapController != null)
+            {
+                Debug.Log("DungeonGenerator: MinimapController a fost reg?sit automat!");
+            }
+        }
+
         grid = new int[gridSize, gridSize];
         tileBiomeMap = new int[gridSize, gridSize];
+
+
         roomConnectionPoints.Clear();
 
         for (int x = 0; x < gridSize; x++)
@@ -182,15 +211,28 @@ public class DungeonGenerator : MonoBehaviour
 
         SpawnWorld(levelObj.transform, currentBiome);
 
-        //init minimap
-        if(minimapController != null && currentBiomeIndex == 0 ) // only generate first time for first level cause it generates for all of them
+        if (updateMinimap && minimapController != null)
         {
             minimapController.playerTransform = player;
-            minimapController.InitializeMinimap(grid, gridSize, tileSize, currentWorldOffset);
+            minimapController.InitializeMinimap(grid, gridSize, tileSize, currentWorldOffset, currentBiomeIndex);
+        }
+        else if (updateMinimap && minimapController == null)
+        {
+            Debug.LogWarning("Minimap controller is null (si update a fost cerut)!");
+        }
+
+        LevelData newData = new LevelData();
+        newData.grid = grid;
+        newData.worldOffset = currentWorldOffset;
+        newData.discoveredTiles = new List<Vector2Int>();
+
+        if (levelHistory.Count <= currentBiomeIndex)
+        {
+            levelHistory.Add(newData);
         }
         else
         {
-            Debug.LogWarning("minimap controller is null on dungeon script");
+            levelHistory[currentBiomeIndex] = newData;
         }
 
         if (navMeshSurface != null)
@@ -200,6 +242,18 @@ public class DungeonGenerator : MonoBehaviour
             navMeshSurface.BuildNavMesh();
         }
     }
+
+    public void LoadLevelMapSimple(int levelIndex)
+    {
+        if (levelIndex >= 0 && levelIndex < levelHistory.Count && minimapController != null)
+        {
+            LevelData data = levelHistory[levelIndex];
+            // Trimitem indexul ca s? ?tie Minimapa ce memorie s? trag?
+            minimapController.InitializeMinimap(data.grid, gridSize, tileSize, data.worldOffset, levelIndex);
+        }
+    }
+
+
 
     void PlaceStartRoom(Vector2Int center, Transform levelParent, BiomeConfig theme)
     {
@@ -231,7 +285,7 @@ public class DungeonGenerator : MonoBehaviour
 
         if (player != null && currentBiomeIndex==biomeSpawnIndex)
         {
-            player.position = finalPos + new Vector3(0, 2, 0);
+            player.position = finalPos + new Vector3(0, 0.2f, 0); //LOWERED Y FOR PLAYER
             Rigidbody playerRb = player.GetComponent<Rigidbody>();
             if (playerRb != null) { playerRb.velocity = Vector3.zero; playerRb.position = player.position; }
             player.rotation = Quaternion.identity;
@@ -374,6 +428,8 @@ public class DungeonGenerator : MonoBehaviour
                 float cx = ((bossRoomWidth - 1) * tileSize) / 2f;
                 float cy = ((bossRoomHeight - 1) * tileSize) / 2f;
                 Vector3 finalPos = new Vector3((pos.x * tileSize) + cx, 0, (pos.y * tileSize) + cy) + currentWorldOffset;
+
+                currentBossPosition = finalPos;
 
                 GameObject bossObj = Instantiate(bossRoomPrefab, finalPos, Quaternion.identity, levelParent);
 

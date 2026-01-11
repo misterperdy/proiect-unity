@@ -1284,6 +1284,36 @@ MonoBehaviour:
   mainPanel: {fileID: 1156566013}
   helpPanel: {fileID: 1251003674}
   gameSceneName: Dungeon
+  mainMenuMusic: {fileID: 8300000, guid: 99a505ff320085344a0f948b8a215f14, type: 3}
+  gameplayMusic: {fileID: 8300000, guid: f37813bf64672b341aa31325017b7581, type: 3}
+  bossMusic: {fileID: 8300000, guid: 24abe016e3922904aaf14eef92c4fd18, type: 3}
+  uiHoverSfx: {fileID: 8300000, guid: 2a359d16a183ea34bab09a4281de3222, type: 3}
+  uiClickSfx: {fileID: 8300000, guid: 1e1a7b2d3a63aca41a394d336d016f7c, type: 3}
+  playerWalkingSfx: {fileID: 8300000, guid: 74f6e8539edf6ee439f95b159f022d4c, type: 3}
+  playerMeleeSwingSfx: {fileID: 8300000, guid: a928621185ae0254fb7edc169d48e399, type: 3}
+  normalTeleporterSfx: {fileID: 8300000, guid: ed99a9599444a5248968288f8fc5be94, type: 3}
+  bossTeleporterSfx: {fileID: 8300000, guid: 806d0f5f83f05824981abe8b6874fa7b, type: 3}
+  playerBowShootSfx: {fileID: 8300000, guid: 0cf0b8ee56c157446acc5508a244322d, type: 3}
+  playerStaffUseSfx: {fileID: 8300000, guid: 635d4b0291d35f643a40ed64e3083b7a, type: 3}
+  enemyBowShootSfx: {fileID: 8300000, guid: 682329c206b041e44b66532c6bbc048f, type: 3}
+  enemySwordSwingSfx: {fileID: 8300000, guid: df14d3fca61c16941b619cb652f36e2f, type: 3}
+  playerTookDamageSfx: {fileID: 8300000, guid: 3b712102e95f16142b9578b1dce0338e, type: 3}
+  skeletonTookDamageSfx: {fileID: 8300000, guid: 5be707b25a2a87d4eac94a6df650d5b3, type: 3}
+  slimeEnemyTookDamageSfx: {fileID: 8300000, guid: 0e347f21b1170f044a1bd91f325044d1, type: 3}
+  slimeBossTookDamageSfx: {fileID: 8300000, guid: c619403e789acc743b08a456846eec25, type: 3}
+  leechBossTookDamageSfx: {fileID: 8300000, guid: b5b3b9a23fb0f50479ac7e8fa946cb6e, type: 3}
+  golemBossTookDamageSfx: {fileID: 8300000, guid: c7155c0e8aa7b324bade16bd96758d1a, type: 3}
+  perkSelectedSfx: {fileID: 8300000, guid: 5acdc300f10cb804b8fe0bac5a3348eb, type: 3}
+  playerDashSfx: {fileID: 8300000, guid: 78263a0a2bd83e549982659b70d6d84d, type: 3}
+  enemyDiesSfx: {fileID: 8300000, guid: 724e428d82b973e49bd96b51472de5f2, type: 3}
+  bossDiesSfx: {fileID: 8300000, guid: 6622a0f42d268d14eab49126897bd583, type: 3}
+  playerDiesGameOverSfx: {fileID: 8300000, guid: 69b463e21f29a7b43983645243148d16, type: 3}
+  gamePausedSfx: {fileID: 8300000, guid: 8744978f0ecf6834b8df8557622f000b, type: 3}
+  gameUnpausedSfx: {fileID: 8300000, guid: 2c02e77c2339d6d419e80841cd937324, type: 3}
+  xpPickupSfx: {fileID: 8300000, guid: 60f0d53adf30d2f4c8af631ae66e07db, type: 3}
+  weaponPickupSfx: {fileID: 8300000, guid: d29db9859c42f0943bcafff24c3a5dfa, type: 3}
+  playerMedkitHealingSfx: {fileID: 8300000, guid: 27930724f8fa1ea4ba5e46193cf5f796, type: 3}
+  turretShootSfx: {fileID: 8300000, guid: 2a1f0226f214e9b4f98d54885acf6538, type: 3}
 --- !u!4 &1097437596
 Transform:
   m_ObjectHideFlags: 0

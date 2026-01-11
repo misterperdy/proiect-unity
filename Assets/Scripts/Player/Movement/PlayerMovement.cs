@@ -12,18 +12,41 @@ public class PlayerMovement : MonoBehaviour
 
     public Animator animator;
 
+    public LayerMask floorLayerMask; // asign in inspector
+
+    public float heightOffset = 0.0f;
+
+    [Header("SFX")]
+    public AudioClip walkingSfx;
+    public float walkingSfxVolumeMultiplier = 1f;
+    public float walkingMoveThreshold = 0.1f;
+    private AudioSource walkingSource;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+
+        if (walkingSfx == null && MusicManager.Instance != null && MusicManager.Instance.playerWalkingSfx != null)
+        {
+            walkingSfx = MusicManager.Instance.playerWalkingSfx;
+        }
+        if (walkingSfx == null) walkingSfx = MusicManager.FindClipByName("sfx_player_is_walking");
+
+        // Dedicated footsteps source (avoid hijacking any other AudioSource on the player).
+        walkingSource = gameObject.AddComponent<AudioSource>();
+
+        walkingSource.playOnAwake = false;
+        walkingSource.loop = true;
+        walkingSource.spatialBlend = 0f; // 2D footsteps (simple + consistent)
+        walkingSource.clip = walkingSfx;
     }
 
     // Update is called once per frame
     void Update()
     {
-        float moveX = Input.GetAxis("Horizontal"); // A,D keys or left,right arrows
-        float moveZ = Input.GetAxis("Vertical"); // W,S keys or up,down arrows
+        float moveX = Input.GetAxisRaw("Horizontal"); // A,D keys or left,right arrows
+        float moveZ = Input.GetAxisRaw("Vertical"); // W,S keys or up,down arrows
 
         //create a vector with the inputs from the 2 axis
         moveVector = new Vector3(moveX, 0f, moveZ).normalized;
@@ -35,8 +58,51 @@ public class PlayerMovement : MonoBehaviour
         {
             localMove = Vector3.zero;
         }
-        animator.SetFloat("InputX", localMove.x, 0.01f, Time.deltaTime);
-        animator.SetFloat("InputZ", localMove.z, 0.01f, Time.deltaTime);
+        animator.SetFloat("InputX", localMove.x, 0.15f, Time.deltaTime);
+        animator.SetFloat("InputZ", localMove.z, 0.15f, Time.deltaTime);
+
+        UpdateWalkingSfx();
+    }
+
+    private void UpdateWalkingSfx()
+    {
+        if (walkingSource == null) return;
+
+        // In case the clip wasn't available at Start, retry.
+        if (walkingSfx == null)
+        {
+            if (MusicManager.Instance != null && MusicManager.Instance.playerWalkingSfx != null)
+            {
+                walkingSfx = MusicManager.Instance.playerWalkingSfx;
+            }
+            if (walkingSfx == null) walkingSfx = MusicManager.FindClipByName("sfx_player_is_walking");
+            walkingSource.clip = walkingSfx;
+        }
+
+        if (walkingSfx == null) return;
+
+        // Stop footsteps when paused
+        if (Time.timeScale == 0f)
+        {
+            if (walkingSource.isPlaying) walkingSource.Stop();
+            return;
+        }
+
+        bool isMoving = moveVector.magnitude > walkingMoveThreshold;
+
+        if (isMoving)
+        {
+            // Keep volume synced with SFX volume slider
+            float baseVol = (MusicManager.Instance != null) ? MusicManager.Instance.sfxVolume : 1f;
+            walkingSource.volume = baseVol * walkingSfxVolumeMultiplier;
+
+            if (walkingSource.clip != walkingSfx) walkingSource.clip = walkingSfx;
+            if (!walkingSource.isPlaying) walkingSource.Play();
+        }
+        else
+        {
+            if (walkingSource.isPlaying) walkingSource.Stop();
+        }
     }
 
     //function to handle physics that runs constantly
@@ -44,5 +110,31 @@ public class PlayerMovement : MonoBehaviour
     {
         //move the rigidbody of the player
         rb.velocity = new Vector3(moveVector.x * movementSpeed, rb.velocity.y, moveVector.z * movementSpeed);
+
+        //cast a forward ray that checks if its something the player should go over with, and handles Y changing
+        RaycastHit hit;
+
+        Vector3 castOrigin = transform.position;
+        if (moveVector.magnitude > 0.1f)
+        {
+            Vector3 dir = new Vector3(moveVector.x, 0, moveVector.z).normalized;
+            castOrigin += dir * 0.4f;
+        }
+
+        castOrigin.y += 2.0f;
+
+        Debug.DrawRay(castOrigin, Vector3.down * 4.0f, Color.red);
+
+        if (Physics.Raycast(castOrigin, Vector3.down, out hit, 4.0f, floorLayerMask))
+        {
+            float targetY = hit.point.y + heightOffset;
+
+            if (Mathf.Abs(transform.position.y - targetY) > 0.01f)
+            {
+                Vector3 newPos = transform.position;
+                newPos.y = Mathf.Lerp(newPos.y, targetY, Time.deltaTime * 15f);
+                transform.position = newPos;
+            }
+        }
     }
 }

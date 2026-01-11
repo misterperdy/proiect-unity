@@ -38,11 +38,18 @@ public class SlimeBoss : MonoBehaviour, IDamageable
     private float speedMultiplier = 1f;
     private GameObject activeShadow;
 
+    [Header("visual adjustments")]
+    public float jumpModelYOffset = 0.0f;
+    public LayerMask floorLayer;
+
     public enum BossState { Idle, Chasing, PreparingJump, Jumping, BigJumping, Recovering }
     public BossState currentState;
 
     [Header("UI")]
     public BossBarSlider bossHealthBar;
+
+    private float lastDamageSfxTime = -999f;
+    private const float damageSfxMinInterval = 0.08f;
 
     void Start()
     {
@@ -99,6 +106,7 @@ public class SlimeBoss : MonoBehaviour, IDamageable
             case BossState.Idle:
                 if (CanSeePlayer())
                 {
+                    if (MusicManager.Instance != null) MusicManager.Instance.PlayBossMusic();
                     currentState = BossState.Chasing;
                 }
                 break;
@@ -139,8 +147,25 @@ public class SlimeBoss : MonoBehaviour, IDamageable
         isAttacking = true;
         currentState = BossState.PreparingJump;
 
+        float realGroundY = transform.position.y;
+        RaycastHit hit;
+        // Cautam pamantul sub noi
+        if (Physics.Raycast(transform.position + Vector3.up, Vector3.down, out hit, 5f, floorLayer))
+        {
+            realGroundY = hit.point.y;
+        }
+
+        // Aplicam pozitia corecta inainte de animatie
+        transform.position = new Vector3(transform.position.x, realGroundY, transform.position.z);
+
         // 1. Prepare
         SwapModel(true);
+
+        if (modelJump != null)
+        {
+            modelJump.transform.localPosition = new Vector3(0, jumpModelYOffset, 0);
+        }
+
         // Ensure physics doesn't mess with our manual movement
         if (rb != null) rb.isKinematic = true;
 
@@ -196,88 +221,108 @@ public class SlimeBoss : MonoBehaviour, IDamageable
 
     private IEnumerator PerformBigJump()
     {
-        isAttacking = true;
-        currentState = BossState.PreparingJump;
-
-        SwapModel(true);
-        yield return new WaitForSeconds(0.5f * speedMultiplier);
-
         currentState = BossState.BigJumping;
+        isAttacking = true;
 
-        SetVisualsVisible(false);
-
-        if (shadowPrefab != null)
+        // 1. PREGATIREA: Gasim solul real
+        float realGroundY = transform.position.y;
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position + Vector3.up, Vector3.down, out hit, 10f, floorLayer))
         {
-            activeShadow = Instantiate(shadowPrefab, player.position, Quaternion.Euler(90, 0, 0));
+            realGroundY = hit.point.y;
         }
 
-        float currentAirDuration = bigJumpDuration * speedMultiplier;
-        float flashTime = 0.35f; //ms before slam indicator turns red
-        float flashTriggerTime = currentAirDuration - flashTime;
-        bool hasFlashed = false;
+        // Schimbam modelul si aplicam offsetul vizual (ca la small jump)
+        SwapModel(true);
+        if (modelJump != null) modelJump.transform.localPosition = new Vector3(0, jumpModelYOffset, 0);
 
+        if (rb != null) rb.isKinematic = true;
 
-        float airTimer = 0f;
-        while (airTimer < currentAirDuration)
+        // 2. URCAREA (ASCENT): Nu il teleportam instant, il ridicam rapid
+        float ascentDuration = 0.5f; // Cat timp ii ia sa ajunga sus
+        float airHeight = 15f; // Cat de sus zboara (sa iasa din ecran)
+        float timer = 0f;
+        Vector3 startPos = transform.position;
+        Vector3 highPos = new Vector3(startPos.x, realGroundY + airHeight, startPos.z);
+
+        while (timer < ascentDuration)
         {
-            airTimer += Time.deltaTime;
-
-            // 1. Move Shadow
-            if (activeShadow != null && player != null)
-            {
-                Vector3 targetShadowPos = player.position;
-                targetShadowPos.y = 0.212f;
-                float currentFollowSpeed = shadowFollowSpeed * (1f / speedMultiplier);
-                activeShadow.transform.position = Vector3.Lerp(activeShadow.transform.position, targetShadowPos, Time.deltaTime * currentFollowSpeed);
-
-                // 2. Check for Flash Time
-                if (!hasFlashed && airTimer >= flashTriggerTime)
-                {
-                    hasFlashed = true;
-
-                    // Try to get SpriteRenderer (2D way)
-                    SpriteRenderer sr = activeShadow.GetComponent<SpriteRenderer>();
-                    if (sr != null)
-                    {
-                        sr.color = Color.red;
-                    }
-                    else
-                    {
-                        // Fallback to MeshRenderer (3D Quad way)
-                        Renderer r = activeShadow.GetComponent<Renderer>();
-                        if (r != null) r.material.color = Color.red;
-                    }
-                }
-            }
+            timer += Time.deltaTime;
+            float t = timer / ascentDuration;
+            // Interpolare lina in sus
+            transform.position = Vector3.Lerp(startPos, highPos, t * t); // t*t pentru accelerare
             yield return null;
         }
 
-        // Slam
-        Vector3 landingSpot = transform.position;
-        if (activeShadow != null)
+        // 3. SPAWN UMBRA (Acum ca boss-ul e sus)
+        if (shadowPrefab != null)
         {
-            landingSpot = activeShadow.transform.position;
-            landingSpot.y = transform.position.y;
-            Destroy(activeShadow);
-            activeShadow = null;
+            // Spawnam umbra exact pe pamant, sub boss
+            Vector3 shadowPos = new Vector3(transform.position.x, realGroundY + 0.05f, transform.position.z);
+            activeShadow = Instantiate(shadowPrefab, shadowPos, Quaternion.Euler(90, 0, 0));
         }
 
-        transform.position = landingSpot;
-        if (player != null) transform.LookAt(new Vector3(player.position.x, transform.position.y, player.position.z));
-        SetVisualsVisible(true);
+        // 4. URMARIREA (HOVER): Boss-ul sta sus, Umbra jos
+        float chaseDuration = bigJumpDuration * speedMultiplier;
+        timer = 0f;
+
+        while (timer < chaseDuration)
+        {
+            timer += Time.deltaTime;
+
+            if (activeShadow != null && player != null)
+            {
+                // A. Misca UMBRA spre player (pe sol)
+                Vector3 dirToPlayer = (player.position - activeShadow.transform.position).normalized;
+                dirToPlayer.y = 0; // Ignoram inaltimea
+
+                // Calculam noua pozitie a umbrei
+                Vector3 newShadowPos = activeShadow.transform.position + dirToPlayer * shadowFollowSpeed * Time.deltaTime;
+
+                // Fortam umbra sa ramana la Y-ul solului (ca sa nu dispara in pamant sau aer)
+                newShadowPos.y = realGroundY + 0.05f;
+
+                activeShadow.transform.position = newShadowPos;
+
+                // B. Misca BOSS-UL sa urmareasca umbra (dar ramane SUS in aer)
+                transform.position = new Vector3(newShadowPos.x, realGroundY + airHeight, newShadowPos.z);
+            }
+
+            yield return null;
+        }
+
+        // 5. COBORAREA (SLAM): Cade rapid spre umbra
+        Vector3 targetLandPos = transform.position;
+        targetLandPos.y = realGroundY; // Tinta e jos
+
+        float dropDuration = 0.2f; // Foarte rapid
+        timer = 0f;
+        Vector3 currentHighPos = transform.position;
+
+        while (timer < dropDuration)
+        {
+            timer += Time.deltaTime;
+            float t = timer / dropDuration;
+            transform.position = Vector3.Lerp(currentHighPos, targetLandPos, t);
+            yield return null;
+        }
+
+        // Asiguram pozitia finala
+        transform.position = targetLandPos;
+
+        // Damage si efecte
+        CheckAreaDamage(slamRadius);
+        if (slimePuddlePrefab != null) Instantiate(slimePuddlePrefab, transform.position, slimePuddlePrefab.transform.rotation);
+
+        // 6. CURATARE
+        if (activeShadow != null) Destroy(activeShadow);
+
+        // Resetam modelul vizual
+        if (modelJump != null) modelJump.transform.localPosition = Vector3.zero;
         SwapModel(false);
 
-        if (slimePuddlePrefab != null)
-        {
-            Vector3 puddlePos = landingSpot;
-            puddlePos.y = 0.212f;
-            Instantiate(slimePuddlePrefab, puddlePos, Quaternion.Euler(90, 0, 0));
-        }
-
-        CheckAreaDamage(slamRadius);
-
         currentState = BossState.Recovering;
-        yield return new WaitForSeconds((timeBetweenJumps + 1f) * speedMultiplier);
+        yield return new WaitForSeconds(1f);
 
         isAttacking = false;
         currentState = BossState.Chasing;
@@ -336,6 +381,13 @@ public class SlimeBoss : MonoBehaviour, IDamageable
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
+
+        if (MusicManager.Instance != null && Time.time - lastDamageSfxTime >= damageSfxMinInterval)
+        {
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.slimeBossTookDamageSfx, transform.position, 1f, 3f, 35f);
+            lastDamageSfxTime = Time.time;
+        }
+
         if (bossHealthBar != null) bossHealthBar.SetHealth(currentHealth);
 
         float healthPercent = (float)currentHealth / maxHealth;
@@ -350,6 +402,13 @@ public class SlimeBoss : MonoBehaviour, IDamageable
 
     void Die()
     {
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.bossDiesSfx, transform.position, 1f, 3f, 45f);
+        }
+
+        if (MusicManager.Instance != null) MusicManager.Instance.PlayGameplayMusic();
+
         if (activeShadow != null) Destroy(activeShadow);
         if (bossHealthBar != null) bossHealthBar.ToggleBar(false);
         Destroy(gameObject);
