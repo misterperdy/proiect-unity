@@ -25,11 +25,18 @@ public class BossRoomSpawner : MonoBehaviour
 
         this.finalLevel = finalLevel;
     }
+   
 
     private void OnTriggerEnter(Collider other)
     {
         if (!hasSpawned && other.CompareTag("Player"))
         {
+            PlayerMovement movement = other.GetComponent<PlayerMovement>();
+            if (movement != null)
+            {
+                movement.SetBossRoomState(true);
+            }
+
             SpawnBoss();
         }
     }
@@ -49,8 +56,15 @@ public class BossRoomSpawner : MonoBehaviour
         // Logic: Boss was spawned, but is now null (destroyed/died), and we haven't made the portal yet.
         if (hasSpawned && activeBoss == null && !levelGenerated)
         {
+            PlayerMovement movement = FindObjectOfType<PlayerMovement>();
+            if (movement != null)
+            {
+                movement.SetBossRoomState(false);
+            }
+
             SpawnExitTeleporter();
         }
+
     }
 
     void SpawnExitTeleporter()

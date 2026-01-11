@@ -14,6 +14,13 @@ public class PlayerMovement : MonoBehaviour
     public float fastAnimSpeed = 2f;
 
     private bool isActionPressed;
+    private PlayerHealth playerHealth;
+    private bool isInBossRoom;
+
+    public void SetBossRoomState(bool state)
+    {
+        isInBossRoom = state;
+    }
 
 
     private Rigidbody rb; 
@@ -36,6 +43,8 @@ public class PlayerMovement : MonoBehaviour
     {
         
         rb = GetComponent<Rigidbody>();
+        playerHealth = GetComponent<PlayerHealth>();
+
 
         if (walkingSfx == null && MusicManager.Instance != null && MusicManager.Instance.playerWalkingSfx != null)
         {
@@ -85,6 +94,26 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("isRunning", true);
             movementSpeed = runningSpeed;
         }
+
+        if (playerHealth != null && playerHealth.IsHurt)
+        {
+            animator.SetBool("isRunning", true);
+            speedTimer = 0f;
+            movementSpeed = normalSpeed;
+            animator.SetBool("isRunning", false);
+            return;
+        }
+
+        if (isInBossRoom)
+        {
+            animator.SetBool("isRunning", true);
+            speedTimer = 0f;
+            movementSpeed = normalSpeed;
+            animator.SetBool("isRunning", false);
+            return;
+        }
+
+
 
 
 
