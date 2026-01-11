@@ -262,6 +262,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c43ec8c728aaf0844ae4116f412df373, type: 2}
   - {fileID: 11400000, guid: d72035179c337a844ac0fd65f5524856, type: 2}
   - {fileID: 11400000, guid: de1776f5f48ee5a40b3a0b96e2baeec1, type: 2}
+  - {fileID: 11400000, guid: 7f6f0a3a7f7c4d7c9f960b8bf3b12f2a, type: 2}
+  - {fileID: 11400000, guid: 4fb6db7d4c7d4f7fb6c8e2cf9d3a6c11, type: 2}
+  - {fileID: 11400000, guid: 2a6a7b1c44a44b2f9e6711b0e2edc8a1, type: 2}
+  - {fileID: 11400000, guid: 8d1b0c2e2d2b4a5b9f0f3c1a7a6b2d10, type: 2}
+  - {fileID: 11400000, guid: 1f1c5f2a2e1f4f26a8b6c9d2f7a1b3c4, type: 2}
+  - {fileID: 11400000, guid: f45eb84ab7e748cb90e3d9a816886398, type: 2}
+  - {fileID: 11400000, guid: f4bf6273b773422bbe18b1920de3921e, type: 2}
+  - {fileID: 11400000, guid: 47e918def22e4dabb369b18054b14ae1, type: 2}
   optionsToOffer: 3
   luckBonusCommon: 0
   luckBonusRare: 5

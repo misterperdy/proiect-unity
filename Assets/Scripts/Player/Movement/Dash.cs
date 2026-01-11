@@ -16,6 +16,11 @@ public class Dash : MonoBehaviour
     [SerializeField] private float _dashDamageFallback = 10f;
     private readonly HashSet<int> _damagedThisDash = new HashSet<int>();
 
+    [Header("Dash Hit VFX")]
+    [SerializeField] private bool _dashHitVfxEnabled = true;
+    [SerializeField] private float _dashHitVfxYOffset = 0.6f;
+    [SerializeField] private bool _dashHitVfxDebugLog = false;
+
     [Header("Dashing")]
     [SerializeField] private float _dashVelocity = 15f; // Am marit putin valoarea, 1.2 e foarte mic pt MovePosition
     [SerializeField] private float _dashingTime = 0.2f;
@@ -89,7 +94,8 @@ public class Dash : MonoBehaviour
         if (_playerStats.dashDamageBonusPercent <= 0f) return;
 
         float radius = Mathf.Max(0.01f, _playerStats.dashDamageRadius);
-        Collider[] hits = Physics.OverlapSphere(transform.position, radius);
+        Vector3 origin = _rigidBody != null ? _rigidBody.position : transform.position;
+        Collider[] hits = Physics.OverlapSphere(origin, radius, ~0, QueryTriggerInteraction.Collide);
         if (hits == null || hits.Length == 0) return;
 
         float baseDamage = _playerAttack != null
@@ -105,6 +111,10 @@ public class Dash : MonoBehaviour
         {
             if (hit == null) continue;
 
+            // Ignore self
+            if (hit.attachedRigidbody != null && hit.attachedRigidbody == _rigidBody) continue;
+            if (hit.transform != null && hit.transform.root == transform.root) continue;
+
             if (!TryGetDamageable(hit, out IDamageable damageable, out Component damageableComponent))
                 continue;
 
@@ -114,7 +124,99 @@ public class Dash : MonoBehaviour
 
             damageable.TakeDamage(damage);
             _playerStats.ReportDamageDealt(damage);
+
+            if (_dashHitVfxEnabled)
+            {
+                Vector3 vfxPos = hit.bounds.center + Vector3.up * _dashHitVfxYOffset;
+                SpawnDashHitVfx(vfxPos);
+
+                if (_dashHitVfxDebugLog)
+                {
+                    Debug.Log($"Dash hit VFX spawned at {vfxPos}");
+                }
+            }
         }
+    }
+
+    private static void SpawnDashHitVfx(Vector3 position)
+    {
+        GameObject go = new GameObject("DashHitVFX");
+        go.transform.position = position;
+
+        ParticleSystem ps = go.AddComponent<ParticleSystem>();
+        ParticleSystemRenderer psr = go.GetComponent<ParticleSystemRenderer>();
+
+        if (psr != null)
+        {
+            Shader shader =
+                Shader.Find("Universal Render Pipeline/Particles/Unlit") ??
+                Shader.Find("Particles/Standard Unlit") ??
+                Shader.Find("Particles/Additive") ??
+                Shader.Find("Sprites/Default");
+
+            if (shader != null) psr.sharedMaterial = new Material(shader);
+
+            psr.renderMode = ParticleSystemRenderMode.Billboard;
+            psr.sortingOrder = 50;
+            psr.trailMaterial = psr.sharedMaterial;
+        }
+
+        var main = ps.main;
+        main.loop = false;
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.duration = 0.35f;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.35f, 0.55f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(1.2f, 2.4f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.08f, 0.13f);
+        main.maxParticles = 128;
+
+        // White -> purple-ish (glowy)
+        Gradient gradient = new Gradient();
+        gradient.SetKeys(
+            new[]
+            {
+                new GradientColorKey(Color.white, 0f),
+                new GradientColorKey(new Color(0.8f, 0.35f, 1f, 1f), 1f)
+            },
+            new[]
+            {
+                new GradientAlphaKey(0.85f, 0f),
+                new GradientAlphaKey(0.0f, 1f)
+            }
+        );
+        main.startColor = new ParticleSystem.MinMaxGradient(gradient);
+
+        var emission = ps.emission;
+        emission.enabled = true;
+        emission.rateOverTime = 0f;
+        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, 18, 28) });
+
+        var shape = ps.shape;
+        shape.enabled = true;
+        shape.shapeType = ParticleSystemShapeType.Sphere;
+        shape.radius = 0.18f;
+
+        var col = ps.colorOverLifetime;
+        col.enabled = true;
+        col.color = new ParticleSystem.MinMaxGradient(gradient);
+
+        var sizeOverLifetime = ps.sizeOverLifetime;
+        sizeOverLifetime.enabled = true;
+        sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.EaseInOut(0f, 1f, 1f, 0f));
+
+        var trails = ps.trails;
+        trails.enabled = true;
+        trails.mode = ParticleSystemTrailMode.PerParticle;
+        trails.ratio = 1f;
+        trails.lifetime = 0.28f;
+        trails.dieWithParticles = true;
+        trails.inheritParticleColor = true;
+        trails.sizeAffectsWidth = true;
+        trails.widthOverTrail = new ParticleSystem.MinMaxCurve(0.045f, AnimationCurve.EaseInOut(0f, 1f, 1f, 0f));
+        trails.colorOverLifetime = new ParticleSystem.MinMaxGradient(gradient);
+
+        ps.Play();
+        Object.Destroy(go, 1.5f);
     }
 
     private static bool TryGetDamageable(Collider hit, out IDamageable damageable, out Component damageableComponent)
