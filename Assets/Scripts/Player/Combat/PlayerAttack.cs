@@ -158,7 +158,9 @@ public class PlayerAttack : MonoBehaviour
                         animator.SetTrigger("t_melee");
                         break;
                     case ItemType.Ranged:
-                        
+                        float attackSpeedRanged = (stats != null) ? stats.fireRateMultiplier : 1f;
+                        animator.SetFloat("AttackSpeed", attackSpeedRanged);
+
                         animator.SetTrigger("t_shoot");
                         break;
                     case ItemType.Turret:
