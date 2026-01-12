@@ -45,6 +45,10 @@ public class PlayerAttack : MonoBehaviour
 
     private Coroutine activeSwingCoroutine;
 
+    [Header("Sync Settings")]
+    [Range(0.1f, 1f)]
+    public float swingDurationRatio = 0.8f;
+
     public float GetCurrentItemBaseDamage(float fallback = 10f)
     {
         return currentItem != null ? currentItem.damage : fallback;
@@ -140,11 +144,13 @@ public class PlayerAttack : MonoBehaviour
             // check cooldown for current weapon
             if (Time.time >= slotCooldownEndTimes[activeSlot])
             {
+                float finalCooldown = currentItem.attackCooldown / currentItem.fireRateMultiplier;
+                slotCooldownEndTimes[activeSlot] = Time.time + finalCooldown;
                 // do attack based on type
                 switch (activeItemType)
                 {
                     case ItemType.Melee:
-                        PerformMeleeAttack();
+                        //PerformMeleeAttack();
                         animator.SetTrigger("t_melee");
                         break;
                     case ItemType.Ranged:
@@ -157,6 +163,13 @@ public class PlayerAttack : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void AE_StartMeleeSwing()
+    {
+        if (activeItemType != ItemType.Melee) return;
+
+        PerformMeleeAttack();
     }
 
 
@@ -248,16 +261,7 @@ public class PlayerAttack : MonoBehaviour
     }
     private void PerformMeleeAttack()
     {
-        int activeSlot = InventoryManager.Instance.activeSlotIndex;
-
-        // set cooldown
-        float finalCooldown = currentItem.attackCooldown / currentItem.fireRateMultiplier;
-        slotCooldownEndTimes[activeSlot] = Time.time + finalCooldown;
-
-        if (activeSwingCoroutine != null)
-        {
-            StopCoroutine(activeSwingCoroutine);
-        }
+        if (activeSwingCoroutine != null) StopCoroutine(activeSwingCoroutine);
 
         ResetMeleeVisuals();
 
@@ -269,7 +273,23 @@ public class PlayerAttack : MonoBehaviour
         enemiesHitThisSwing = new List<Collider>();
         initialAttackRotation = transform.rotation;
 
+        CalculateDynamicDuration();
+
         activeSwingCoroutine = StartCoroutine(AnimateMeleeSwing());
+    }
+
+    private void CalculateDynamicDuration()
+    {
+        // INDEX 1 = COMBAT LAYER
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(1);
+
+        float animLength = stateInfo.length;
+
+        float speed = Mathf.Abs(stateInfo.speed) > 0.01f ? stateInfo.speed : 1f;
+
+        attackDuration = (animLength / speed) * swingDurationRatio;
+
+        if (attackDuration <= 0.05f) attackDuration = 0.3f;
     }
 
     void UseExplosionAbility()
@@ -347,7 +367,6 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    // animate swing over time
     private IEnumerator AnimateMeleeSwing()
     {
         if (meleeAttackPivot == null || meleeWeaponVisual == null) yield break;
@@ -355,32 +374,28 @@ public class PlayerAttack : MonoBehaviour
         meleeWeaponVisual.SetActive(true);
 
         float elapsedTime = 0f;
-        bool swingLeftToRight = Random.value > 0.5f; // random direction
 
-        swingLeftToRight = false;
+        
 
+        
+        bool swingLeftToRight = false; 
         float startAngle = swingLeftToRight ? -attackAngle / 2 : attackAngle / 2;
         float endAngle = swingLeftToRight ? attackAngle / 2 : -attackAngle / 2;
-
-        // get duration from anim
-        attackDuration = 0.47f;
 
         while (elapsedTime < attackDuration)
         {
             elapsedTime += Time.deltaTime;
             float progress = elapsedTime / attackDuration;
-            float curveProgress = swingCurve.Evaluate(progress); // use curve
+
+            float curveProgress = swingCurve.Evaluate(progress);
             float currentAngle = Mathf.Lerp(startAngle, endAngle, curveProgress);
 
-            // rotate independent of player rotation
             meleeAttackPivot.rotation = initialAttackRotation * Quaternion.Euler(0, currentAngle, 0);
 
-            yield return null; // wait next frame
+            yield return null;
         }
 
         ResetMeleeVisuals();
-
-        activeSwingCoroutine = null;
     }
 
     private void ResetMeleeVisuals()

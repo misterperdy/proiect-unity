@@ -442,12 +442,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 767bb6d961e17c8419d12a51726eed33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  normalSpeed: 8
+  runningSpeed: 16
   movementSpeed: 8
+  speedCheckCooldown: 3
+  normalAnimSpeed: 1
+  fastAnimSpeed: 2
   animator: {fileID: 8578736067401512780}
   floorLayerMask:
     serializedVersion: 2
     m_Bits: 1024
   heightOffset: 0
+  walkingSfx: {fileID: 0}
+  runningSfx: {fileID: 0}
+  walkingSfxVolumeMultiplier: 1
+  runningSfxVolumeMultiplier: 1
+  walkingMoveThreshold: 0.1
 --- !u!114 &1047138328821531158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -461,6 +471,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _trailRenderer: {fileID: 1969367422800339293}
+  _dashDamageFallback: 10
+  _dashHitVfxEnabled: 1
+  _dashHitVfxYOffset: 0.6
+  _dashHitVfxDebugLog: 0
   _dashVelocity: 10
   _dashingTime: 0.2
   _dashCooldown: 1
@@ -658,6 +672,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  meleeSwingSfx: {fileID: 0}
+  meleeSwingSfxVolumeMultiplier: 1
   bowVisual: {fileID: 6188182401579524055}
   arrowPrefab: {fileID: 5124060890674046994, guid: cd895943ee12c554697b924aa2e7daa3, type: 3}
   arrowSpawnPoint: {fileID: 8124646215755831370}
@@ -665,6 +681,13 @@ MonoBehaviour:
   explosionPrefab: {fileID: 0}
   abilityKey: 101
   explosionCooldown: 6
+  swingDurationRatio: 0.23
+  maxActiveTurrets: 2
+  turretCooldown: 8
+  equippedVisualParent: {fileID: 0}
+  swordInHand: {fileID: 0}
+  hammerInHand: {fileID: 0}
+  bowInHand: {fileID: 0}
 --- !u!114 &2838463325287181133
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -698,6 +721,12 @@ MonoBehaviour:
   currentAmountGained: 0
   perkManager: {fileID: 0}
   previousLevelCost: 0
+  enableDebugXpSpawn: 1
+  xpOrbPrefab: {fileID: 0}
+  debugOrbCount: 60
+  debugXpPerOrb: 5
+  debugSpawnRadius: 3
+  debugSpawnKey: 110
 --- !u!114 &493968071074051069
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -713,7 +742,18 @@ MonoBehaviour:
   healthMultiplier: 1
   damageMultiplier: 1
   fireRateMultiplier: 1
+  xpMultiplierBonus: 0
   bonusProjectiles: 0
+  bonusBounces: 0
+  dashCooldownMultiplier: 1
+  vampirismPercent: 0
+  regenerationPercentPerSecond: 0
+  extraPerkOptionsBonus: 0
+  proximityDamagePercentPerSecond: 0
+  dashDamageBonusPercent: 0
+  proximityDamageRadius: 4
+  dashDamageRadius: 1.25
+  showProximityAuraVisual: 1
   luck: 0
   perkHUD: {fileID: 0}
   acquiredPerks: []
