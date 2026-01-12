@@ -9,17 +9,19 @@ public class ItemInPlayerHandManager : MonoBehaviour
     public GameObject sword;
     public GameObject bow;
 
-    // Start is called before the first frame update
+    // getting reference at start
     private void Awake()
     {
-        inventoryManager = GetComponent<InventoryManager>(); // get this inventory manager
+        inventoryManager = GetComponent<InventoryManager>();
     }
 
-    // Update is called once per frame
+    // checking every frame what to show in hand
     void Update()
     {
-        if(inventoryManager.activeSlotIndex < inventoryManager.items.Count)
+        // make sure index is valid
+        if (inventoryManager.activeSlotIndex < inventoryManager.items.Count)
         {
+            // switch visuals based on item type
             switch (inventoryManager.items[inventoryManager.activeSlotIndex].itemType)
             {
                 case ItemType.Melee:
@@ -33,6 +35,7 @@ public class ItemInPlayerHandManager : MonoBehaviour
                     break;
 
                 default:
+                    // hide everything if unknown item
                     sword.gameObject.SetActive(false);
                     bow.gameObject.SetActive(false);
                     break;
@@ -40,11 +43,12 @@ public class ItemInPlayerHandManager : MonoBehaviour
         }
         else
         {
+            // empty slot means empty hands
             sword.gameObject.SetActive(false);
             bow.gameObject.SetActive(false);
         }
-        
-            
+
+
 
     }
 }

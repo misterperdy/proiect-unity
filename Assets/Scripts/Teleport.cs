@@ -4,13 +4,14 @@ using UnityEngine;
 
 public class Teleport : MonoBehaviour
 {
-    public Transform player, destination,receiver;// Player, Destinatie si portalul la care ajunge
-    public float teleportCooldown = 1f; //Timpul de cooldown 
+    public Transform player, destination, receiver;// references for player and where he goes
+    public float teleportCooldown = 1f; // how long to wait before using again
 
     private bool isTeleporting = false;
 
     private void OnTriggerEnter(Collider other)
     {
+        // checking if player walked into the portal and isnt already teleporting
         if (other.CompareTag("Player") && !isTeleporting)
         {
             Debug.Log("Teleport triggered!");
@@ -20,14 +21,15 @@ public class Teleport : MonoBehaviour
 
     private IEnumerator TeleportPlayer()
     {
-        isTeleporting = true;
+        isTeleporting = true; // lock it so it doesnt trigger twice
 
         if (MusicManager.Instance != null)
         {
+            // playing the teleport sound effect
             MusicManager.Instance.PlaySfx(MusicManager.Instance.normalTeleporterSfx);
         }
 
-        //Oprirea collider pentru a nu te teleporta din greseala la loc de unde ai plecat
+        // we turn off the collider at the destination so we dont get teleported back immediately
         if (receiver != null)
         {
             Collider recCol = receiver.GetComponent<Collider>();
@@ -37,11 +39,11 @@ public class Teleport : MonoBehaviour
                 Debug.Log($"{receiver.name}: Collider DISABLED");
             }
         }
-        //Pozitia playerului la destinatie
+        // actually moving the player to the new position
         player.position = destination.position;
-        //Timpul de cooldown intre teleportari
+        // wait for the cooldown timer
         yield return new WaitForSeconds(teleportCooldown);
-        //Pornire collider
+        // turn the destination collider back on so it can be used again later
         if (receiver != null)
         {
             Collider recCol = receiver.GetComponent<Collider>();
@@ -51,7 +53,6 @@ public class Teleport : MonoBehaviour
                 Debug.Log($"{receiver.name}: Collider ENABLED");
             }
         }
-        isTeleporting = false;
+        isTeleporting = false; // unlock the portal
     }
 }
- 

@@ -15,35 +15,36 @@ public class EnemyProjectile : MonoBehaviour
 
     void Start()
     {
-        // Ensure we have a Rigidbody for movement
+        // safety check for rigidbody
         if (rb == null)
         {
             rb = gameObject.AddComponent<Rigidbody>();
-            rb.useGravity = false; // Usually bullets don't drop immediately
-            rb.isKinematic = true; // Use Kinematic for triggers so they don't get pushed by physics
+            rb.useGravity = false; // bullets fly straight
+            rb.isKinematic = true;
         }
-        
-        // Destroy after lifetime
+
+        // auto delete after x seconds
         Destroy(gameObject, lifeTime);
-        
+
     }
 
     void Update()
     {
+        // move forward
         transform.Translate(Vector3.forward * speed * Time.deltaTime);
     }
 
     void OnTriggerEnter(Collider other)
     {
-        // Ignore Self and other Projectiles
+        // ignore other bullets and shooter
         if (other.GetComponent<EnemyProjectile>() != null) return;
         if (other.GetComponent<ShooterEnemy>() != null) return;
 
-        // Friendly Fire Check (Layer)
+        // friendly fire check
         int enemyLayer = LayerMask.NameToLayer("Enemy");
         if (enemyLayer != -1 && other.gameObject.layer == enemyLayer) return;
 
-        // Check for player
+        // hit player
         if (other.CompareTag("Player"))
         {
             PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
@@ -54,7 +55,7 @@ public class EnemyProjectile : MonoBehaviour
             Destroy(gameObject);
         }
 
-        // Destroy on walls 
+        // hit walls
         else if (other.gameObject.layer == LayerMask.NameToLayer("Default") || other.CompareTag("Wall"))
         {
             Destroy(gameObject);

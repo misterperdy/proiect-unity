@@ -21,22 +21,22 @@ public class XPOrb : MonoBehaviour
 
         float distance = Vector3.Distance(transform.position, player.position);
 
-        // 1. Check if player is close enough to pull the orb
+        // 1. check if close enough to start flying
         if (distance < magnetRange)
         {
             isMagnetized = true;
         }
 
-        // 2. If magnetized, fly to player
+        // 2. moving logic
         if (isMagnetized)
         {
-            // Move towards player
+            // fly to player
             transform.position = Vector3.MoveTowards(transform.position, player.position, moveSpeed * Time.deltaTime);
 
-            // Increase speed as it gets closer for snappy feel
+            // speed up over time so it looks snappy
             moveSpeed += 20f * Time.deltaTime;
 
-            // 3. Absorption Logic
+            // 3. collect logic when close
             if (distance < 0.5f)
             {
                 LevelingSystem levels = player.GetComponent<LevelingSystem>();
@@ -49,12 +49,12 @@ public class XPOrb : MonoBehaviour
                         MusicManager.Instance.PlaySfx(MusicManager.Instance.xpPickupSfx);
                     }
                 }
-                Destroy(gameObject);
+                Destroy(gameObject); // consume orb
             }
         }
     }
 
-    // Called by the enemy when spawning this orb
+    // function to set xp amount when spawned
     public void Initialize(int amount)
     {
         xpAmount = amount;

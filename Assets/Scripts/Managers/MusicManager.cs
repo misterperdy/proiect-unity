@@ -8,7 +8,7 @@ public class MusicManager : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
     {
-        // Ensure a MusicManager exists as early as possible so menu audio works immediately.
+        // bootstrapping so audio works even if i forget to put prefab in scene
         if (Instance != null)
         {
             EnsureAudioListenerExists();
@@ -79,7 +79,7 @@ public class MusicManager : MonoBehaviour
 
     public AudioClip normalTeleporterSfx;
     public AudioClip bossTeleporterSfx;
-    
+
     [Header("Volume")]
     [Range(0f, 1f)] public float musicVolume = 0.1f;
     [Range(0f, 1f)] public float sfxVolume = 1f;
@@ -94,13 +94,13 @@ public class MusicManager : MonoBehaviour
             EnsureAudioListenerExists();
 
             EnsureDefaultClips();
-            
+
             if (audioSource == null)
             {
                 audioSource = gameObject.AddComponent<AudioSource>();
                 audioSource.loop = true;
                 audioSource.playOnAwake = false;
-                audioSource.spatialBlend = 0f; // force 2D
+                audioSource.spatialBlend = 0f; // force 2D so its heard everywhere
             }
 
             if (sfxSource == null)
@@ -120,9 +120,9 @@ public class MusicManager : MonoBehaviour
         }
     }
 
-    private void Start() 
+    private void Start()
     {
-        // Periodic check to enforce volume on new SFX
+        // keeping volume updated
         StartCoroutine(EnforceSFXVolumeRoutine());
     }
 
@@ -149,8 +149,8 @@ public class MusicManager : MonoBehaviour
     private void PlayMusic(AudioClip clip)
     {
         if (clip == null) return;
-        
-        // Ensure volume is set for music
+
+        // update vol
         audioSource.volume = musicVolume;
 
         if (audioSource.clip == clip && audioSource.isPlaying) return;
@@ -163,7 +163,7 @@ public class MusicManager : MonoBehaviour
 
     private static void EnsureAudioListenerExists()
     {
-        // If the main menu scene has no AudioListener, audio will be inaudible.
+        // check if we have ears in the scene otherwise we cant hear anything
         if (Object.FindObjectOfType<AudioListener>() != null) return;
 
         Camera mainCam = Camera.main;
@@ -177,13 +177,13 @@ public class MusicManager : MonoBehaviour
         listenerObj.AddComponent<AudioListener>();
         Object.DontDestroyOnLoad(listenerObj);
     }
-    
-    // Helper to set clips if passed from another manager
+
+    // setting clips manually if needed
     public void SetClips(AudioClip menu, AudioClip game, AudioClip boss)
     {
-        if(menu != null) mainMenuMusic = menu;
-        if(game != null) gameplayMusic = game;
-        if(boss != null) bossMusic = boss;
+        if (menu != null) mainMenuMusic = menu;
+        if (game != null) gameplayMusic = game;
+        if (boss != null) bossMusic = boss;
     }
 
     public void SetMusicVolume(float vol)
@@ -299,13 +299,14 @@ public class MusicManager : MonoBehaviour
         if (clip == null) return;
 
         // One-shot spatial audio: create a temp AudioSource at the position.
+        // this is cool for 3d sound
         GameObject temp = new GameObject("TempSpatialSfx_" + clip.name);
         temp.transform.position = position;
 
         AudioSource src = temp.AddComponent<AudioSource>();
         src.playOnAwake = false;
         src.loop = false;
-        src.spatialBlend = 1f;
+        src.spatialBlend = 1f; // 3D enabled
         src.rolloffMode = AudioRolloffMode.Logarithmic;
         src.minDistance = minDistance;
         src.maxDistance = maxDistance;
@@ -320,7 +321,7 @@ public class MusicManager : MonoBehaviour
         AudioSource[] allSources = FindObjectsOfType<AudioSource>();
         foreach (AudioSource source in allSources)
         {
-            // Skip the background music source
+            // dont change music volume
             if (source == audioSource) continue;
             source.volume = sfxVolume;
         }
@@ -331,21 +332,20 @@ public class MusicManager : MonoBehaviour
         while (true)
         {
             UpdateAllSFXVolume();
-            yield return new WaitForSeconds(1.0f); // Check every second for new spawned objects
+            yield return new WaitForSeconds(1.0f); // checking every sec
         }
     }
 
     private void EnsureDefaultUISfx()
     {
-        // Fallback for cases where scenes don't assign these via inspector.
-        // Works reliably in Editor; in builds it depends on whether clips are included in the player.
+        // try to find audio files by name if they are missing
         if (uiHoverSfx == null) uiHoverSfx = FindClipByName("sfx_hover_ui_button");
         if (uiClickSfx == null) uiClickSfx = FindClipByName("sfx_click_ui_button");
     }
 
     private void EnsureDefaultBgm()
     {
-        // Same idea as UI SFX: use clip names that match the filenames (without .mp3)
+        // same for music
         if (mainMenuMusic == null) mainMenuMusic = FindClipByName("bgm_main_menu");
         if (gameplayMusic == null) gameplayMusic = FindClipByName("bgm_default_playing_game");
         if (bossMusic == null) bossMusic = FindClipByName("bgm_boss_fight");
@@ -360,6 +360,7 @@ public class MusicManager : MonoBehaviour
 
     private void EnsureDefaultGameplaySfx()
     {
+        // loading a lot of sounds by name
         if (playerWalkingSfx == null) playerWalkingSfx = FindClipByName("fix_sfx_player_is_walking");
         if (playerWalkingSfx == null) playerWalkingSfx = FindClipByName("sfx_player_is_walking");
 
@@ -402,6 +403,7 @@ public class MusicManager : MonoBehaviour
 
     public static AudioClip FindClipByName(string clipName)
     {
+        // searching all resources for the clip
         AudioClip[] clips = Resources.FindObjectsOfTypeAll<AudioClip>();
         for (int i = 0; i < clips.Length; i++)
         {

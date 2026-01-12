@@ -8,30 +8,30 @@ public class DashBoss : MonoBehaviour, IDamageable
     [Header("Stats")]
     public int maxHealth = 200;
     public int currentHealth;
-    public int contactDamage = 20; // contact damage to the player
+    public int contactDamage = 20; // dmg when touching player
 
     [Header("Detection")]
-    public float sightRange = 30f; // how far to see you
+    public float sightRange = 30f; // range to see the player
 
     [Header("Dash Settings")]
-    public float dashRange = 15f; // distance the attack starts from
-    public float dashChargeTime = 1.5f; // Cue - how much he sits idle and aims at you
+    public float dashRange = 15f; // distance to start dashing
+    public float dashChargeTime = 1.5f; // how long he waits before launching
     public float dashSpeed = 40f;
     public float dashDuration = 0.5f;
-    public float attackCooldown = 3f; // after a dash
+    public float attackCooldown = 3f; // time between attacks
 
     [Header("References")]
     public LineRenderer lineRenderer;
     public Animator animator;
 
     [Header("Dash Visuals")]
-    public Material dashIndicatorMaterial; // Trage aici un material cu Shader "Mobile/Particles/Additive"
-    public float dashLineScrollSpeed = -5.0f; // Viteza anima?iei
-    public float dashLineTiling = 5.0f; // De câte ori se repet? textura
+    public Material dashIndicatorMaterial; // material for the red line
+    public float dashLineScrollSpeed = -5.0f; // animation speed for texture
+    public float dashLineTiling = 5.0f; // texture tiling count
 
     private NavMeshAgent agent;
     private Transform player;
-    private PlayerHealth playerHealth; // reference to plyaerHealth scirpt
+    private PlayerHealth playerHealth; // ref to player health script
     private float defaultSpeed;
     private float defaultAcceleration;
     private bool isAttacking = false;
@@ -56,25 +56,25 @@ public class DashBoss : MonoBehaviour, IDamageable
         lineRenderer = GetComponent<LineRenderer>();
         lineRenderer.enabled = false;
 
-        // 1. WIDTH: Facem linia conic? (lat? la boss, sub?ire la juc?tor)
+        // 1. making the line look like a cone (wide at boss, thin at target)
         lineRenderer.widthCurve = new AnimationCurve(
-            new Keyframe(0, 0.6f),  // Start (Boss)
-            new Keyframe(1, 0.1f)   // Final (Juc?tor)
+            new Keyframe(0, 0.6f),  // Start 
+            new Keyframe(1, 0.1f)   // End
         );
 
-        // 2. MATERIAL: Folosim materialul asignat în inspector
+        // 2. assigning material
         if (dashIndicatorMaterial != null)
         {
             lineRenderer.material = dashIndicatorMaterial;
-            lineRenderer.textureMode = LineTextureMode.Tile; // Esen?ial pentru anima?ie!
+            lineRenderer.textureMode = LineTextureMode.Tile; // needed for scrolling animation
         }
         else
         {
-            // Fallback dac? ai uitat s? pui materialul
+            // fallback if i forgot to assign material
             lineRenderer.material = new Material(Shader.Find("Mobile/Particles/Additive"));
         }
 
-        // 3. GRADIENT: Fade out spre final
+        // 3. color gradient from red to orange fade
         Gradient gradient = new Gradient();
         gradient.SetKeys(
             new GradientColorKey[] { new GradientColorKey(Color.red, 0.0f), new GradientColorKey(new Color(1f, 0.5f, 0f), 1.0f) },
@@ -84,11 +84,11 @@ public class DashBoss : MonoBehaviour, IDamageable
 
         // -------------------------------------------------------------
 
-        //save normal speed
+        // remembering default speeds to reset later
         defaultSpeed = agent.speed;
         defaultAcceleration = agent.acceleration;
 
-        //find player
+        // finding player in scene
         GameObject playerGO = GameObject.FindGameObjectWithTag("Player");
         if (playerGO != null)
         {
@@ -98,7 +98,7 @@ public class DashBoss : MonoBehaviour, IDamageable
 
         currentState = BossState.Idle;
 
-        if(bossHealthBar != null)
+        if (bossHealthBar != null)
         {
             bossHealthBar.SetMaxHealth(maxHealth);
             bossHealthBar.ToggleBar(true);
@@ -109,14 +109,14 @@ public class DashBoss : MonoBehaviour, IDamageable
     {
         if (animator != null)
         {
-            // Check if agent has a path and is moving effectively
+            // updating animation bool based on movement
             bool isMoving = agent.velocity.magnitude > 0.1f;
             animator.SetBool("isMoving", isMoving);
         }
 
-        if (isAttacking) return; // skip frame if he's attaciong
+        if (isAttacking) return; // dont do anything if already attacking
 
-        //State Machine
+        // simple state machine
         switch (currentState)
         {
             case BossState.Idle:
@@ -134,7 +134,7 @@ public class DashBoss : MonoBehaviour, IDamageable
                 break;
         }
 
-        
+
     }
 
     bool CanSeePlayer()
@@ -144,7 +144,7 @@ public class DashBoss : MonoBehaviour, IDamageable
             return false;
         }
 
-        //just check distance for now, no sight raycast check
+        // checking distance only, no raycast needed for now
         float distance = Vector3.Distance(transform.position, player.position);
         return distance < sightRange;
     }
@@ -158,30 +158,30 @@ public class DashBoss : MonoBehaviour, IDamageable
 
         float distance = Vector3.Distance(transform.position, player.position);
 
-        //if we are in dash range and no t on cooldown, then dash
-        if(distance <= dashRange)
+        // logic to decide if we dash or walk
+        if (distance <= dashRange)
         {
             StartCoroutine(PerformDashAttack());
         }
         else
         {
-            //walk to him
+            // just walk towards player
             agent.SetDestination(player.position);
             agent.speed = defaultSpeed;
         }
     }
 
-    //main attack logic
+    // the main attack logic
     private IEnumerator PerformDashAttack()
     {
         isAttacking = true;
         currentState = BossState.ChargingDash;
 
-        //stop the agent
+        // stop moving to charge up
         agent.isStopped = true;
-        agent.ResetPath(); // reset current path so it doesn't interfere
+        agent.ResetPath(); // clearing path
 
-        //charge time + visual cue
+        // show the red line
         lineRenderer.enabled = true;
         float timer = 0f;
 
@@ -189,15 +189,15 @@ public class DashBoss : MonoBehaviour, IDamageable
         {
             timer += Time.deltaTime;
 
-            SmoothLookAt(player.position); // smooth rotation
+            SmoothLookAt(player.position); // face the player
 
             lineRenderer.SetPosition(0, transform.position);
             lineRenderer.SetPosition(1, player.position);
 
-            // --- ADAG? ACEST BLOC PENTRU ANIMA?IE ---
+            // animating the texture on the line
             if (lineRenderer.material != null)
             {
-                // Scroll Texture
+                // scrolling texture effect
                 float offset = Time.time * dashLineScrollSpeed;
                 lineRenderer.material.mainTextureOffset = new Vector2(offset, 0);
                 lineRenderer.material.mainTextureScale = new Vector2(dashLineTiling, 1);
@@ -208,7 +208,7 @@ public class DashBoss : MonoBehaviour, IDamageable
 
         Vector3 finalAttackPosition = player.position;
 
-        //execute dash
+        // hide line and go
         lineRenderer.enabled = false;
         currentState = BossState.Dashing;
 
@@ -217,38 +217,38 @@ public class DashBoss : MonoBehaviour, IDamageable
             animator.SetTrigger("attack");
         }
 
-        //set huge speed on dash
+        // making him super fast for the dash
         agent.speed = dashSpeed;
         agent.acceleration = 1000f;
         agent.isStopped = false;
-        agent.SetDestination(finalAttackPosition); // go to where he remembers the plyaer to be
+        agent.SetDestination(finalAttackPosition); // dash to last known pos
 
-        yield return null; //wait 1 frame
+        yield return null; // wait one frame for unity pathfinding
 
         while (agent.pathPending)
         {
-            yield return null; // wait for path to get set on agent
+            yield return null; // waiting for path calc
         }
 
-        //let him arrive
+        // wait until he arrives or time runs out
         float dashTimer = 0f;
-        while(dashTimer < dashDuration && agent.remainingDistance > 1f)
+        while (dashTimer < dashDuration && agent.remainingDistance > 1f)
         {
             dashTimer += Time.deltaTime;
 
-            CheckDamageCollision();
+            CheckDamageCollision(); // manual collision check
 
             yield return null;
         }
 
-        //stop and recover
+        // stop the dash
         agent.isStopped = true;
         agent.speed = defaultSpeed;
         agent.acceleration = defaultAcceleration;
 
         currentState = BossState.Recovering;
 
-        // wait until to folow player again
+        // cooldown period
         yield return new WaitForSeconds(attackCooldown);
 
         agent.isStopped = false;
@@ -258,7 +258,7 @@ public class DashBoss : MonoBehaviour, IDamageable
 
     void CheckDamageCollision()
     {
-        Collider[] hits = Physics.OverlapSphere(transform.position, 2f); // sphere around the boss
+        Collider[] hits = Physics.OverlapSphere(transform.position, 2f); // checking sphere around boss
         foreach (var hit in hits)
         {
             if (hit.CompareTag("Player"))
@@ -266,7 +266,7 @@ public class DashBoss : MonoBehaviour, IDamageable
                 if (playerHealth != null)
                 {
                     playerHealth.TakeDamage(contactDamage);
-                    //INVICIBILITY frames logic would go here, but now there is none.
+                    // maybe add invincibility frames later
                 }
             }
         }
@@ -275,9 +275,9 @@ public class DashBoss : MonoBehaviour, IDamageable
     void SmoothLookAt(Vector3 target)
     {
         Vector3 direction = (target - transform.position).normalized;
-        direction.y = 0;
+        direction.y = 0; // keep rotation flat
 
-        if(direction!= Vector3.zero)
+        if (direction != Vector3.zero)
         {
             Quaternion lookRotation = Quaternion.LookRotation(direction);
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 10f);
@@ -295,8 +295,9 @@ public class DashBoss : MonoBehaviour, IDamageable
             lastDamageSfxTime = Time.time;
         }
 
-        //update UI
-        if (bossHealthBar != null) {
+        // updating ui bar
+        if (bossHealthBar != null)
+        {
             bossHealthBar.SetHealth(currentHealth);
         }
 
@@ -327,9 +328,9 @@ public class DashBoss : MonoBehaviour, IDamageable
 
         Debug.Log("Boss Defeated!");
 
-        if(bossHealthBar != null)
+        if (bossHealthBar != null)
         {
-            bossHealthBar.ToggleBar(false); // hide boss bar
+            bossHealthBar.ToggleBar(false); // remove boss bar
         }
 
         Destroy(gameObject);
@@ -344,7 +345,7 @@ public class DashBoss : MonoBehaviour, IDamageable
                 playerHealth.TakeDamage(contactDamage);
             }
 
-            //knobkback
+            // pushing player back
             Rigidbody playerRb = collision.gameObject.GetComponent<Rigidbody>();
             if (playerRb != null)
             {
@@ -354,7 +355,7 @@ public class DashBoss : MonoBehaviour, IDamageable
         }
     }
 
-    //for editor to see his range.
+    // debug drawing for editor
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

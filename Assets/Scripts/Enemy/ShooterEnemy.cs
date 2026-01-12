@@ -13,10 +13,10 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
     public float spreadAngle = 15f;
     [Tooltip("Random angle offset error")]
     public int aimError = 0;
-    
+
     [Header("Movement Stats")]
     public float viewRange = 20f;
-    public float maintainDistance = 10f;
+    public float maintainDistance = 10f; // try to keep this dist from player
     public float moveSpeed = 3.5f;
 
     [Header("References")]
@@ -25,7 +25,7 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
 
     [Header("Loot")]
     public float lootMultiplier = 1f;
-    public int projectileDamage = 10; // New variable to control bullet damag
+    public int projectileDamage = 10;
 
     public GameObject xpOrbPrefab;
 
@@ -33,7 +33,7 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
     public GameObject hitParticles;
     public GameObject skeletonMat;
     public GameObject skeletonRibMat;
-    public float fadeTime = 0.01f; // Higher number means faster fading
+    public float fadeTime = 0.01f;
     public Color32 hitColor = new Color32(255, 0, 0, 255);
     public string rarity;
 
@@ -46,13 +46,14 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
     private Material ribHitMat;
     private Color32 originalColor = new Color32(255, 255, 255, 0);
 
-    public float medkitDropChance = 10f; // 0-100
+    public float medkitDropChance = 10f;
 
     private float lastDamageSfxTime = -999f;
     private const float damageSfxMinInterval = 0.08f;
 
     void Start()
     {
+        // color check
         if (rarity != null)
         {
             if (rarity == "Magic")
@@ -80,8 +81,8 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
         {
             player = playerObj.transform;
         }
-        
-        // If firePoint is not assigned, use the enemy's transform
+
+        // fallback firepoint
         if (firePoint == null)
         {
             firePoint = transform;
@@ -92,7 +93,7 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
     {
         if (player == null || isDead) return;
 
-        // Update speed in case it was changed in Inspector
+        // syncing speed
         if (agent != null)
         {
             agent.speed = moveSpeed;
@@ -100,7 +101,7 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
 
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        // Check if player is within view range
+        // check vision
         if (distanceToPlayer <= viewRange)
         {
             acp.SetBool("isChasing", true);
@@ -108,7 +109,7 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
         }
         else
         {
-            // Stop moving if player is out of range
+            // stop if player runs away
             if (agent != null && agent.hasPath)
             {
                 agent.ResetPath();
@@ -119,9 +120,10 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
     public void SetupEnemy(int hp, int dmg, float fireRateMult, int BPS, float spreadAng,
         int aimErr, Color color, float lootMult, string rrty)
     {
+        // init stats from spawner
         maxHealth = hp;
         currentHealth = hp;
-        projectileDamage = dmg; // Pass this to the projectile later
+        projectileDamage = dmg;
         fireRateMultiplier = fireRateMult;
         bulletsPerShot = BPS;
         spreadAngle = spreadAng;
@@ -134,31 +136,26 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
 
     void EngagePlayer(float distance)
     {
-        // Movement Logic: Maintain distance
-        // If too far, move closer. If too close, back away? 
-        // For simplicity and stability, we'll set destination to a point 'maintainDistance' away from player
-        // along the line connecting them.
-        
+        // trying to stay at optimal distance
+
         Vector3 directionToPlayer = (player.position - transform.position).normalized;
         Vector3 targetPosition = player.position - (directionToPlayer * maintainDistance);
 
         agent.SetDestination(targetPosition);
 
-        // Rotation: Always face the player when engaged
+        // rotating to face player
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(directionToPlayer.x, 0, directionToPlayer.z));
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
 
-        // Shooting Logic
-      
-          acp.SetFloat("rangedAnimationSpeed", fireRateMultiplier);
-          acp.SetTrigger("isRangedAttacking");
+        // triggering attack animation
 
-
-        //acp.ResetTrigger("isRangedAttacking");
+        acp.SetFloat("rangedAnimationSpeed", fireRateMultiplier);
+        acp.SetTrigger("isRangedAttacking");
     }
 
     public void Shoot()
     {
+        // called from animation event
         if (MusicManager.Instance != null)
         {
             Vector3 pos = (firePoint != null) ? firePoint.position : transform.position;
@@ -173,10 +170,9 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
             return;
         }
 
-        // Debug logs to diagnose shooting issues
         Debug.Log($"ShooterEnemy: Shooting! Rate: {fireRateMultiplier}, Bullets: {bulletsPerShot}, Spread: {spreadAngle}");
 
-        // Calculate base rotation towards player
+        // calculating rotation
         Vector3 directionToPlayer = player.position - firePoint.position;
         directionToPlayer.y = 0;
         directionToPlayer.Normalize();
@@ -184,7 +180,7 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
 
         if (bulletsPerShot <= 1)
         {
-            // Add a little aiming error if desired
+            // simple shot with error
             float error = Random.Range(-aimError, aimError);
             Quaternion finalRot = baseRotation * Quaternion.Euler(0, error, 0);
 
@@ -192,20 +188,18 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
             return;
         }
 
+        // shotgun/multishot logic
         float totalArcAngle = spreadAngle * (bulletsPerShot - 1);
 
         float startAngle = -totalArcAngle / 2f;
 
         for (int i = 0; i < bulletsPerShot; i++)
         {
-            // Calculate the fixed angle for this specific bullet index
             float currentAngleOffset = startAngle + (spreadAngle * i);
 
-            // Add random jitter (aimError)
             float randomJitter = Random.Range(-aimError, aimError);
             float finalAngle = currentAngleOffset + randomJitter;
 
-            // Apply rotation to the base direction
             Quaternion fireRotation = baseRotation * Quaternion.Euler(0, finalAngle, 0);
 
             SpawnProjectile(fireRotation);
@@ -216,7 +210,7 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
     {
         GameObject proj = Instantiate(projectilePrefab, firePoint.position, rotation);
 
-        // Ensure damage is passed correctly
+        // passing damage value to bullet
         EnemyProjectile ep = proj.GetComponent<EnemyProjectile>();
         if (ep != null)
         {
@@ -224,12 +218,11 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
         }
     }
 
-    // Visualization for debugging ranges
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, viewRange);
-        
+
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, maintainDistance);
     }
@@ -308,17 +301,17 @@ public class ShooterEnemy : MonoBehaviour, IDamageable
             tracker.TriggerDeathAnimation();
         }
 
-        //generate medkit with chance
-        if(DungeonGenerator.instance != null) 
-        if (DungeonGenerator.instance.medkitPrefab != null)
-        {
-            float randomValue = Random.Range(0f, 100f);
-            if (randomValue <= medkitDropChance)
+        // drop medkit logic
+        if (DungeonGenerator.instance != null)
+            if (DungeonGenerator.instance.medkitPrefab != null)
             {
-                Vector3 pos = transform.position + new Vector3(0f, 0.3f, 0f);
-                GameObject medkit = Instantiate(DungeonGenerator.instance.medkitPrefab, pos + new Vector3(0, 0.28f, 2.5f), Quaternion.Euler(0, 90, 0));
+                float randomValue = Random.Range(0f, 100f);
+                if (randomValue <= medkitDropChance)
+                {
+                    Vector3 pos = transform.position + new Vector3(0f, 0.3f, 0f);
+                    GameObject medkit = Instantiate(DungeonGenerator.instance.medkitPrefab, pos + new Vector3(0, 0.28f, 2.5f), Quaternion.Euler(0, 90, 0));
+                }
             }
-        }
 
         if (xpOrbPrefab != null)
         {

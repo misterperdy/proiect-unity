@@ -6,6 +6,7 @@ public class GodMode : MonoBehaviour
 
     void Start()
     {
+        // getting the health component
         playerHealth = GetComponent<PlayerHealth>();
         if (playerHealth == null)
         {
@@ -18,13 +19,11 @@ public class GodMode : MonoBehaviour
     {
         if (playerHealth != null)
         {
-            // Keep health at max every frame
+            // forcing health to max every single frame
+            // so player cant die
             playerHealth.currentHealth = playerHealth.maxHealth;
-            
-            // Optional: Ensure not dead
-            // If PlayerHealth has an 'isDead' flag that's public, we could reset it, 
-            // but PlayerHealth.isDead is private. 
-            // Preventing damage by keeping health full is usually enough unless one-shot kill logic exists.
+
+            // logic comment: usually this prevents death unless something deals more dmg than max hp in one hit
         }
     }
 }

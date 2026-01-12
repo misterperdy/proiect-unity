@@ -14,7 +14,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
     public float patrolRadius = 10f;
     public float attackSpeed = 1f;
     public float moveSpeed = 3.5f;
-    public float medkitDropChance = 10f; // 0-100
+    public float medkitDropChance = 10f; // drop chance percent
 
     private float lastDamageSfxTime = -999f;
     private const float damageSfxMinInterval = 0.08f;
@@ -37,8 +37,8 @@ public class EnemyAI : MonoBehaviour, IDamageable
     public GameObject hitParticles;
     public GameObject skeletonMat;
     public GameObject skeletonRibMat;
-    public float fadeTime = 0.01f; // Higher number means faster fading
-    public Color32 hitColor = new Color32(255,0,0,255);
+    public float fadeTime = 0.01f; // speed of flashing white
+    public Color32 hitColor = new Color32(255, 0, 0, 255);
     public string rarity;
 
     private enum AIState { Patrolling, Chasing, Attacking, Searching }
@@ -50,12 +50,14 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     void Start()
     {
+        // coloring based on rarity
         if (rarity != null)
         {
-            if(rarity == "Magic")
+            if (rarity == "Magic")
             {
                 originalColor = new Color32(0, 85, 255, 0);
-            } else if(rarity == "Rare")
+            }
+            else if (rarity == "Rare")
             {
                 originalColor = new Color32(215, 224, 39, 0);
             }
@@ -66,7 +68,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
         }
 
         currentHealth = maxHealth;
-        randomNumber = Random.Range(1, 3);
+        randomNumber = Random.Range(1, 3); // random attack animation
         agent = GetComponent<NavMeshAgent>();
         acp = GetComponent<Animator>();
         agent.speed = moveSpeed;
@@ -74,6 +76,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
         hitMat = skeletonMat.GetComponent<SkinnedMeshRenderer>().material;
         ribHitMat = skeletonRibMat.GetComponent<MeshRenderer>().material;
 
+        // finding player
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj == null && acp == null)
         {
@@ -84,7 +87,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
         player = playerObj.transform;
         playerHealth = playerObj.GetComponent<PlayerHealth>();
 
-        // Ensure the agent is on the NavMesh
+        // warp to navmesh if spawned off-grid
         if (!agent.isOnNavMesh)
         {
             NavMeshHit closestHit;
@@ -105,6 +108,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     public void SetupEnemy(int hp, int dmg, float attSpeed, float spd, Color color, float lootMult, string rrty)
     {
+        // applying stats from spawner
         maxHealth = hp;
         currentHealth = hp;
         damage = dmg;
@@ -113,7 +117,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
         moveSpeed = spd;
         rarity = rrty;
 
-        // Change color of the mesh
+        // applying visual color
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
         foreach (var r in renderers)
         {
@@ -123,7 +127,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     System.Collections.IEnumerator InitializeAI()
     {
-        // Wait for the end of the frame to ensure the agent is fully initialized
+        // wait frame just in case
         yield return new WaitForEndOfFrame();
 
         currentState = AIState.Patrolling;
@@ -134,16 +138,17 @@ public class EnemyAI : MonoBehaviour, IDamageable
     {
         if (isDead) return;
 
+        // animate running
         bool isMoving = agent.velocity.magnitude > 0.1f;
         acp.SetBool("isChasing", isMoving);
 
+        // state machine loop
         switch (currentState)
         {
             case AIState.Patrolling:
                 Patrol();
                 break;
             case AIState.Chasing:
-                //acp.SetBool("isChasing", true);
                 Chase();
                 break;
             case AIState.Attacking:
@@ -168,6 +173,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
         Vector3 directionToPlayer = (target - origin).normalized;
 
+        // raycast to check walls
         RaycastHit hit;
         if (Physics.Raycast(origin, directionToPlayer, out hit, sightRange))
         {
@@ -187,6 +193,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
             return;
         }
 
+        // if arrived at destination
         if (!agent.pathPending && agent.remainingDistance < 0.5f)
         {
             SetRandomPatrolDestination();
@@ -224,37 +231,38 @@ public class EnemyAI : MonoBehaviour, IDamageable
             return;
         }
 
+        // setting animation speed based on attack speed
         acp.SetFloat("meleeAnimationSpeed", attackSpeed);
         acp.SetTrigger("isMeleeAttacking" + randomNumber);
         acp.SetBool("isChasing", false);
 
         Vector3 targetPosition = player.position;
 
-        // Force the target's Y position to match the Enemy's Y position
+        // keep looking at player but flat
         targetPosition.y = transform.position.y;
 
-        // Now look at the flattened position
         transform.LookAt(targetPosition);
 
     }
 
     public void PlayerTakeDamage()
     {
-            if (Time.time > lastAttackTime)
+        // called via animation event usually
+        if (Time.time > lastAttackTime)
+        {
+            if (playerHealth != null)
+            {
+                if (Vector3.Distance(transform.position, player.position) <= attackRange)
                 {
-                    if (playerHealth != null)
+                    if (MusicManager.Instance != null)
                     {
-                        if(Vector3.Distance(transform.position, player.position) <= attackRange)
-                        {
-                            if (MusicManager.Instance != null)
-                            {
-                                MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.enemySwordSwingSfx, transform.position, 1f, 2f, 25f);
-                            }
-                            playerHealth.TakeDamage(damage);
-                        }
+                        MusicManager.Instance.PlaySpatialSfx(MusicManager.Instance.enemySwordSwingSfx, transform.position, 1f, 2f, 25f);
                     }
-                     lastAttackTime = Time.time;
+                    playerHealth.TakeDamage(damage);
                 }
+            }
+            lastAttackTime = Time.time;
+        }
     }
 
     void Search()
@@ -265,6 +273,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
             return;
         }
 
+        // gave up searching
         if (!agent.pathPending && agent.remainingDistance < 0.5f)
         {
             currentState = AIState.Patrolling;
@@ -277,6 +286,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
         Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
         randomDirection += transform.position;
         NavMeshHit hit;
+        // finding random valid point on navmesh
         if (NavMesh.SamplePosition(randomDirection, out hit, patrolRadius, 1))
         {
             agent.SetDestination(hit.position);
@@ -294,6 +304,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
         currentHealth -= amount;
 
+        // play hurt sound
         if (MusicManager.Instance != null && Time.time - lastDamageSfxTime >= damageSfxMinInterval)
         {
             string n = gameObject.name.ToLower();
@@ -310,13 +321,13 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     private IEnumerator SetHitEffect()
     {
-
+        // flashing red/white
         skeletonMat.GetComponent<SkinnedMeshRenderer>().material = hitMat;
         skeletonRibMat.GetComponent<MeshRenderer>().material = ribHitMat;
         hitMat.color = hitColor;
-        ribHitMat.color = hitColor; 
+        ribHitMat.color = hitColor;
 
-        while (hitMat.color!=originalColor)
+        while (hitMat.color != originalColor)
         {
 
             hitMat.color = Color.Lerp(hitMat.color, originalColor, fadeTime);
@@ -351,23 +362,23 @@ public class EnemyAI : MonoBehaviour, IDamageable
             tracker.TriggerDeathAnimation();
         }
 
-        if(DungeonGenerator.instance != null)
-        if(DungeonGenerator.instance.medkitPrefab != null)
-        {
-            float randomValue = Random.Range(0f, 100f);
-            if (randomValue <= medkitDropChance)
+        // dropping medkit maybe
+        if (DungeonGenerator.instance != null)
+            if (DungeonGenerator.instance.medkitPrefab != null)
             {
-                Vector3 pos = transform.position + new Vector3(0f, 0.3f, 0f);
-                GameObject medkit = Instantiate(DungeonGenerator.instance.medkitPrefab, pos + new Vector3(0, 0.28f, 2.5f), Quaternion.Euler(0, 90, 0));
+                float randomValue = Random.Range(0f, 100f);
+                if (randomValue <= medkitDropChance)
+                {
+                    Vector3 pos = transform.position + new Vector3(0f, 0.3f, 0f);
+                    GameObject medkit = Instantiate(DungeonGenerator.instance.medkitPrefab, pos + new Vector3(0, 0.28f, 2.5f), Quaternion.Euler(0, 90, 0));
+                }
             }
-        }
 
+        // dropping exp
         if (xpOrbPrefab != null)
         {
-            // Base XP is 1, multiplied by loot multiplier
             int xpToDrop = Mathf.RoundToInt(1 * lootMultiplier);
 
-            // Spawn slightly above ground
             GameObject orb = Instantiate(xpOrbPrefab, transform.position + Vector3.up, Quaternion.identity);
             orb.GetComponent<XPOrb>().Initialize(xpToDrop);
         }
@@ -381,6 +392,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
         Collider col = GetComponent<Collider>();
         if (col) col.enabled = false;
         isDead = true;
+        // waiting for animation to finish before destroying
         Destroy(gameObject, 2f);
     }
 }

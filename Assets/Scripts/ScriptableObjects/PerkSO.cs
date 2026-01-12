@@ -6,7 +6,7 @@ public enum PerkType
     DamageBoost,
     MultiShot,
     FireRate,
-    LuckBoost, // Added Luck as a perk type too!
+    LuckBoost, // added luck
     BounceArrows,
     DashCooldownMultiplier,
     Vampirism,

@@ -16,7 +16,7 @@ public class RoomEnemySpawner : MonoBehaviour
         public Color color;
         public float statMult;
         public float lootMult;
-        [Range(0, 1)] public float spawnChance; // Chance to upgrade to this rarity
+        [Range(0, 1)] public float spawnChance; // spawn probability
     }
 
     [Header("TeleportSpawn")]
@@ -24,7 +24,7 @@ public class RoomEnemySpawner : MonoBehaviour
 
     // Data passed from DungeonGenerator
     private List<GameObject> enemyPrefabs;
-    private float difficultyMultiplier; // Based on distance
+    private float difficultyMultiplier; // scales with distance
     private float biomeStatMultiplier;
     private RaritySettings[] rarities;
     private int minEnemies;
@@ -45,21 +45,21 @@ public class RoomEnemySpawner : MonoBehaviour
         minEnemies = min;
         maxEnemies = max;
 
-        // Create Trigger
+        // Creating trigger via code
         triggerCollider = gameObject.AddComponent<BoxCollider>();
         triggerCollider.isTrigger = true;
 
-        // Calculate exact size based on the grid
-        // We subtract a small padding (e.g. 1.0f) so the trigger is slightly inside the walls
+        // sizing the collider to fit the room almost perfectly
         float sizeX = (wTiles * tileSize) - 1.0f;
         float sizeZ = (hTiles * tileSize) - 1.0f;
 
         triggerCollider.size = new Vector3(sizeX, 5f, sizeZ);
-        triggerCollider.center = new Vector3(0, 2.5f, 0); // Center is 0,0 because RoomGenerator centers the room
+        triggerCollider.center = new Vector3(0, 2.5f, 0);
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        // spawn when player walks in
         if (!hasSpawned && other.CompareTag("Player"))
         {
             SpawnEnemies();
@@ -72,6 +72,7 @@ public class RoomEnemySpawner : MonoBehaviour
         activeEnemies.Clear();
         if (enemyPrefabs == null || enemyPrefabs.Count == 0) return;
 
+        // randomizing count
         int count = Random.Range(minEnemies, maxEnemies + 1);
 
         nrEnemies = count;
@@ -81,34 +82,33 @@ public class RoomEnemySpawner : MonoBehaviour
             SpawnSingleEnemy();
         }
 
-        Destroy(triggerCollider); // Don't trigger again
+        Destroy(triggerCollider); // destroy trigger so we dont spawn again
 
         StartCoroutine(TrackEnemies());
     }
 
     IEnumerator TrackEnemies()
     {
-        // Wait a frame to ensure all spawns are registered
+        // wait for init
         yield return null;
 
         while (activeEnemies.Count > 0)
         {
-            // Remove any enemies that have been destroyed (are null)
-            // 'x == null' works because Unity overloads the equality operator for destroyed objects
+            // removing nulls (dead enemies)
             activeEnemies.RemoveAll(x => x == null);
 
             if (activeEnemies.Count == 0)
             {
-                // All dead!
+                // room clear
                 SpawnTeleporter();
-                yield break; // Exit coroutine
+                yield break;
             }
 
-            // Check every 0.5 seconds to save performance
+            // efficient check every 0.5s
             yield return new WaitForSeconds(0.5f);
         }
 
-        // Catch-case if 0 enemies spawned (e.g. minEnemies was 0)
+        // fallback if 0 enemies
         SpawnTeleporter();
     }
 
@@ -117,7 +117,7 @@ public class RoomEnemySpawner : MonoBehaviour
         Debug.Log("Room Cleared!");
         if (teleporter != null)
         {
-            // Spawn in the center of the room, slightly above ground
+            // spawn reward in middle of room
             Vector3 centerPos = new Vector3(transform.position.x, transform.position.y + 0.33f, transform.position.z);
             Instantiate(teleporter, centerPos, Quaternion.identity);
         }
@@ -125,33 +125,30 @@ public class RoomEnemySpawner : MonoBehaviour
 
     void SpawnSingleEnemy()
     {
-        // 1. Pick Enemy Type
+        // 1. Pick Type
         GameObject prefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
 
-        // 2. Pick Position 
-        // Get the Bounds of the trigger we just created to ensure we spawn inside
+        // 2. Pick Pos
         Bounds b = triggerCollider.bounds;
 
-        // Pick a random point inside the bounds
+        // random pos inside box
         float randomX = Random.Range(b.min.x, b.max.x);
         float randomZ = Random.Range(b.min.z, b.max.z);
 
         Vector3 spawnPos = new Vector3(randomX, transform.position.y + 1.0f, randomZ);
 
-        // 3. Instantiate
+        // 3. Spawn
         GameObject enemyObj = Instantiate(prefab, spawnPos, Quaternion.identity);
 
         activeEnemies.Add(enemyObj);
 
-        // 4. Calculate Rarity & Stats
+        // 4. Stats logic
         EnemyRarity rarity = DetermineRarity();
         RaritySettings settings = GetRaritySettings(rarity);
 
         float statMult = difficultyMultiplier * biomeStatMultiplier * settings.statMult;
 
-        // We need to read base stats. This is tricky without a common interface.
-        // We will check for each component.
-
+        // trying to find which script the enemy has to set stats
         if (enemyObj.TryGetComponent(out EnemyAI melee))
         {
             int hp = Mathf.RoundToInt(melee.maxHealth * statMult);
@@ -184,16 +181,14 @@ public class RoomEnemySpawner : MonoBehaviour
 
     EnemyRarity DetermineRarity()
     {
-        // Logic: Roll for Rare first, then Magic, else Normal.
-        // Chances scale with difficultyMultiplier (distance)
+        // rolling dice for rarity
+        float boost = (difficultyMultiplier - 1.0f) * 0.1f;
 
-        float boost = (difficultyMultiplier - 1.0f) * 0.1f; // +10% chance per difficulty level
-
-        // Check Rare
+        // check rare
         RaritySettings rare = GetRaritySettings(EnemyRarity.Rare);
         if (Random.value < (rare.spawnChance + boost)) return EnemyRarity.Rare;
 
-        // Check Magic
+        // check magic
         RaritySettings magic = GetRaritySettings(EnemyRarity.Magic);
         if (Random.value < (magic.spawnChance + boost)) return EnemyRarity.Magic;
 
@@ -202,8 +197,8 @@ public class RoomEnemySpawner : MonoBehaviour
 
     RaritySettings GetRaritySettings(EnemyRarity r)
     {
-        // Simple search (Optimization: use Dictionary)
+        // finding settings in array
         foreach (var s in rarities) if (s.name == r.ToString()) return s;
-        return rarities[0]; // Default Normal
+        return rarities[0];
     }
 }

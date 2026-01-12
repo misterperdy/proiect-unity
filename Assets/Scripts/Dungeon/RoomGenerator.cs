@@ -21,15 +21,17 @@ public class RoomGenerator : MonoBehaviour
     public GameObject[] cornerProps;
     public GameObject[] centerProps;
 
-    [Range(0, 1)] public float decorationDensity = 0.3f;
+    [Range(0, 1)] public float decorationDensity = 0.3f; // how much stuff to spawn
 
     public void BuildRoom(int width, int height, Vector2Int doorLocalPos, Material floorMat, Material wallMat)
     {
+        // centering math
         float centeringX = ((width - 1) * tileSize) / 2f;
         float centeringZ = ((height - 1) * tileSize) / 2f;
         Vector3 centeringVector = new Vector3(centeringX, 0, centeringZ);
         float offset = tileSize / 2f;
 
+        // loop grid
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
@@ -42,16 +44,18 @@ public class RoomGenerator : MonoBehaviour
                 GameObject floor = Instantiate(floorTile, worldPos, transform.rotation, transform);
                 ApplyMaterial(floor, floorMat);
 
-                // 2. Determine Walls
+                // 2. Wall Logic
                 bool isLeft = (x == 0);
                 bool isRight = (x == width - 1);
                 bool isBottom = (y == 0);
                 bool isTop = (y == height - 1);
 
+                // skip door tile
                 if (x == doorLocalPos.x && y == doorLocalPos.y) continue;
 
                 bool placedWall = false;
 
+                // spawning walls based on edges
                 if (isBottom)
                 {
                     bool startPillar = (x == 0);
@@ -93,13 +97,13 @@ public class RoomGenerator : MonoBehaviour
             }
         }
 
-        // 3. Place Corner Pillars
+        // 3. Corner Pillars
         float roomMinX = (-offset) - centeringX;
         float roomMaxX = ((width - 1) * tileSize + offset) - centeringX;
         float roomMinZ = (-offset) - centeringZ;
         float roomMaxZ = ((height - 1) * tileSize + offset) - centeringZ;
 
-        // Note: Hardcoded Y pos used in previous versions is maintained here for consistency
+        // spawning columns at 4 corners
         float pillarY = 0.268489f;
         SpawnProp(cornerColumn, new Vector3(roomMinX, pillarY, roomMinZ), 0, wallMat);
         SpawnProp(cornerColumn, new Vector3(roomMaxX, pillarY, roomMinZ), 0, wallMat);
@@ -133,7 +137,7 @@ public class RoomGenerator : MonoBehaviour
         {
             float myPos = i * wallPrefabWidth;
 
-            // Prevent walls from clipping into end pillars or doors
+            // dont build into pillars
             if ((endIsPillar || endIsDoor) && (myPos + wallPrefabWidth > endLimit - 0.01f))
             {
                 gapExists = true;
@@ -149,7 +153,7 @@ public class RoomGenerator : MonoBehaviour
             GameObject w = Instantiate(wallStraight, worldPos, worldRot, transform);
             ApplyMaterial(w, mat);
 
-            // Chance to spawn wall props (torches)
+            // random chance for torch
             if (Random.value > 0.8f)
             {
                 Vector3 baseHeight = new Vector3(0, 3, 0);
@@ -161,7 +165,7 @@ public class RoomGenerator : MonoBehaviour
             }
         }
 
-        // Fill gaps near pillars with one final wall segment
+        // filling gaps
         if (gapExists)
         {
             float fillBuffer = 0f;
@@ -180,6 +184,7 @@ public class RoomGenerator : MonoBehaviour
 
     void PlaceDecorations(Vector3 localPos)
     {
+        // density check
         if (Random.value > decorationDensity) return;
 
         Vector3 height = new Vector3(0, 0.2525f, 0);
@@ -211,7 +216,7 @@ public class RoomGenerator : MonoBehaviour
         foreach (Renderer r in renderers) r.material = mat;
     }
 
-    // Removes unnecessary walls that might overlap due to gap filling
+    // cleaning up overlapping walls
     void CleanupDuplicateWalls()
     {
         List<Transform> walls = new List<Transform>();
@@ -232,6 +237,7 @@ public class RoomGenerator : MonoBehaviour
                 float dist = Vector3.Distance(wallA.position, wallB.position);
                 float angle = Quaternion.Dot(wallA.rotation, wallB.rotation);
 
+                // checks overlap
                 if (dist < 0.1f && Mathf.Abs(angle) > 0.9f)
                 {
                     DestroyImmediate(wallA.gameObject);

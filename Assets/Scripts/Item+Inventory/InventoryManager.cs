@@ -7,7 +7,7 @@ using static UnityEditor.Progress;
 
 public class InventoryManager : MonoBehaviour
 {
-    //singleton
+    // singleton instance so i can call it from anywhere
     public static InventoryManager Instance;
 
     public List<ItemSO> items = new List<ItemSO>();
@@ -16,7 +16,7 @@ public class InventoryManager : MonoBehaviour
     public event System.Action OnInventoryChanged;
     public event System.Action<int> OnActiveSlotChanged;
 
-    public int activeSlotIndex = 0; // current active slot
+    public int activeSlotIndex = 0; // tracking which slot is selected
 
     void Awake()
     {
@@ -27,27 +27,28 @@ public class InventoryManager : MonoBehaviour
         }
         Instance = this;
 
-        SetActiveSlot(0); //have slot 0 selected when we start
+        SetActiveSlot(0); // start with the first slot
     }
 
     public bool AddItem(ItemSO item)
     {
-        // check if we have inventory space
+        // checking if bag is full
         if (items.Count >= inventorySize)
         {
             Debug.Log("inventory full!");
-            return false; // didn't add item cause there is no space
+            return false; // cant add more stuff
         }
 
-        int itemIndex = items.Count; // index of array where the item will be added
-        items.Add(item); // added
+        int itemIndex = items.Count; // getting the new index
+        items.Add(item); // putting item in list
 
 
-        OnInventoryChanged?.Invoke(); // invoke inventory change , used in UI updating
+        OnInventoryChanged?.Invoke(); // tell ui to update
 
+        // if we added item to the slot we are holding, update visuals
         if (itemIndex == activeSlotIndex)
         {
-            OnActiveSlotChanged?.Invoke(activeSlotIndex); // re-actualize current slot
+            OnActiveSlotChanged?.Invoke(activeSlotIndex);
         }
 
         return true;
@@ -55,7 +56,7 @@ public class InventoryManager : MonoBehaviour
 
     public void SetActiveSlot(int index)
     {
-        //check if index is valid
+        // validation check to dont crash
         if (index < 0 || index >= inventorySize)
         {
             return;
@@ -63,93 +64,34 @@ public class InventoryManager : MonoBehaviour
 
         activeSlotIndex = index;
 
-        OnActiveSlotChanged?.Invoke(activeSlotIndex); // send event
+        OnActiveSlotChanged?.Invoke(activeSlotIndex); // notify everyone slot changed
 
         Debug.Log($"slot changed to {index}");
     }
 
     public ItemSO GetActiveItem()
     {
-        //if we have item in this slot
+        // safety check if slot is empty
         if (activeSlotIndex < items.Count)
         {
             return items[activeSlotIndex];
         }
 
-        return null; // empty slot
+        return null; // nothing here
     }
 
-    //public ItemSO DropActiveItem(Vector3 dropPosition)
-    //{
-    //    if (activeSlotIndex < items.Count)
-    //    {
-    //        ItemSO itemToDrop = items[activeSlotIndex];
-
-    //        items.RemoveAt(activeSlotIndex);
-
-    //        if (itemToDrop.itemPrefab != null)
-    //        {
-    //            Vector3 safeDropPosition = dropPosition + Vector3.up * 0.1f;
-
-    //            Debug.Log($"[DROP] Item: {itemToDrop.name}");
-    //            Debug.Log($"[DROP] itemPrefab: {itemToDrop.itemPrefab?.name}");
-    //            Debug.Log($"[DROP] pickupPrefab: {itemToDrop.pickupPrefab?.name}");
-
-
-    //            GameObject droppedGO = Instantiate(itemToDrop.itemPrefab, safeDropPosition, Quaternion.identity);
-
-
-    //            //Debug.Log($"[DROP] dropPrefab chosen: {dropPrefab.name}");
-    //            Debug.Log($"[DROP] droppedGO spawned: {droppedGO.name}");
-
-    //            Rigidbody rb = droppedGO.GetComponent<Rigidbody>();
-    //            if (rb == null)
-    //            {
-    //                rb = droppedGO.AddComponent<Rigidbody>();
-    //            }
-    //            rb.isKinematic = false;
-    //            rb.useGravity = true;
-
-    //            Collider col = droppedGO.GetComponent<Collider>();
-    //            if (col == null)
-    //            {
-    //                col = droppedGO.AddComponent<BoxCollider>();
-    //            }
-    //            col.isTrigger = true;
-
-    //            ItemPickup itemPickup = droppedGO.GetComponent<ItemPickup>();
-    //            if (itemPickup == null)
-    //            {
-    //                itemPickup = droppedGO.AddComponent<ItemPickup>();
-    //            }
-
-    //            itemPickup.item = itemToDrop;
-
-    //            Vector3 dropForce = Vector3.up * 0.5f + new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f)).normalized * 0.5f;
-    //            rb.AddForce(dropForce, ForceMode.Impulse);
-
-    //            StartCoroutine(LockItemHeight(droppedGO, 0.2f));
-    //        }
-
-    //        OnInventoryChanged?.Invoke();
-    //        OnActiveSlotChanged?.Invoke(activeSlotIndex);
-
-    //        return itemToDrop;
-    //    }
-
-    //    return null;
-    //}
-
+    // logic to throw item on the ground
     public ItemSO DropActiveItem(Vector3 dropPosition)
     {
+        // checking if we actually have an item selected
         if (activeSlotIndex < 0 || activeSlotIndex >= items.Count)
             return null;
 
         ItemSO itemToDrop = items[activeSlotIndex];
-        items.RemoveAt(activeSlotIndex);
+        items.RemoveAt(activeSlotIndex); // removing from list
 
-        // Choose what we spawn in the world when dropping:
-        // pickupPrefab (preferred) -> itemPrefab (fallback)
+        // logic to decide what prefab to spawn
+        // prefer pickupPrefab if it exists, otherwise use the normal itemPrefab
         GameObject dropPrefab = itemToDrop.pickupPrefab != null
             ? itemToDrop.pickupPrefab
             : itemToDrop.itemPrefab;
@@ -159,6 +101,7 @@ public class InventoryManager : MonoBehaviour
         Debug.Log($"[DROP] pickupPrefab: {(itemToDrop.pickupPrefab != null ? itemToDrop.pickupPrefab.name : "NULL")}");
         Debug.Log($"[DROP] dropPrefab chosen: {(dropPrefab != null ? dropPrefab.name : "NULL")}");
 
+        // if something is wrong and no prefab exists
         if (dropPrefab == null)
         {
             Debug.LogWarning($"[DROP] No prefab to drop for item: {itemToDrop.name}. Dropping removed it from inventory anyway.");
@@ -167,34 +110,38 @@ public class InventoryManager : MonoBehaviour
             return itemToDrop;
         }
 
+        // spawning it a bit higher so it falls
         Vector3 safeDropPosition = dropPosition + Vector3.up * 0.1f;
         GameObject droppedGO = Instantiate(dropPrefab, safeDropPosition, Quaternion.identity);
         Debug.Log($"[DROP] droppedGO spawned: {droppedGO.name}");
 
-        // Ensure it can be picked up
+        // make sure the dropped object has the script to be picked up again
         ItemPickup itemPickup = droppedGO.GetComponent<ItemPickup>();
         if (itemPickup == null) itemPickup = droppedGO.AddComponent<ItemPickup>();
         itemPickup.item = itemToDrop;
 
-        // Ensure it has a trigger collider (prefer existing colliders)
+        // adding collider if missing so it doesnt fall thru floor
         Collider col = droppedGO.GetComponent<Collider>();
         if (col == null) col = droppedGO.AddComponent<SphereCollider>();
         col.isTrigger = true;
 
-        // Optional: physics "toss" (only if it has / gets a rigidbody)
+        // adding physics to throw it
         Rigidbody rb = droppedGO.GetComponent<Rigidbody>();
         if (rb == null) rb = droppedGO.AddComponent<Rigidbody>();
         rb.isKinematic = false;
         rb.useGravity = true;
 
+        // giving it a small push in random direction
         Vector3 dropForce =
             Vector3.up * 0.5f +
             new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f)).normalized * 0.5f;
 
         rb.AddForce(dropForce, ForceMode.Impulse);
 
+        // stop physics after a bit so it doesnt roll forever
         StartCoroutine(LockItemHeight(droppedGO, 0.2f));
 
+        // update ui again
         OnInventoryChanged?.Invoke();
         OnActiveSlotChanged?.Invoke(activeSlotIndex);
 
@@ -210,6 +157,7 @@ public class InventoryManager : MonoBehaviour
         {
             ItemPickup itemPickup = droppedItem.GetComponent<ItemPickup>();
 
+            // call the function to freeze rigidbody
             if (itemPickup != null)
             {
                 itemPickup.StopDropping();
@@ -219,18 +167,20 @@ public class InventoryManager : MonoBehaviour
 
 
 
-    //check input for hotbar slot + player item change
+    // checking keys every frame
     private void Update()
     {
-        //2 slots right now
+        // simple number keys for slots
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            InventoryManager.Instance.SetActiveSlot(0); // key 1 = slot 0
+            InventoryManager.Instance.SetActiveSlot(0); // key 1 is slot 0
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            InventoryManager.Instance.SetActiveSlot(1); // key 2 = slot 1
+            InventoryManager.Instance.SetActiveSlot(1); // key 2 is slot 1
         }
+
+        // checking drop button
         if (Input.GetButtonDown("Drop"))
         {
             GameObject playerGO = GameObject.FindWithTag("Player");
@@ -240,7 +190,7 @@ public class InventoryManager : MonoBehaviour
                 Vector3 playerPos = playerGO.transform.position;
                 Vector3 playerForward = playerGO.transform.forward;
 
-
+                // calc position in front of player
                 Vector3 dropPosition = playerPos + playerForward * 3.0f + Vector3.up * 0.1f;
 
                 ItemSO droppedItem = DropActiveItem(dropPosition);
