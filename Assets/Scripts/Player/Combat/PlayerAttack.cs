@@ -151,6 +151,10 @@ public class PlayerAttack : MonoBehaviour
                 {
                     case ItemType.Melee:
                         //PerformMeleeAttack();
+
+                        float attackSpeed = (stats != null) ? stats.fireRateMultiplier : 1f;
+
+                        animator.SetFloat("AttackSpeed", attackSpeed);
                         animator.SetTrigger("t_melee");
                         break;
                     case ItemType.Ranged:
@@ -285,11 +289,13 @@ public class PlayerAttack : MonoBehaviour
 
         float animLength = stateInfo.length;
 
-        float speed = Mathf.Abs(stateInfo.speed) > 0.01f ? stateInfo.speed : 1f;
+        float speedMultiplier = (stats != null) ? stats.fireRateMultiplier : 1f;
 
-        attackDuration = (animLength / speed) * swingDurationRatio;
+        if (speedMultiplier < 0.1f) speedMultiplier = 1f;
 
-        if (attackDuration <= 0.05f) attackDuration = 0.3f;
+        attackDuration = (animLength / speedMultiplier) * swingDurationRatio;
+
+        //if (attackDuration <= 0.05f) attackDuration = 0.3f;
     }
 
     void UseExplosionAbility()
