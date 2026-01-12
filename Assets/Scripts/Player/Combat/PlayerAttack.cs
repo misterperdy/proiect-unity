@@ -6,8 +6,7 @@ using UnityEngine.U2D;
 using static UnityEditor.Progress;
 using static UnityEngine.GraphicsBuffer;
 
-// Manages all player attack logic, including switching between melee and ranged,
-// handling weapon visuals, and managing per-weapon cooldowns.
+// logic for player attack melee ranged and weapons
 public class PlayerAttack : MonoBehaviour
 {
     public ItemType activeItemType = ItemType.None;
@@ -30,12 +29,12 @@ public class PlayerAttack : MonoBehaviour
     public Transform arrowSpawnPoint;
     public float arrowSpeed = 30f;
 
-    public GameObject explosionPrefab; 
+    public GameObject explosionPrefab;
     public KeyCode abilityKey = KeyCode.E;
-    public float explosionCooldown = 6f; 
+    public float explosionCooldown = 6f;
     private float explosionCooldownEndTime;
 
-    // Instead of a single boolean, we track the cooldown end time for each inventory slot individually.
+    // track cooldown for each slot
     private float[] slotCooldownEndTimes;
 
     private ItemSO currentItem;
@@ -59,7 +58,7 @@ public class PlayerAttack : MonoBehaviour
     private readonly List<GameObject> activeTurrets = new();
 
     [Header("Equipped Visual Spawn")]
-    public Transform equippedVisualParent; // e.g. your swordLocation / hand socket
+    public Transform equippedVisualParent; // socket hand
     private GameObject equippedVisualInstance;
 
     [Header("In-hand visuals (existing children under swordLocation)")]
@@ -71,7 +70,7 @@ public class PlayerAttack : MonoBehaviour
 
 
 
-    // Stores the player's rotation at the start of a melee attack to ensure the swing is not affected by mouse movement during the animation.
+    // stores rotation so we swing nicely
     private Quaternion initialAttackRotation;
 
     private void Awake()
@@ -89,17 +88,17 @@ public class PlayerAttack : MonoBehaviour
         }
         if (meleeSwingSfx == null) meleeSwingSfx = MusicManager.FindClipByName("sfx_sword_swing");
 
-        // Subscribe to the inventory manager's event to know when the active item changes.
+        // event for when slot changes
         InventoryManager.Instance.OnActiveSlotChanged += UpdateEquippedItem;
 
-        // Initialize the cooldown array to match the inventory size.
+        // init cooldowns array
         slotCooldownEndTimes = new float[InventoryManager.Instance.inventorySize];
 
-        // The 'true' argument allows finding the component even if the GameObject is inactive at startup.
+        // find hitbox even if inactive
         swordHitbox = GetComponentInChildren<SwordHitbox>(true);
         if (swordHitbox != null)
         {
-            // Give the hitbox a reference back to this script so it can report hits.
+            // tell hitbox about this script
             swordHitbox.playerAttack = this;
             swordHitbox.enemyLayer = this.enemyLayer;
         }
@@ -107,12 +106,12 @@ public class PlayerAttack : MonoBehaviour
         if (meleeWeaponVisual != null) meleeWeaponVisual.SetActive(false);
         if (bowVisual != null) bowVisual.SetActive(false);
 
-        UpdateEquippedItem(0); // Initialize with the item in the first slot.
+        UpdateEquippedItem(0); // init first slot
     }
 
     private void OnDestroy()
     {
-        // Unsubscribe from events to prevent memory leaks when the object is destroyed.
+        // unsubscribe event to no memory leaks
         if (InventoryManager.Instance != null)
         {
             InventoryManager.Instance.OnActiveSlotChanged -= UpdateEquippedItem;
@@ -138,10 +137,10 @@ public class PlayerAttack : MonoBehaviour
 
             int activeSlot = InventoryManager.Instance.activeSlotIndex;
 
-            // Check if the current time is past the cooldown end time for the *currently selected* weapon slot.
+            // check cooldown for current weapon
             if (Time.time >= slotCooldownEndTimes[activeSlot])
             {
-                // If cooldown is over, perform the appropriate attack.
+                // do attack based on type
                 switch (activeItemType)
                 {
                     case ItemType.Melee:
@@ -166,17 +165,17 @@ public class PlayerAttack : MonoBehaviour
         currentItem = InventoryManager.Instance.GetActiveItem();
         activeItemType = (currentItem != null) ? currentItem.itemType : ItemType.None;
 
-        // Turn everything off first
+        // turn off everything first
         if (swordInHand) swordInHand.SetActive(false);
         if (hammerInHand) hammerInHand.SetActive(false);
         if (bowInHand) bowInHand.SetActive(false);
 
-        // Also handle your ranged visual holder if you still use it
+        // handle ranged visual holder
         if (bowVisual != null) bowVisual.SetActive(activeItemType == ItemType.Ranged);
 
         if (currentItem == null) return;
 
-        // Show the in-hand model based on what the item DOES
+        // enable visual based on type
         switch (currentItem.itemType)
         {
             case ItemType.Melee:
@@ -214,8 +213,8 @@ public class PlayerAttack : MonoBehaviour
 
         int projectiles = Mathf.Max(1, finalProjectiles);
         float spread;
-        if (finalProjectiles >= 10) spread = (180*(1+finalProjectiles/2f)) / (finalProjectiles);
-        else spread = (90 * (1 + finalProjectiles / 2f)) / (12-finalProjectiles);
+        if (finalProjectiles >= 10) spread = (180 * (1 + finalProjectiles / 2f)) / (finalProjectiles);
+        else spread = (90 * (1 + finalProjectiles / 2f)) / (12 - finalProjectiles);
 
         int bounces = (stats != null)
             ? stats.GetModifiedBounceCount(currentItem.maxBounces)
@@ -243,7 +242,7 @@ public class PlayerAttack : MonoBehaviour
 
             if (arrow != null)
             {
-                arrow.Fire(this.arrowSpeed, finalDamage , bounces, stats);
+                arrow.Fire(this.arrowSpeed, finalDamage, bounces, stats);
             }
         }
     }
@@ -251,7 +250,7 @@ public class PlayerAttack : MonoBehaviour
     {
         int activeSlot = InventoryManager.Instance.activeSlotIndex;
 
-        // Set the cooldown end time for this specific slot.
+        // set cooldown
         float finalCooldown = currentItem.attackCooldown / currentItem.fireRateMultiplier;
         slotCooldownEndTimes[activeSlot] = Time.time + finalCooldown;
 
@@ -322,13 +321,13 @@ public class PlayerAttack : MonoBehaviour
             }
 
         }
-        
+
     }
 
-    // Public method called by the SwordHitbox script when its trigger collides with something on the enemy layer.
+    // method called by hitbox script
     public void RegisterHit(Collider enemyCollider)
     {
-        // Prevents hitting the same enemy multiple times with a single swing.
+        // dont hit same enemy twice
         if (enemiesHitThisSwing.Contains(enemyCollider)) return;
 
         enemiesHitThisSwing.Add(enemyCollider);
@@ -337,7 +336,7 @@ public class PlayerAttack : MonoBehaviour
 
         float currentDamage = (currentItem != null) ? finalDamage : 10f;
 
-        //replaced all the checks with interface
+        // replaced checks with interface
         IDamageable damageableTarget = enemyCollider.GetComponent<IDamageable>();
 
         if (damageableTarget != null)
@@ -348,7 +347,7 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    // Animates the visual swing of the melee weapon over the attackDuration.
+    // animate swing over time
     private IEnumerator AnimateMeleeSwing()
     {
         if (meleeAttackPivot == null || meleeWeaponVisual == null) yield break;
@@ -356,28 +355,27 @@ public class PlayerAttack : MonoBehaviour
         meleeWeaponVisual.SetActive(true);
 
         float elapsedTime = 0f;
-        bool swingLeftToRight = Random.value > 0.5f; // Randomize swing direction for variety.
+        bool swingLeftToRight = Random.value > 0.5f; // random direction
 
         swingLeftToRight = false;
 
         float startAngle = swingLeftToRight ? -attackAngle / 2 : attackAngle / 2;
         float endAngle = swingLeftToRight ? attackAngle / 2 : -attackAngle / 2;
 
-        //get from animation of melee swing
+        // get duration from anim
         attackDuration = 0.47f;
 
         while (elapsedTime < attackDuration)
         {
             elapsedTime += Time.deltaTime;
             float progress = elapsedTime / attackDuration;
-            float curveProgress = swingCurve.Evaluate(progress); // Use curve for smoother animation.
+            float curveProgress = swingCurve.Evaluate(progress); // use curve
             float currentAngle = Mathf.Lerp(startAngle, endAngle, curveProgress);
 
-            // By using the captured 'initialAttackRotation' and setting the world rotation (.rotation),
-            // the swing's arc is independent of the player's ongoing rotation
+            // rotate independent of player rotation
             meleeAttackPivot.rotation = initialAttackRotation * Quaternion.Euler(0, currentAngle, 0);
 
-            yield return null; // Wait for the next frame.
+            yield return null; // wait next frame
         }
 
         ResetMeleeVisuals();
@@ -436,7 +434,7 @@ public class PlayerAttack : MonoBehaviour
         TurretHandler handler = turretGO.GetComponent<TurretHandler>();
         if (handler != null)
         {
-            // Optional: pass stats from item
+            // pass stats
             handler.damage = currentItem.damageTurret;
             handler.fireRate = currentItem.fireRateTurret;
             handler.projectiles = currentItem.projectilesperTurret;

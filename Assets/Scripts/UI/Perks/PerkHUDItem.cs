@@ -11,6 +11,7 @@ public class PerkHUDItem : MonoBehaviour
     {
         iconImage.sprite = perk.icon;
 
+        // if we have multiples show the number
         if (count > 1)
         {
             countText.gameObject.SetActive(true);
@@ -18,7 +19,7 @@ public class PerkHUDItem : MonoBehaviour
         }
         else
         {
-            countText.gameObject.SetActive(false); // Hide text if we only have 1
+            countText.gameObject.SetActive(false); // hide text if just 1
         }
     }
 }

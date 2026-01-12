@@ -21,33 +21,35 @@ namespace UI
 
         private void Start()
         {
+            // save the start position so we move relative to it
             _startPosition = transform.position;
             _startRotation = transform.rotation;
-        }   
+        }
 
         private void Update()
         {
-            // Calculate sine waves
+            // calculate math sinus waves based on time
             float sinPos = Mathf.Sin(Time.time * speedPos);
             float sinRot = Mathf.Sin(Time.time * speedRot);
 
-            // Apply Position
+            // make vector for position movement
             Vector3 posOffset = new Vector3(
                 sinPos * posXVariation,
                 sinPos * posYVariation,
                 sinPos * posZVariation
             );
+            // apply new position
             transform.position = _startPosition + posOffset;
 
-            // Apply Rotation
+            // make vector for rotation movement
             Vector3 rotOffset = new Vector3(
                 sinRot * rotXVariation,
                 sinRot * rotYVariation,
                 sinRot * rotZVariation
             );
-            
-            // Use localEulerAngles or global? Usually rotation animations are relative to start.
-            // Using Quaternion * Quaternion to rotate relative to start rotation
+
+            // apply rotation on top of start rotation
+            // i think localEulerAngles works too but quaternion is safer
             transform.rotation = Quaternion.Euler(_startRotation.eulerAngles + rotOffset);
         }
     }

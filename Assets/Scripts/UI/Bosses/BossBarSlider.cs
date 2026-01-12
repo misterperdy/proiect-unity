@@ -26,6 +26,7 @@ public class BossBarSlider : MonoBehaviour
 
     public void ToggleBar(bool state)
     {
+        // show or hide the entire bar object
         this.transform.parent.gameObject.SetActive(state);
     }
 }

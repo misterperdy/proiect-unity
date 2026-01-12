@@ -22,7 +22,8 @@ public class Dash : MonoBehaviour
     [SerializeField] private bool _dashHitVfxDebugLog = false;
 
     [Header("Dashing")]
-    [SerializeField] private float _dashVelocity = 15f; // Am marit putin valoarea, 1.2 e foarte mic pt MovePosition
+    // increased velocity bc it was too slow before
+    [SerializeField] private float _dashVelocity = 15f;
     [SerializeField] private float _dashingTime = 0.2f;
     [SerializeField] private float _dashCooldown = 1f;
     private Vector3 _dashingDir;
@@ -34,12 +35,13 @@ public class Dash : MonoBehaviour
     {
         _rigidBody = GetComponent<Rigidbody>();
 
-        if(_trailRenderer == null)
-        _trailRenderer = GetComponentInChildren<TrailRenderer>();
+        // get components if they are null
+        if (_trailRenderer == null)
+            _trailRenderer = GetComponentInChildren<TrailRenderer>();
         _playerHealth = GetComponent<PlayerHealth>();
         _playerStats = GetComponent<PlayerStats>();
         _playerAttack = GetComponent<PlayerAttack>();
-        // Atentie: Daca scriptul e pe parinte si animatorul pe copil, foloseste GetComponentInChildren
+        // get animator from children bc its on the model
         animator = GetComponentInChildren<Animator>();
     }
 
@@ -49,7 +51,7 @@ public class Dash : MonoBehaviour
 
         var dashInput = Input.GetButtonDown("Dash");
 
-        // 1. Verificam Input-ul
+        // 1. check input for dash
         if (dashInput && _canDash)
         {
             float x = Input.GetAxisRaw("Horizontal");
@@ -57,18 +59,15 @@ public class Dash : MonoBehaviour
 
             _dashingDir = new Vector3(x, 0, z).normalized;
 
-            // OPTIONAL: Daca nu apasa nimic, dam dash in fata (transform.forward)
-            // Sau daca vrei sa nu faca nimic daca nu apasa, lasi un return aici.
+            // if player is not moving dash forward
             if (_dashingDir == Vector3.zero)
             {
-                // Varianta A: Dash in fata daca sta pe loc
+                // default to forward direction
                 _dashingDir = transform.forward;
 
-                // Varianta B (cea din codul tau vechi): Nu face dash
-                // return; 
             }
 
-            // Setam parametrii pentru Blend Tree ca sa stie animatia directia
+            // set animator params for blend tree
             animator.SetFloat("InputX", x);
             animator.SetFloat("InputZ", z);
 
@@ -76,12 +75,12 @@ public class Dash : MonoBehaviour
         }
     }
 
-    // Folosim FixedUpdate pentru miscarea fizica (Rigidbody)
+    // physics update for rigid body movement
     void FixedUpdate()
     {
         if (_isDashing)
         {
-            // Aici mutam efectiv jucatorul
+            // move the player position manually
             _rigidBody.MovePosition(_rigidBody.position + _dashingDir * _dashVelocity * Time.fixedDeltaTime);
 
             TryDealDashDamage();
@@ -95,6 +94,7 @@ public class Dash : MonoBehaviour
 
         float radius = Mathf.Max(0.01f, _playerStats.dashDamageRadius);
         Vector3 origin = _rigidBody != null ? _rigidBody.position : transform.position;
+        // check sphere overlap to find enemies
         Collider[] hits = Physics.OverlapSphere(origin, radius, ~0, QueryTriggerInteraction.Collide);
         if (hits == null || hits.Length == 0) return;
 
@@ -111,7 +111,7 @@ public class Dash : MonoBehaviour
         {
             if (hit == null) continue;
 
-            // Ignore self
+            // dont hit self
             if (hit.attachedRigidbody != null && hit.attachedRigidbody == _rigidBody) continue;
             if (hit.transform != null && hit.transform.root == transform.root) continue;
 
@@ -119,6 +119,7 @@ public class Dash : MonoBehaviour
                 continue;
 
             int id = damageableComponent.GetInstanceID();
+            // dont dmg same enemy twice in one dash
             if (_damagedThisDash.Contains(id)) continue;
             _damagedThisDash.Add(id);
 
@@ -148,6 +149,7 @@ public class Dash : MonoBehaviour
 
         if (psr != null)
         {
+            // try find shader for particles
             Shader shader =
                 Shader.Find("Universal Render Pipeline/Particles/Unlit") ??
                 Shader.Find("Particles/Standard Unlit") ??
@@ -170,7 +172,7 @@ public class Dash : MonoBehaviour
         main.startSize = new ParticleSystem.MinMaxCurve(0.08f, 0.13f);
         main.maxParticles = 128;
 
-        // White -> purple-ish (glowy)
+        // color gradient form white to purple
         Gradient gradient = new Gradient();
         gradient.SetKeys(
             new[]
@@ -216,6 +218,7 @@ public class Dash : MonoBehaviour
         trails.colorOverLifetime = new ParticleSystem.MinMaxGradient(gradient);
 
         ps.Play();
+        // destroy after 1.5 secs
         Object.Destroy(go, 1.5f);
     }
 
@@ -225,6 +228,7 @@ public class Dash : MonoBehaviour
         damageableComponent = null;
         if (hit == null) return false;
 
+        // check parent for enemy scripts
         EnemyAI enemy = hit.GetComponentInParent<EnemyAI>();
         if (enemy != null) { damageable = enemy; damageableComponent = enemy; return true; }
 
@@ -257,28 +261,28 @@ public class Dash : MonoBehaviour
             MusicManager.Instance.PlaySfx(MusicManager.Instance.playerDashSfx);
         }
 
-        // AICI ESTE FIX-UL: Declansam animatia o singura data, la inceput
+        // trigger animation only once
         animator.SetTrigger("t_dash");
 
         _trailRenderer.emitting = true;
 
-        // Dezactivam coliziunile si damage-ul
+        // ignore collision with enemies so we go through them
         Physics.IgnoreLayerCollision(7, 8, true);
         if (_playerHealth != null) _playerHealth.canTakeDamage = false;
 
-        // Asteptam cat dureaza dash-ul (timp in care FixedUpdate il muta)
+        // wait for dash time
         yield return new WaitForSeconds(_dashingTime);
 
-        // Oprim Dash-ul
+        // stop dash
         _isDashing = false;
         _trailRenderer.emitting = false;
-        _rigidBody.velocity = Vector3.zero; // Oprim inertia
+        _rigidBody.velocity = Vector3.zero; // stop inertia
 
-        // Reactivam coliziunile si damage-ul
+        // reset collision and damage
         Physics.IgnoreLayerCollision(7, 8, false);
         if (_playerHealth != null) _playerHealth.canTakeDamage = true;
 
-        // Asteptam cooldown-ul
+        // wait cooldown
         float finalCooldown = (_playerStats != null)
             ? _playerStats.GetModifiedDashCooldown(_dashCooldown)
             : _dashCooldown;

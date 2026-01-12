@@ -4,8 +4,8 @@ using UnityEngine.UI;
 public class GameOverStyler : MonoBehaviour
 {
     [Header("Style Settings")]
-    public Color primaryColor = new Color(0.1f, 0.1f, 0.2f, 1f); 
-    public Color accentColor = new Color(0.2f, 0.6f, 1f, 1f);    
+    public Color primaryColor = new Color(0.1f, 0.1f, 0.2f, 1f);
+    public Color accentColor = new Color(0.2f, 0.6f, 1f, 1f);
     public Color textColor = Color.white;
     public Font customFont;
 
@@ -61,7 +61,7 @@ public class GameOverStyler : MonoBehaviour
         Text txt = btn.GetComponentInChildren<Text>();
         if (txt != null)
         {
-            
+
             string lowerName = btn.name.ToLower();
             if (lowerName.Contains("retry") || lowerName.Contains("play"))
                 txt.text = "RETRY";

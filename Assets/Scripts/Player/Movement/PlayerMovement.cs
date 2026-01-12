@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//script to handle basic player movement
+// script for basic movement
 public class PlayerMovement : MonoBehaviour
 {
     public float normalSpeed = 8f;
@@ -23,12 +23,12 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
-    private Rigidbody rb; 
+    private Rigidbody rb;
     private Vector3 moveVector;
 
     public Animator animator;
 
-    public LayerMask floorLayerMask; // asign in inspector
+    public LayerMask floorLayerMask; // set in inspector
 
     public float heightOffset = 0.0f;
 
@@ -43,7 +43,7 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
         rb = GetComponent<Rigidbody>();
         playerHealth = GetComponent<PlayerHealth>();
 
@@ -62,12 +62,12 @@ public class PlayerMovement : MonoBehaviour
         if (runningSfx == null) runningSfx = MusicManager.FindClipByName("sfx_player_is_running");
         if (runningSfx == null) runningSfx = MusicManager.FindClipByName("fix_sfx_player_is_running");
 
-        // Dedicated footsteps source (avoid hijacking any other AudioSource on the player).
+        // audio source just for footsteps
         walkingSource = gameObject.AddComponent<AudioSource>();
 
         walkingSource.playOnAwake = false;
         walkingSource.loop = true;
-        walkingSource.spatialBlend = 0f; // 2D footsteps (simple + consistent)
+        walkingSource.spatialBlend = 0f; // 2d sound
         walkingSource.clip = walkingSfx;
     }
     void ReadInput()
@@ -80,11 +80,11 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float moveX = Input.GetAxisRaw("Horizontal"); // A,D keys or left,right arrows
-        float moveZ = Input.GetAxisRaw("Vertical"); // W,S keys or up,down arrows
+        float moveX = Input.GetAxisRaw("Horizontal"); // A D keys
+        float moveZ = Input.GetAxisRaw("Vertical"); // W S keys
 
-        
-        //create a vector with the inputs from the 2 axis
+
+        // create vector from input
         moveVector = new Vector3(moveX, 0f, moveZ).normalized;
         ReadInput();
 
@@ -132,7 +132,7 @@ public class PlayerMovement : MonoBehaviour
 
 
 
-        //pass variables to animator
+        // set params to animator
         Quaternion flatRotation = Quaternion.Euler(0, transform.eulerAngles.y, 0);
         Vector3 localMove = Quaternion.Inverse(flatRotation) * moveVector;
         if (localMove.magnitude < 0.05f)
@@ -149,7 +149,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (walkingSource == null) return;
 
-        // In case the clip wasn't available at Start, retry.
+        // retry if null
         if (walkingSfx == null)
         {
             if (MusicManager.Instance != null && MusicManager.Instance.playerWalkingSfx != null)
@@ -161,7 +161,7 @@ public class PlayerMovement : MonoBehaviour
             walkingSource.clip = walkingSfx;
         }
 
-        // In case the clip wasn't available at Start, retry.
+        // retry if null
         if (runningSfx == null)
         {
             if (MusicManager.Instance != null && MusicManager.Instance.playerRunningSfx != null)
@@ -174,7 +174,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (walkingSfx == null) return;
 
-        // Stop footsteps when paused
+        // stop if paused
         if (Time.timeScale == 0f)
         {
             if (walkingSource.isPlaying) walkingSource.Stop();
@@ -189,7 +189,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (isMoving)
         {
-            // Keep volume synced with SFX volume slider
+            // keep volume sync
             float baseVol = (MusicManager.Instance != null) ? MusicManager.Instance.sfxVolume : 1f;
             walkingSource.volume = baseVol * desiredMultiplier;
 
@@ -208,13 +208,13 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    //function to handle physics that runs constantly
+    // physics function
     void FixedUpdate()
     {
-        //move the rigidbody of the player
+        // move rigidbody
         rb.velocity = new Vector3(moveVector.x * movementSpeed, rb.velocity.y, moveVector.z * movementSpeed);
 
-        //cast a forward ray that checks if its something the player should go over with, and handles Y changing
+        // raycast to check ground and adjust Y height
         RaycastHit hit;
 
         Vector3 castOrigin = transform.position;

@@ -10,12 +10,12 @@ public class TurretHandler : MonoBehaviour
     public float detectionRadius = 15f;
 
     [Header("References")]
-    public GameObject arrowPrefab;        // projectile prefab
-    public Transform firePoint;           // where bullets spawn
+    public GameObject arrowPrefab;        // prefab to spawn
+    public Transform firePoint;           // spawn location
 
     [Header("Targeting")]
-    public LayerMask enemyLayer;          // set to Enemy layer (recommended)
-    public string enemyTag = "Enemy";     // fallback if you use tags
+    public LayerMask enemyLayer;          // layer for enemies
+    public string enemyTag = "Enemy";     // tag fallback
 
     public PlayerStats ownerStats;
 
@@ -23,7 +23,7 @@ public class TurretHandler : MonoBehaviour
 
     [Header("Rotation")]
     public Transform rotatingPart;
-    public float rotationSpeed = 360f; // degrees per second
+    public float rotationSpeed = 360f; // deg per sec
 
 
 
@@ -33,12 +33,12 @@ public class TurretHandler : MonoBehaviour
 
     void Awake()
     {
-        // Auto-create firePoint if missing
+        // make firepoint if we forgot
         if (firePoint == null)
         {
             GameObject fp = new GameObject("FirePoint");
             fp.transform.SetParent(transform);
-            fp.transform.localPosition = Vector3.up * 1.0f; // adjust later
+            fp.transform.localPosition = Vector3.up * 1.0f; // adjust height
             firePoint = fp.transform;
         }
     }
@@ -63,7 +63,7 @@ public class TurretHandler : MonoBehaviour
         if (rotatingPart == null) return;
 
         Vector3 direction = target.position - rotatingPart.position;
-        direction.y = 0f; // keep rotation flat (top-down)
+        direction.y = 0f; // dont look up or down
 
         if (direction.sqrMagnitude < 0.001f) return;
 
@@ -89,7 +89,7 @@ public class TurretHandler : MonoBehaviour
 
             if (target != null)
             {
-                RotateTowards(target); // every frame
+                RotateTowards(target); // rotate every frame
 
                 if (Time.time >= nextShotTime)
                 {
@@ -97,7 +97,7 @@ public class TurretHandler : MonoBehaviour
                     nextShotTime = Time.time + (1f / Mathf.Max(0.01f, fireRate));
                 }
 
-                yield return null; // IMPORTANT: smooth rotation
+                yield return null; // wait frame
             }
             else
             {
@@ -113,7 +113,7 @@ public class TurretHandler : MonoBehaviour
 
         if (MusicManager.Instance != null)
         {
-            // Spatial so it attenuates with distance.
+            // play sound with spatial blend
             AudioClip clip = MusicManager.Instance.turretShootSfx;
             if (clip == null) clip = MusicManager.FindClipByName("sfx_turret_is_shooting_arrow");
             if (clip != null)
@@ -151,7 +151,7 @@ public class TurretHandler : MonoBehaviour
     {
         Collider[] hits;
 
-        // If enemyLayer is set, use it. Otherwise scan everything.
+        // check if layer is set or scan all
         if (enemyLayer.value != 0)
             hits = Physics.OverlapSphere(transform.position, detectionRadius, enemyLayer);
         else

@@ -1,4 +1,3 @@
-
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -76,17 +75,17 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    //invincibility frames coroutine
+    // coroutine for iframes
     private IEnumerator InvincibilityRoutine()
     {
-        //make invincible
+        // player invincible now
         canTakeDamage = false;
 
-        //visual effect blinking
+        // blink effect
         float timer = 0f;
         while (timer < invincibilityDuration)
         {
-            //stop renderers
+            // turn off renderers
             ToggleRenderers(false);
             yield return new WaitForSeconds(flashInterval);
             ToggleRenderers(true);
@@ -95,13 +94,13 @@ public class PlayerHealth : MonoBehaviour
             timer += flashInterval * 2;
         }
 
-        ToggleRenderers(true); // make sure rendereres remain enabled
-        canTakeDamage = true; //can take damage again
+        ToggleRenderers(true); // make sure visible at end
+        canTakeDamage = true; // damage enabled
     }
 
     void ToggleRenderers(bool State)
     {
-        foreach ( Renderer r in modelRenderers)
+        foreach (Renderer r in modelRenderers)
         {
             r.enabled = State;
         }
@@ -110,13 +109,13 @@ public class PlayerHealth : MonoBehaviour
     public void Update()
     {
 
-        if (transform.position.y < -50f) 
+        if (transform.position.y < -50f)
         {
             currentHealth = 0;
             Die();
         }
     }
-    
+
 
     void Die()
     {
@@ -138,7 +137,7 @@ public class PlayerHealth : MonoBehaviour
 
         foreach (MonoBehaviour script in allScripts)
         {
-            if (script != this) 
+            if (script != this)
             {
                 script.enabled = false;
             }
@@ -168,7 +167,7 @@ public class PlayerHealth : MonoBehaviour
 
     private IEnumerator HurtRecoveryRoutine()
     {
-        yield return new WaitForSeconds(0.6f); 
+        yield return new WaitForSeconds(0.6f);
         IsHurt = false;
     }
 }

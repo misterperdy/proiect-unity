@@ -21,34 +21,36 @@ public class MinimapTracker : MonoBehaviour
     {
         minimap = FindObjectOfType<MinimapController>();
 
-        if(minimap != null && minimap.enemyIconPrefab != null)
+        // create the icon on the minimap container
+        if (minimap != null && minimap.enemyIconPrefab != null)
         {
             iconObj = Instantiate(minimap.enemyIconPrefab, minimap.mapContainer);
             myIcon = iconObj.GetComponent<RectTransform>();
 
-            myIcon.SetAsLastSibling(); // to render above evveeryhitng
+            myIcon.SetAsLastSibling(); // render above everything else
 
-            //for safety:
+            // safety reset z position
             myIcon.localPosition = new Vector3(myIcon.localPosition.x, myIcon.localPosition.y, 0f);
 
             StartCoroutine(AnimateScale(Vector3.zero, Vector3.one));
         }
     }
 
-    // Update is called once per frame
+    // update loop for tracking position
     void LateUpdate()
     {
         if (myIcon == null || minimap == null || isDying) return;
 
-        //calculate pozition on map
+        // calculate position on map relative to level start
         Vector3 currentPos = transform.position;
 
         float gridX = (currentPos.x - minimap.currentLevelOffset.x) / minimap.worldTileSize;
         float gridY = (currentPos.z - minimap.currentLevelOffset.z) / minimap.worldTileSize;
 
         Vector2 uiPos = new Vector2(gridX * minimap.uiTileSize, gridY * minimap.uiTileSize);
-        myIcon.anchoredPosition = uiPos; // update on UI
+        myIcon.anchoredPosition = uiPos; // update ui position
 
+        // check distance to player to hide if too far
         float distToPlayer = Vector3.Distance(transform.position, minimap.playerTransform.position);
         if (distToPlayer > showDistance)
         {
@@ -64,7 +66,7 @@ public class MinimapTracker : MonoBehaviour
             }
             else
             {
-                //myIcon.localScale = Vector3.one;
+                // myIcon.localScale = Vector3.one;
             }
         }
     }
@@ -86,6 +88,7 @@ public class MinimapTracker : MonoBehaviour
         while (t < 1f)
         {
             t += Time.deltaTime * animSpeed;
+            // smooth step looks better than lerp
             myIcon.localScale = Vector3.Lerp(startScale, endScale, Mathf.SmoothStep(0f, 1f, t));
             yield return null;
         }
@@ -94,6 +97,7 @@ public class MinimapTracker : MonoBehaviour
 
     IEnumerator AnimateDeath()
     {
+        // shrink icon before destroying
         yield return StartCoroutine(AnimateScale(myIcon.localScale, Vector3.zero));
 
         Destroy(iconObj);
@@ -103,6 +107,7 @@ public class MinimapTracker : MonoBehaviour
 
     private void OnDestroy()
     {
+        // cleanup icon when enemy dies
         if (iconObj != null)
         {
             Destroy(iconObj);

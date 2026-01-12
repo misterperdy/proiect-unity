@@ -6,9 +6,9 @@ public class PerkHUD : MonoBehaviour
 {
     [Header("References")]
     public Transform container;
-    public GameObject iconPrefab; // Must have PerkHUDItem script
+    public GameObject iconPrefab; // needs PerkHUDItem script attached
 
-    // We need a reference to read the list
+    // reference to stats to see perks
     private PlayerStats playerStats;
 
     void Start()
@@ -21,29 +21,29 @@ public class PerkHUD : MonoBehaviour
     {
         if (playerStats == null) return;
 
-        // 1. Clear existing icons
+        // 1. delete all old icons first
         foreach (Transform child in container)
         {
             Destroy(child.gameObject);
         }
 
-        // 2. Count Duplicates using a Dictionary
-        // Key = The Perk, Value = How many we have
+        // 2. count duplicates so we stack them
+        // Dictionary key is perk, value is count
         Dictionary<PerkSO, int> perkCounts = new Dictionary<PerkSO, int>();
 
         foreach (PerkSO perk in playerStats.acquiredPerks)
         {
             if (perkCounts.ContainsKey(perk))
             {
-                perkCounts[perk]++; // Increment count
+                perkCounts[perk]++; // increase count
             }
             else
             {
-                perkCounts.Add(perk, 1); // Add new entry
+                perkCounts.Add(perk, 1); // add new
             }
         }
 
-        // 3. Instantiate Icons
+        // 3. spawn icons
         foreach (KeyValuePair<PerkSO, int> entry in perkCounts)
         {
             PerkSO perk = entry.Key;
