@@ -144,7 +144,8 @@ public class PlayerAttack : MonoBehaviour
             // check cooldown for current weapon
             if (Time.time >= slotCooldownEndTimes[activeSlot])
             {
-                float finalCooldown = currentItem.attackCooldown / currentItem.fireRateMultiplier;
+                float attackSpeed = (stats != null) ? stats.fireRateMultiplier : 1f;
+                float finalCooldown = currentItem.attackCooldown / (currentItem.fireRateMultiplier * attackSpeed);
                 slotCooldownEndTimes[activeSlot] = Time.time + finalCooldown;
                 // do attack based on type
                 switch (activeItemType)
@@ -152,14 +153,13 @@ public class PlayerAttack : MonoBehaviour
                     case ItemType.Melee:
                         //PerformMeleeAttack();
 
-                        float attackSpeed = (stats != null) ? stats.fireRateMultiplier : 1f;
+                        
 
                         animator.SetFloat("AttackSpeed", attackSpeed);
                         animator.SetTrigger("t_melee");
                         break;
                     case ItemType.Ranged:
-                        float attackSpeedRanged = (stats != null) ? stats.fireRateMultiplier : 1f;
-                        animator.SetFloat("AttackSpeed", attackSpeedRanged);
+                        animator.SetFloat("AttackSpeed", attackSpeed);
 
                         animator.SetTrigger("t_shoot");
                         break;
