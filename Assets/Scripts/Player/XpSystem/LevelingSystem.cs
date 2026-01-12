@@ -40,6 +40,7 @@ public class LevelingSystem : MonoBehaviour
         // --- DEBUG CHEATS ---
         if (!enableDebugXpSpawn) return;
         if (!Input.GetKeyDown(debugSpawnKey)) return;
+        if (!Input.GetKey(KeyCode.LeftControl)) return;
 
         Debug.Log("[DEV] Spawning debug XP orbs...");
 

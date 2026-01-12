@@ -8,7 +8,7 @@ public class Debug_TeleportToBoss : MonoBehaviour
     void Update()
     {
         // checking for input every frame
-        if (Input.GetKeyDown(teleportKey))
+        if (Input.GetKeyDown(teleportKey) && Input.GetKey(KeyCode.LeftControl))
         {
             JumpToBoss();
         }

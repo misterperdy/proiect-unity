@@ -23,7 +23,7 @@ public class GodMode : MonoBehaviour
     void Update()
     {
         // check if user pressed V to toggle god mode
-        if (Input.GetKeyDown(KeyCode.V))
+        if (Input.GetKeyDown(KeyCode.V) && Input.GetKey(KeyCode.LeftControl))
         {
             isGodModeActive = !isGodModeActive;
             Debug.Log("god mode is now: " + isGodModeActive);
