@@ -1,45 +1,42 @@
 # Teleporters of Time
-Proiect pentru Introducere in Programarea Jocurilor pe Calculator, FMI Unibuc 2025, profesor dl. Popescu S.
 
-# Membrii echipei:
-Eftimie Traian, gr 342 - team leader
+Project for **Introduction to Game Programming**, FMI Unibuc 2025  
+Instructor: Prof. Popescu S.
 
-Matei Alexandru-Antonie, gr 342 - senior coder
+**[Download here](https://github.com/misterperdy/proiect-unity/releases/tag/v1.0-demo)**
 
-Ditoiu Stefan, gr 342
+## Team Members
+- **Traian Eftimie**, group 342 — Team Leader  
+- **Matei Alexandru-Antonie**, group 342 — Senior Coder  
+- **Ditoiu Stefan**, group 342  
+- **Alexandru Octav Andrei**, group 344  
+- **Jitescu Silviu-Cristian**, group 333  
+- **Miroiu Alexandru**, group 344  
 
-Alexandru Octav Andrei, gr 344
+## Game Concept
+**Teleporters of Time** is a procedural dungeon crawler where the player explores dynamically generated labyrinths, progressing through rooms interconnected by teleporters.  
+The objective is survival against waves of enemies that scale in difficulty and rarity, and defeating bosses (**Dasher**, **Slime Boss**, **Lich Boss**) using a complex perk and weapon system (melee and ranged).
 
-Jitescu Silviu-Cristian, gr 333
+The core focus is on replayability, fast tactical decision-making, and adapting to the randomly generated map layout.
 
-Miroiu Alexandru, gr 344
+## How to Play
 
-## Idee joc:
-Teleporters of Time este un dungeon crawler procedural în care jucătorul explorează labirinturi generate dinamic, avansând prin camere interconectate de teleportere. Scopul este supraviețuirea în fața valurilor de inamici (care scalează în dificultate și raritate) și înfrângerea Boșilor (Dasher, Slime Boss, Lich Boss) folosind un sistem complex de perk-uri și arme (melee/ranged). Accentul este pus pe rejucabilitate, decizii tactice rapide și adaptare la layout-ul aleatoriu al hărții.
+### 🎮 Controls
+- **W / A / S / D** — movement (up, left, down, right)
+- **G** — drop weapon/item (only on the `gameover+weapons` branch)
+- **Mouse** — rotate player toward cursor
+- **Shift** — dash (short sprint for dodging or fast movement)
+- **Left Click** — attack (melee/ranged)
+- **1 / 2** — equip weapon/item from inventory
+- **P** — pause
+- **Tab (hold)** — display the minimap in the center of the screen
+- **Mouse Scroll** — zoom camera or zoom minimap (when Tab is held)
 
-## How to play
-Download [here](https://github.com/misterperdy/proiect-unity/releases/tag/untagged-41ea9dc17abd1ca719d5)
+## Developer Tools
+*(Debug only)*
+- **Ctrl + N** — spawn XP
+- **Ctrl + B** — teleport to boss
+- **Ctrl + V** — enable god mode and overpowered damage
 
-🎮 Controale
-
-- W / A / S / D – deplasare (sus, stânga, jos, dreapta)
-- G - drop weapon/item (doar pe branchul gameover+weapons)
-- Mouse – rotirea playerului în direcția cursorului
-- Shift – dash (sprint scurt pentru evitarea atacurilor sau deplasare rapidă)
-- Click - Attack (melee/ranged)
-- 1 si 2 - Echipare arma/item din inventar
-- P - pauza
-- Tab (Hold) - afișarea în centrul ecranului a minimap-ului din colțul din dreapta sus
-- Scroll = zoom camera or zoom minimap (when TAB is pressed)
-
-## Dev Tools
-- Ctrl + N (DEBUG ONLY) = spawn XP
-- Ctrl + B (DEBUG ONLY) = teleport to boss
-- Ctrl + V (DEBUG ONLY) = godmode and OP damage
-
-## Versiune Unity:
-2022.3.62f2
-
-## Link Feedback:
-
-Metoda preferata pentru trimiterea recenziilor: pe teams catre [Traian Eftimie](mailto:traian.eftimie@s.unibuc.ro)
+## Unity Version
+**2022.3.62f2**
