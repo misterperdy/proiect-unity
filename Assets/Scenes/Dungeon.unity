@@ -535,6 +535,9 @@ MonoBehaviour:
   hallwayColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
   uiTileSize: 40
   radius: 2
+  minZoom: 0.5
+  maxZoom: 2
+  zoomSpeed: 0.1
   worldTileSize: 0
   currentLevelOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &219880547
@@ -3484,7 +3487,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1673707290}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3713743761a78bf4d9f18f13b901abcc, type: 3}
   m_Name: 

@@ -4,6 +4,9 @@ public class GodMode : MonoBehaviour
 {
     private PlayerHealth playerHealth;
 
+    // start with false so we are not god immediately
+    private bool isGodModeActive = false;
+
     void Start()
     {
         // getting the health component
@@ -17,7 +20,14 @@ public class GodMode : MonoBehaviour
 
     void Update()
     {
-        if (playerHealth != null)
+        // check if user pressed V to toggle god mode
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            isGodModeActive = !isGodModeActive;
+            Debug.Log("god mode is now: " + isGodModeActive);
+        }
+
+        if (playerHealth != null && isGodModeActive)
         {
             // forcing health to max every single frame
             // so player cant die
