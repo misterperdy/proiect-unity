@@ -7,10 +7,11 @@ using Unity.VisualScripting.Antlr3.Runtime.Tree;
 
 public class DungeonGenerator : MonoBehaviour
 {
-    public static DungeonGenerator instance;
+    public static DungeonGenerator instance; // singleton pattern
 
     private void Awake()
     {
+        // standard singleton setup
         if (instance == null) instance = this;
         else Destroy(gameObject);
     }
@@ -36,10 +37,10 @@ public class DungeonGenerator : MonoBehaviour
 
         [Header("Enemies")]
         public List<GameObject> enemyPrefabs;
-        public float statMultiplier; // e.g. 1.0 for Biome 1, 1.5 for Biome 2
+        public float statMultiplier; // enemies get stronger in later biomes
 
         [Header("Enemy Settings")]
-        public int minEnemies; 
+        public int minEnemies;
         public int maxEnemies;
 
         [Header("Bonus Loot")]
@@ -49,9 +50,10 @@ public class DungeonGenerator : MonoBehaviour
     [System.Serializable]
     public class LevelData
     {
+        // saving the grid so we can return to previous levels
         public int[,] grid;
         public Vector3 worldOffset;
-        public List<Vector3> roomCenters; // Store centers for teleport logic
+        public List<Vector3> roomCenters; // for teleport map logic
         public int biomeIndex;
     }
 
@@ -66,9 +68,9 @@ public class DungeonGenerator : MonoBehaviour
     public float distanceDifficultyFactor = 0.05f;
 
     [Header("Grid Settings")]
-    public int gridSize = 250; // Increased for 40+ rooms
+    public int gridSize = 250; // making it big so we dont run out of space
     public float tileSize = 9.5f;
-    public Vector3 levelDistanceOffset = new Vector3(0, 0, 1000);
+    public Vector3 levelDistanceOffset = new Vector3(0, 0, 1000); // putting levels far apart
 
     [Header("Biomes & Progression")]
     public List<BiomeConfig> biomes;
@@ -89,8 +91,8 @@ public class DungeonGenerator : MonoBehaviour
 
     [Header("Boss Room")]
     public GameObject bossRoomPrefab;
-    public int bossRoomWidth = 5;  
-    public int bossRoomHeight = 5; 
+    public int bossRoomWidth = 5;
+    public int bossRoomHeight = 5;
     public Vector2Int bossEntryOffset = new Vector2Int(2, 0);
 
     [Header("Standard Rooms")]
@@ -117,19 +119,19 @@ public class DungeonGenerator : MonoBehaviour
     public GameObject medkitPrefab;
 
     [Header("Container")]
-    public Transform dungeonContainer;
+    public Transform dungeonContainer; // keeps hierarchy clean
 
     [Header("NavMesh")]
     public NavMeshSurface navMeshSurface;
 
     [Header("UI")]
-    public MinimapController minimapController; //asign in inspector
+    public MinimapController minimapController;
 
     [Header("Debug")]
     public Vector3 currentBossPosition;
 
     // --- Internal State ---
-    private int[,] grid;
+    private int[,] grid; // 0=empty, 1=room, 2=path, 3=door, 4=padding
     private List<Vector2Int> roomConnectionPoints = new List<Vector2Int>();
     private Vector3 currentWorldOffset = Vector3.zero;
     private int[,] tileBiomeMap;
@@ -146,6 +148,7 @@ public class DungeonGenerator : MonoBehaviour
 
     void Start()
     {
+        // getting navmesh component if i forgot to assign it
         if (navMeshSurface == null) navMeshSurface = GetComponent<NavMeshSurface>();
 
         if (MusicManager.Instance != null) MusicManager.Instance.PlayGameplayMusic();
@@ -156,12 +159,15 @@ public class DungeonGenerator : MonoBehaviour
     public Vector3 GenerateNextLevel(Vector3 positionToReturnTo, bool updateMinimap = false)
     {
         currentBiomeIndex++;
+        // clamp to avoid index out of range if we run out of biomes
         if (currentBiomeIndex >= biomes.Count) currentBiomeIndex = biomes.Count - 1;
 
+        // move the new level far away so they dont overlap physics
         currentWorldOffset += levelDistanceOffset;
 
         GenerateCurrentLevel(false);
 
+        // calculating where player starts in the new level
         float cx = ((startRoomWidth - 1) * tileSize) / 2f;
         float cy = ((startRoomHeight - 1) * tileSize) / 2f;
 
@@ -170,15 +176,16 @@ public class DungeonGenerator : MonoBehaviour
 
         Vector3 newStartPos = new Vector3((x * tileSize) + cx, 0, (y * tileSize) + cy) + currentWorldOffset;
 
+        // spawning the "back" portal to return to previous level
         if (teleporterPrefab != null && positionToReturnTo != Vector3.zero)
         {
-            GameObject backPortal = Instantiate(teleporterPrefab, newStartPos + Vector3.up/3 + Vector3.back * 3, Quaternion.identity);
+            GameObject backPortal = Instantiate(teleporterPrefab, newStartPos + Vector3.up / 3 + Vector3.back * 3, Quaternion.identity);
             backPortal.name = "Teleporter_Back";
 
             TeleporterBoss tb = backPortal.GetComponent<TeleporterBoss>();
             tb.SetDestination(positionToReturnTo);
 
-            // Link back to the previous level index
+            // linking to history list
             tb.targetLevelIndex = levelHistory.Count - 2;
         }
 
@@ -187,11 +194,13 @@ public class DungeonGenerator : MonoBehaviour
 
     void GenerateCurrentLevel(bool updateMinimap = true)
     {
+        // initializing grid arrays
         grid = new int[gridSize, gridSize];
         tileBiomeMap = new int[gridSize, gridSize];
         roomConnectionPoints.Clear();
         generatedRoomCenters.Clear();
 
+        // reset grid to -1
         for (int x = 0; x < gridSize; x++)
             for (int y = 0; y < gridSize; y++)
                 tileBiomeMap[x, y] = -1;
@@ -199,35 +208,36 @@ public class DungeonGenerator : MonoBehaviour
         GameObject levelObj = new GameObject("Level_" + currentBiomeIndex);
         if (dungeonContainer != null) levelObj.transform.parent = dungeonContainer;
 
+        // starting in the middle of the grid
         Vector2Int center = new Vector2Int(gridSize / 2, gridSize / 2);
         BiomeConfig currentBiome = biomes[currentBiomeIndex];
 
+        // --- GENERATION STEPS ---
         PlaceStartRoom(center, levelObj.transform, currentBiome);
         List<Vector2Int> biomeRooms = PlaceBiomeRooms(currentBiome, currentBiomeIndex, center, levelObj.transform);
-        ConnectSpecificRooms(biomeRooms);
+        ConnectSpecificRooms(biomeRooms); // hallways
         Vector2Int furthest = GetFurthestRoom(biomeRooms, center);
         PlaceBossGate(furthest, currentBiomeIndex, levelObj.transform);
-        SpawnWorld(levelObj.transform, currentBiome);
+        SpawnWorld(levelObj.transform, currentBiome); // actually instantiating prefabs
 
-        // --- STORE DATA IN HISTORY ---
+        // saving data for minimap later
         LevelData data = new LevelData();
         data.grid = grid;
         data.worldOffset = currentWorldOffset;
-        // IMPORTANT: Save a Copy of the centers list
         data.roomCenters = new List<Vector3>(generatedRoomCenters);
         data.biomeIndex = currentBiomeIndex;
 
         if (levelHistory.Count <= currentBiomeIndex) levelHistory.Add(data);
         else levelHistory[currentBiomeIndex] = data;
 
-        // Only update map if we are spawning the first level
-        // For next levels, we wait until the player takes the portal
+        // update map only if requested
         if (updateMinimap && minimapController != null)
         {
             minimapController.playerTransform = player;
             minimapController.InitializeMinimap(grid, gridSize, tileSize, currentWorldOffset, currentBiomeIndex, generatedRoomCenters);
         }
 
+        // rebaking navmesh so ai can walk
         if (navMeshSurface != null)
         {
             navMeshSurface.BuildNavMesh();
@@ -236,17 +246,19 @@ public class DungeonGenerator : MonoBehaviour
 
     public void LoadLevelMapSimple(int levelIndex)
     {
+        // helper to load map without regenerating level
         if (levelIndex >= 0 && levelIndex < levelHistory.Count && minimapController != null)
         {
             LevelData data = levelHistory[levelIndex];
 
-            // FIX: Pass 'data.roomCenters' (the saved list), NOT 'generatedRoomCenters' (the current list)
+            // using saved centers
             minimapController.InitializeMinimap(data.grid, gridSize, tileSize, data.worldOffset, levelIndex, data.roomCenters);
         }
     }
 
     public void LoadLevelMap(int historyIndex)
     {
+        // full map load
         if (historyIndex >= 0 && historyIndex < levelHistory.Count)
         {
             LevelData data = levelHistory[historyIndex];
@@ -261,6 +273,7 @@ public class DungeonGenerator : MonoBehaviour
 
     void PlaceStartRoom(Vector2Int center, Transform levelParent, BiomeConfig theme)
     {
+        // calculating grid coordinates for start room
         int x = center.x - (startRoomWidth / 2);
         int y = center.y - (startRoomHeight / 2);
         startRoomCenter = new Vector2Int(x + startRoomWidth / 2, y + startRoomHeight / 2);
@@ -269,15 +282,18 @@ public class DungeonGenerator : MonoBehaviour
 
         if (!IsInsideGrid(door.stepPos)) return;
 
+        // mark in grid
         MarkPadding(x, y, startRoomWidth, startRoomHeight);
         MarkRoom(x, y, startRoomWidth, startRoomHeight, 0);
 
+        // marking door
         grid[door.stepPos.x, door.stepPos.y] = 3;
         tileBiomeMap[door.stepPos.x, door.stepPos.y] = 0;
         roomConnectionPoints.Add(door.stepPos);
 
         ClearEntryPoint(door.stepPos, door.dir);
 
+        // converting grid pos to world pos
         float cx = ((startRoomWidth - 1) * tileSize) / 2f;
         float cy = ((startRoomHeight - 1) * tileSize) / 2f;
         Vector3 finalPos = new Vector3((x * tileSize) + cx, 0, (y * tileSize) + cy) + currentWorldOffset;
@@ -287,18 +303,21 @@ public class DungeonGenerator : MonoBehaviour
         GameObject startRoomObj = Instantiate(startRoomPrefab, finalPos, Quaternion.identity, levelParent);
         ApplyThemeRecursively(startRoomObj, theme);
 
+        // spawn free weapon for player
         if (theme.bonusWeaponPrefab != null)
         {
             Vector3 bonusPos = finalPos + Vector3.up + (Vector3.forward * 2);
             Instantiate(theme.bonusWeaponPrefab, bonusPos, Quaternion.identity, levelParent);
         }
 
-        if (player != null && currentBiomeIndex==biomeSpawnIndex)
+        // spawning initial weapons if it's the first level
+        if (player != null && currentBiomeIndex == biomeSpawnIndex)
         {
             Instantiate(meleeWeapon, finalPos + Vector3.up + Vector3.right * 3, Quaternion.identity, levelParent);
             Instantiate(rangedWeapon, finalPos + Vector3.up + Vector3.left * 3, Quaternion.identity, levelParent);
         }
 
+        // move player to start
         if (player != null && currentBiomeIndex == biomeSpawnIndex)
         {
             player.position = finalPos + new Vector3(0, 0.2f, 0);
@@ -316,7 +335,7 @@ public class DungeonGenerator : MonoBehaviour
         int roomsPlaced = 0;
         int targetRooms = biome.roomCount;
 
-        // Increased Loop Limit happens here
+        // spiraling out to find empty spots
         List<Vector2Int> spiralPoints = GenerateSpiralPoints(center);
 
         for (int i = 1; i < spiralPoints.Count; i++)
@@ -326,10 +345,12 @@ public class DungeonGenerator : MonoBehaviour
             Vector2Int pos = spiralPoints[i];
 
             bool forceFirst = (roomsPlaced == 0);
+            // rng check for randomness
             if (Random.value < layerSpawnChance || forceFirst)
             {
                 int randW = Random.Range(minRoomSize, maxRoomSize + 1);
                 int randH = Random.Range(minRoomSize, maxRoomSize + 1);
+                // forcing odd dimensions maybe?
                 if (randW % 2 == 0) randW = (Random.Range(0, 2) % 2 == 0) ? randW - 1 : randW + 1;
 
                 if (TryPlaceRoom(pos.x, pos.y, randW, randH, center, biome, biomeIndex, levelParent))
@@ -362,10 +383,12 @@ public class DungeonGenerator : MonoBehaviour
         else if (prefabDefaultDoorSide == DoorSide.Bottom) gridDy -= 1;
 
         int occupiedW = w; int occupiedH = h;
+        // checking if room is rotated sideways
         bool isSideways = Mathf.Approximately(Mathf.Abs(rotation - 90), 0) || Mathf.Approximately(Mathf.Abs(rotation - 270), 0);
         if (isSideways) { occupiedW = h; occupiedH = w; }
 
         if (!IsInsideGrid(new Vector2Int(x, y))) return false;
+        // safety check for boundaries
         if (x < 4 || y < 4 || x > gridSize - occupiedW - 4 || y > gridSize - occupiedH - 4) return false;
 
         if (IsAreaClear(x, y, occupiedW, occupiedH))
@@ -374,6 +397,7 @@ public class DungeonGenerator : MonoBehaviour
 
             if (!IsInsideGrid(door.stepPos) || grid[door.stepPos.x, door.stepPos.y] != 0) return false;
 
+            // reserving space in grid
             MarkPadding(x, y, occupiedW, occupiedH);
             MarkRoom(x, y, occupiedW, occupiedH, biomeIndex);
 
@@ -382,10 +406,12 @@ public class DungeonGenerator : MonoBehaviour
 
             ClearEntryPoint(door.stepPos, door.dir);
 
+            // calculating center for instantiation
             float midX = x + (occupiedW - 1) / 2f;
             float midY = y + (occupiedH - 1) / 2f;
             Vector3 finalPos = new Vector3(midX * tileSize, 0, midY * tileSize) + currentWorldOffset;
 
+            // apply visual adjustments
             if (isSideways) { finalPos.x += roomVisualNudgeZ; finalPos.z += roomVisualNudgeX; }
             else { finalPos.x += roomVisualNudgeX; finalPos.z += roomVisualNudgeZ; }
 
@@ -393,11 +419,14 @@ public class DungeonGenerator : MonoBehaviour
 
             GameObject roomObj = Instantiate(roomGeneratorPrefab.gameObject, finalPos, Quaternion.Euler(0, rotation, 0), levelParent);
 
+            // procedural room building
             roomObj.GetComponent<RoomGenerator>().BuildRoom(w, h, localDoorPos, theme.floorMaterial, theme.wallMaterial);
 
+            // adding enemy spawner logic
             RoomEnemySpawner spawner = roomObj.AddComponent<RoomEnemySpawner>();
             spawner.teleporter = roomTeleporter;
 
+            // calculating difficulty based on distance from start
             float dist = Vector2.Distance(startRoomCenter, new Vector2(x, y));
             float diffMult = 1.0f + (dist * distanceDifficultyFactor);
 
@@ -408,8 +437,8 @@ public class DungeonGenerator : MonoBehaviour
                 rarityDefinitions,
                 theme.minEnemies,
                 theme.maxEnemies,
-                w,      
-                h,     
+                w,
+                h,
                 tileSize
             );
 
@@ -425,9 +454,9 @@ public class DungeonGenerator : MonoBehaviour
 
         foreach (Vector2Int pos in candidates)
         {
-            if (Vector2Int.Distance(pos, originPoint) < 6) continue;
+            if (Vector2Int.Distance(pos, originPoint) < 6) continue; // too close
 
-            // Updated Area Check with new Boss Width/Height
+            // looking for space for boss room
             if (IsAreaClear(pos.x, pos.y, bossRoomWidth, bossRoomHeight))
             {
                 MarkPadding(pos.x, pos.y, bossRoomWidth, bossRoomHeight);
@@ -436,14 +465,14 @@ public class DungeonGenerator : MonoBehaviour
                 Vector2Int entry = pos + bossEntryOffset;
                 if (IsInsideGrid(entry))
                 {
-                    grid[entry.x, entry.y] = 3;
+                    grid[entry.x, entry.y] = 3; // door
                     tileBiomeMap[entry.x, entry.y] = biomeIndex;
                 }
 
-                // Connect
+                // create path from last room to boss
                 ApplyPathToGrid(FindPath(originPoint, entry), biomeIndex);
 
-                // Visuals
+                // instantiate boss room
                 float cx = ((bossRoomWidth - 1) * tileSize) / 2f;
                 float cy = ((bossRoomHeight - 1) * tileSize) / 2f;
                 Vector3 finalPos = new Vector3((pos.x * tileSize) + cx, 0, (pos.y * tileSize) + cy) + currentWorldOffset;
@@ -478,11 +507,12 @@ public class DungeonGenerator : MonoBehaviour
 
     void SpawnWorld(Transform levelParent, BiomeConfig biome)
     {
+        // iterating grid to spawn hallways and corners
         for (int x = 0; x < gridSize; x++)
         {
             for (int y = 0; y < gridSize; y++)
             {
-                if (grid[x, y] == 2 || grid[x, y] == 3)
+                if (grid[x, y] == 2 || grid[x, y] == 3) // 2=path, 3=door
                     SpawnTile(x, y, levelParent, biome);
             }
         }
@@ -490,14 +520,17 @@ public class DungeonGenerator : MonoBehaviour
 
     void SpawnTile(int x, int y, Transform levelParent, BiomeConfig biome)
     {
-        if (grid[x, y] == 3) return;
+        if (grid[x, y] == 3) return; // doors handle themselves
+        // check neighbors
         bool n = IsPath(x, y + 1); bool s = IsPath(x, y - 1); bool e = IsPath(x + 1, y); bool w = IsPath(x - 1, y);
         GameObject prefab = null; float rotation = 0;
         int count = (n ? 1 : 0) + (s ? 1 : 0) + (e ? 1 : 0) + (w ? 1 : 0);
 
+        // deciding which prefab to use based on neighbors
         if (count >= 3)
         {
             prefab = (count == 4) ? crossIntersection : tJunction;
+            // rotation logic for T-junction
             if (count == 3) { if (!n) rotation = 0; else if (!e) rotation = 90; else if (!s) rotation = 180; else if (!w) rotation = 270; }
         }
         else if (n && s) { prefab = straightHallway; rotation = 0; }
@@ -506,6 +539,7 @@ public class DungeonGenerator : MonoBehaviour
         {
             prefab = cornerHallway;
             if (s && e) rotation = 0; if (s && w) rotation = 90; if (n && w) rotation = 180; if (n && e) rotation = 270;
+            // dead end case
             if (count == 1) { prefab = straightHallway; if (n || s) rotation = 0; else rotation = 90; }
         }
 
@@ -524,8 +558,7 @@ public class DungeonGenerator : MonoBehaviour
         Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
         foreach (Renderer r in renderers)
         {
-            //Renderer[] ChildRenderers = r.GetComponentsInChildren<Renderer>();
-            // Only paint parts we are sure about, preserving Prop colors
+            // painting floors and walls based on name
             if (r.gameObject.name.Contains("Floor"))
             {
                 r.material = theme.floorMaterial;
@@ -551,6 +584,7 @@ public class DungeonGenerator : MonoBehaviour
     {
         if (points.Count < 2) return;
 
+        // greedy algorithm to connect closest rooms
         List<Vector2Int> sorted = new List<Vector2Int>();
         List<Vector2Int> pool = new List<Vector2Int>(points);
         Vector2Int current = pool[0];
@@ -572,6 +606,7 @@ public class DungeonGenerator : MonoBehaviour
             pool.RemoveAt(closestIndex);
         }
 
+        // draw paths between sorted points
         for (int i = 0; i < sorted.Count - 1; i++)
         {
             ApplyPathToGrid(FindPath(sorted[i], sorted[i + 1]), currentBiomeIndex);
@@ -583,9 +618,10 @@ public class DungeonGenerator : MonoBehaviour
         if (path == null) return;
         foreach (Vector2Int pos in path)
         {
+            // dont overwrite doors
             if (grid[pos.x, pos.y] != 3)
             {
-                grid[pos.x, pos.y] = 2;
+                grid[pos.x, pos.y] = 2; // path
                 tileBiomeMap[pos.x, pos.y] = biomeIndex;
             }
         }
@@ -603,10 +639,11 @@ public class DungeonGenerator : MonoBehaviour
         return furthest;
     }
 
-    // --- MATH & HELPERS (Your Logic) ---
+    // --- MATH & HELPERS (complicated stuff) ---
 
     DoorInfo GetRotatedDoorInfo(int x, int y, int w, int h, float rotation, Vector2Int localDoor)
     {
+        // figuring out where the door ends up after rotation
         int rot = Mathf.RoundToInt(rotation) % 360;
         if (rot < 0) rot += 360;
         Vector2Int internalPos = Vector2Int.zero; Vector2Int direction = Vector2Int.zero;
@@ -625,6 +662,7 @@ public class DungeonGenerator : MonoBehaviour
         Vector2 roomCenter = new Vector2(x + w / 2f, y + h / 2f);
         Vector2 dir = (Vector2)target - roomCenter;
         float targetAngle = 0;
+        // basic cardinal direction logic
         if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y)) { if (dir.x > 0) targetAngle = 270; else targetAngle = 90; }
         else { if (dir.y > 0) targetAngle = 180; else targetAngle = 0; }
         float initialAngle = 0;
@@ -649,13 +687,13 @@ public class DungeonGenerator : MonoBehaviour
 
     List<Vector2Int> GenerateSpiralPoints(Vector2Int center)
     {
+        // generates points in a spiral pattern to search for space
         List<Vector2Int> points = new List<Vector2Int>();
         int x = center.x; int y = center.y;
         int stepSize = 1; int stepsTaken = 0; int directionIndex = 0;
         Vector2Int[] dirs = { new Vector2Int(1, 0), new Vector2Int(0, -1), new Vector2Int(-1, 0), new Vector2Int(0, 1) };
         points.Add(new Vector2Int(x, y));
 
-        // FIX: Increased search limit
         for (int i = 0; i < 10000; i++)
         {
             x += dirs[directionIndex].x; y += dirs[directionIndex].y;
@@ -678,10 +716,11 @@ public class DungeonGenerator : MonoBehaviour
     }
     void ClearEntryPoint(Vector2Int doorPos, Vector2Int dir) { for (int i = 0; i < 2; i++) { Vector2Int entry = doorPos + (dir * i); if (IsInsideGrid(entry) && grid[entry.x, entry.y] == 4) grid[entry.x, entry.y] = 0; } }
     bool IsAreaClear(int startX, int startY, int w, int h) { for (int x = startX - 4; x < startX + w + 4; x++) for (int y = startY - 4; y < startY + h + 4; y++) if (!IsInsideGrid(new Vector2Int(x, y)) || grid[x, y] != 0) return false; return true; }
-    void SortConnectionPointsByDistance() { /* Redundant but safe */ }
-    void ConnectRoomsWithAStar() { /* Redundant but safe */ }
+    void SortConnectionPointsByDistance() { /* unused but keeping it safe */ }
+    void ConnectRoomsWithAStar() { /* unused */ }
     List<Vector2Int> FindPath(Vector2Int start, Vector2Int target)
     {
+        // standard BFS/A* pathfinding for hallways
         List<Vector2Int> path = new List<Vector2Int>(); Queue<Vector2Int> queue = new Queue<Vector2Int>(); Dictionary<Vector2Int, Vector2Int> cameFrom = new Dictionary<Vector2Int, Vector2Int>();
         queue.Enqueue(start); cameFrom[start] = start; int safe = 0;
         while (queue.Count > 0 && safe < 10000)

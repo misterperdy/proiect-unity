@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class MinimapController : MonoBehaviour
 {
-    // Singleton for easy access from the Teleporter object
+    // singleton for easy access
     public static MinimapController Instance;
 
     [Header("References")]
@@ -15,7 +15,7 @@ public class MinimapController : MonoBehaviour
     public RectTransform minimapFrame;
     public RectTransform playerIcon;
     public GameObject enemyIconPrefab;
-    public GameObject teleportMessageUI; // Optional: Text saying "Select Destination"
+    public GameObject teleportMessageUI; // text saying select destination
 
     [Header("Colors")]
     public Color roomColor = new Color(0.8f, 0.8f, 0.8f, 1f);
@@ -26,8 +26,8 @@ public class MinimapController : MonoBehaviour
     public int radius = 3;
 
     [Header("Zoom Settings")]
-    public float minZoom = 0.5f; // How far out you can see
-    public float maxZoom = 2.0f; // How close you can zoom
+    public float minZoom = 0.5f; // how far out you can see
+    public float maxZoom = 2.0f; // how close you can zoom
     public float zoomSpeed = 0.1f;
     private float currentZoom = 1.0f;
 
@@ -44,13 +44,13 @@ public class MinimapController : MonoBehaviour
     private bool isFullscreen = false;
     public bool IsFullscreen => isFullscreen;
 
-    private bool isTeleportMode = false; // Are we selecting a destination?
+    private bool isTeleportMode = false; // are we selecting a destination
     public bool IsTeleportMode => isTeleportMode;
 
     private Vector2 fixedCenterPosition;
     private Vector2 fixedCenterUIPos;
 
-    // UI Restore vars
+    // ui restore vars
     private Vector2 startSize;
     private Vector3 startPos;
     private Vector2 startAnchorMin, startAnchorMax, startPivot;
@@ -77,6 +77,7 @@ public class MinimapController : MonoBehaviour
     {
         if (mapContainer == null || nodePrefab == null) return;
 
+        // clear old children
         foreach (Transform child in mapContainer) Destroy(child.gameObject);
         currentGridNodes.Clear();
 
@@ -93,11 +94,13 @@ public class MinimapController : MonoBehaviour
             globalExplorationData[levelIndex] = new Dictionary<Vector2Int, int>();
         }
 
+        // iterate through grid to create nodes
         for (int x = 0; x < gridSize; x++)
         {
             for (int y = 0; y < gridSize; y++)
             {
                 int type = grid[x, y];
+                // ignore empty tiles
                 if (type != 1 && type != 2 && type != 3) continue;
 
                 GameObject newNode = Instantiate(nodePrefab, mapContainer);
@@ -107,20 +110,20 @@ public class MinimapController : MonoBehaviour
                 MinimapNode nodeScript = newNode.GetComponent<MinimapNode>();
                 Color c = (type == 2) ? hallwayColor : roomColor;
 
-                // 1. Calculate Grid World Position
+                // calculate world position from grid
                 float worldX = (x * worldTileSize) + levelOffset.x;
                 float worldZ = (y * worldTileSize) + levelOffset.z;
                 Vector3 specificTilePos = new Vector3(worldX + (worldTileSize / 2), playerTransform.position.y, worldZ + (worldTileSize / 2));
 
-                // 2. Determine Teleport Target
+                // determine teleport target
                 Vector3 teleportTarget = specificTilePos;
 
-                // If it is a ROOM tile (1) or DOOR tile (3), snap to the nearest Room Center
-                // This ensures clicking anywhere in the room sends you to the middle
+                // if it is a room snap to center
+                // this makes sure we dont spawn in walls
                 if ((type == 1 || type == 3) && roomCenters != null && roomCenters.Count > 0)
                 {
                     teleportTarget = GetClosestPoint(specificTilePos, roomCenters);
-                    // Ensure Y matches player so they don't spawn in floor
+                    // ensure y matches player height
                     teleportTarget.y = playerTransform.position.y;
                 }
 
@@ -129,6 +132,7 @@ public class MinimapController : MonoBehaviour
                 Vector2Int pos = new Vector2Int(x, y);
                 currentGridNodes.Add(pos, nodeScript);
 
+                // restore explored state from memory
                 if (globalExplorationData[levelIndex].ContainsKey(pos))
                 {
                     int savedState = globalExplorationData[levelIndex][pos];
@@ -146,7 +150,7 @@ public class MinimapController : MonoBehaviour
         float minDst = float.MaxValue;
         foreach (Vector3 t in targets)
         {
-            // Ignore Y difference for distance check
+            // ignore y axis for distance check
             float d = Vector2.Distance(new Vector2(source.x, source.z), new Vector2(t.x, t.z));
             if (d < minDst)
             {
@@ -161,6 +165,7 @@ public class MinimapController : MonoBehaviour
     {
         if (!isInitialized || playerTransform == null) return;
 
+        // calc grid pos of player
         float rawGridX = (playerTransform.position.x - currentLevelOffset.x) / worldTileSize;
         float rawGridY = (playerTransform.position.z - currentLevelOffset.z) / worldTileSize;
         Vector2 playerUIPos = new Vector2(rawGridX * uiTileSize, rawGridY * uiTileSize);
@@ -169,32 +174,33 @@ public class MinimapController : MonoBehaviour
 
         if (isFullscreen)
         {
-            // A. Zoom Logic
+            // zoom logic with scroll wheel
             float scroll = Input.mouseScrollDelta.y;
             if (scroll != 0)
             {
-                
+
                 currentZoom += scroll * zoomSpeed;
                 currentZoom = Mathf.Clamp(currentZoom, minZoom, maxZoom);
                 mapContainer.localScale = Vector3.one * currentZoom;
 
-                mapContainer.anchoredPosition = targetAnchorPos; 
+                mapContainer.anchoredPosition = targetAnchorPos;
             }
 
             mapContainer.anchoredPosition = Vector2.Lerp(
                 mapContainer.anchoredPosition,
                 targetAnchorPos,
-                Time.deltaTime * 15f 
+                Time.deltaTime * 15f
             );
         }
-        else 
+        else
         {
-            
+            // follow player smoothly in minimap mode
             mapContainer.anchoredPosition = Vector2.Lerp(mapContainer.anchoredPosition, -playerUIPos, Time.deltaTime * 10f);
         }
-   
+
         UpdateDiscovery(playerUIPos);
 
+        // tab to toggle map
         if (Input.GetKeyDown(KeyCode.Tab) && !isTeleportMode) SetFullscreen(true);
         if (Input.GetKeyUp(KeyCode.Tab) && !isTeleportMode) SetFullscreen(false);
     }
@@ -206,12 +212,12 @@ public class MinimapController : MonoBehaviour
         isTeleportMode = true;
         SetFullscreen(true);
 
-        // This is the player's UI coordinate
+        // calculate ui coordinate
         float rawGridX = (playerTransform.position.x - currentLevelOffset.x) / worldTileSize;
         float rawGridY = (playerTransform.position.z - currentLevelOffset.z) / worldTileSize;
         fixedCenterPosition = new Vector2(rawGridX * uiTileSize, rawGridY * uiTileSize);
 
-        // Reset zoom state before opening
+        // reset zoom before opening
         currentZoom = 1.0f;
         mapContainer.localScale = Vector3.one;
         mapContainer.anchoredPosition = -fixedCenterPosition;
@@ -245,7 +251,7 @@ public class MinimapController : MonoBehaviour
     {
         isTeleportMode = false;
 
-        // Reset the map container's scale for the minimap view
+        // reset scale
         currentZoom = 1.0f;
         mapContainer.localScale = Vector3.one;
 
@@ -273,30 +279,30 @@ public class MinimapController : MonoBehaviour
             MusicManager.Instance.PlaySfx(MusicManager.Instance.normalTeleporterSfx);
         }
 
-        // 1. Disable Controls / Physics
+        // disable controls so player doesnt move while teleporting
         CharacterController cc = playerTransform.GetComponent<CharacterController>();
         Rigidbody rb = playerTransform.GetComponent<Rigidbody>();
 
         if (cc) cc.enabled = false;
         if (rb) rb.isKinematic = true;
 
-        // 2. Wait for end of frame (Ensures button click event finishes)
+        // wait for end of frame to ensure click finishes
         yield return new WaitForEndOfFrame();
 
-        // 3. Move
+        // move player
         playerTransform.position = targetPos;
 
-        // 4. Close UI
+        // close ui
         CloseTeleportMap();
 
-        // 5. Short Delay to prevent physics glitches in new room
-        yield return new WaitForSeconds(0.2f); // <--- THE DELAY YOU REQUESTED
+        // short delay to prevent physics glitches in new room
+        yield return new WaitForSeconds(0.2f); // requested delay
 
-        // 6. Restore
+        // restore controls
         if (rb) rb.isKinematic = false;
         if (cc) cc.enabled = true;
 
-        // Ensure cursor is correct state
+        // ensure cursor visible
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
@@ -304,23 +310,23 @@ public class MinimapController : MonoBehaviour
 
     private void UpdateMinimapState()
     {
-        // 1. Calculate Grid Position of Player
+        // calc grid pos of player
         float rawGridX = (playerTransform.position.x - currentLevelOffset.x) / worldTileSize;
         float rawGridY = (playerTransform.position.z - currentLevelOffset.z) / worldTileSize;
         Vector2 rawUIPos = new Vector2(rawGridX * uiTileSize, rawGridY * uiTileSize);
 
-        // 2. Position the Map Container
+        // position the map container
         if (isFullscreen)
         {
-            // Do nothing here. Position is handled by the Zoom logic in Update()
+            // do nothing position handled by zoom
         }
-        else // Mini-map mode
+        else // mini map mode
         {
-            // Follow the player (standard minimized logic)
+            // follow the player standard logic
             mapContainer.anchoredPosition = Vector2.Lerp(mapContainer.anchoredPosition, -rawUIPos, Time.deltaTime * 10f);
         }
 
-        // 3. Update Player Icon Rotation and Discovery Logic
+        // update player icon rotation and discovery
         if (playerIcon != null) playerIcon.localRotation = Quaternion.Euler(0, 0, -playerTransform.eulerAngles.y);
 
         int gridX = Mathf.RoundToInt(rawGridX);
@@ -343,9 +349,9 @@ public class MinimapController : MonoBehaviour
         {
             mapContainer.anchoredPosition = targetAnchor;
         }
-        else // Opening the map
+        else // opening the map
         {
-            // When opening, we move the container to center the player at scale 1.0
+            // when opening move container to center player
             mapContainer.anchoredPosition = Vector2.Lerp(mapContainer.anchoredPosition, -centerUIPos, Time.deltaTime * 10f);
         }
     }
@@ -448,10 +454,10 @@ public class MinimapController : MonoBehaviour
             float rawGridY = (playerTransform.position.z - currentLevelOffset.z) / worldTileSize;
             fixedCenterPosition = new Vector2(rawGridX * uiTileSize, rawGridY * uiTileSize);
 
-            // 2. Snap the map to its new centered position instantly (no lerp)
+            // snap map to new centered position
             mapContainer.anchoredPosition = -fixedCenterPosition; // Scale 1.0 snap
 
-            // 3. Apply Fullscreen Rect settings
+            // apply fullscreen rect settings
             minimapFrame.anchorMin = new Vector2(0.5f, 0.5f);
             minimapFrame.anchorMax = new Vector2(0.5f, 0.5f);
             minimapFrame.pivot = new Vector2(0.5f, 0.5f);
@@ -465,7 +471,7 @@ public class MinimapController : MonoBehaviour
         }
         else
         {
-            // Reset Zoom when closing map
+            // reset zoom when closing map
             currentZoom = 1.0f;
             mapContainer.localScale = Vector3.one;
 

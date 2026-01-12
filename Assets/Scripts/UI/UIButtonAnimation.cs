@@ -21,12 +21,13 @@ public class UIButtonAnimation : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         if (animateOnStart)
         {
+            // start from zero and grow
             transform.localScale = Vector3.zero;
             StartCoroutine(EntranceAnimation());
         }
         else
         {
-             transform.localScale = originalScale;
+            transform.localScale = originalScale;
         }
     }
 
@@ -34,20 +35,19 @@ public class UIButtonAnimation : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         yield return new WaitForSecondsRealtime(startDelay);
         float timer = 0f;
-        
+
         while (timer < animationDuration)
         {
-            timer += Time.unscaledDeltaTime; // Use unscaled so it works even if paused (though main menu usually isn't paused)
+            timer += Time.unscaledDeltaTime; // unscaled so it works when paused
             float t = Mathf.Clamp01(timer / animationDuration);
-            
-            // EaseOutBack function for a nice "pop" effect
-            // c1 = 1.70158; c3 = c1 + 1; 
-            // 1 + c3 * (x - 1)^3 + c1 * (x - 1)^2
+
+            // math formula for "pop" effect EaseOutBack
+            // found on internet
             float c1 = 1.70158f;
             float c3 = c1 + 1;
             float x = t - 1;
             float ease = 1 + c3 * Mathf.Pow(x, 3) + c1 * Mathf.Pow(x, 2);
-            
+
             transform.localScale = Vector3.Lerp(Vector3.zero, originalScale, ease);
             yield return null;
         }
@@ -56,19 +56,23 @@ public class UIButtonAnimation : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        // play sound on hover
         if (MusicManager.Instance != null) MusicManager.Instance.PlayUIHoverSfx();
         StopAllCoroutines();
+        // make it big
         StartCoroutine(ScaleTo(originalScale * hoverScale));
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         StopAllCoroutines();
+        // back to normal
         StartCoroutine(ScaleTo(originalScale));
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        // play sound click
         if (MusicManager.Instance != null) MusicManager.Instance.PlayUIClickSfx();
     }
 
@@ -76,7 +80,7 @@ public class UIButtonAnimation : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         float timer = 0f;
         Vector3 start = transform.localScale;
-        float duration = 0.1f;
+        float duration = 0.1f; // short time
         while (timer < duration)
         {
             timer += Time.unscaledDeltaTime;

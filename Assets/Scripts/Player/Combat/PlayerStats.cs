@@ -44,13 +44,13 @@ public class PlayerStats : MonoBehaviour
 
     void Start()
     {
-        // Auto-find if forgot to drag
+        // find hud if forgot to drag
         if (perkHUD == null) perkHUD = FindObjectOfType<PerkHUD>();
 
         StartCoroutine(RegenerationLoop());
         StartCoroutine(ProximityDamageLoop());
 
-        // In case stats are preloaded (debug), ensure visuals match.
+        // debug visual update
         UpdateProximityAuraVisual();
     }
 
@@ -89,33 +89,33 @@ public class PlayerStats : MonoBehaviour
                 bonusBounces += Mathf.RoundToInt(perk.amount);
                 break;
             case PerkType.DashCooldownMultiplier:
-                // Amount is a multiplier (0.5 = half cooldown). Clamp to avoid 0/negative.
+                // multiplier logic so it doesnt go negative
                 float mult = (perk.amount <= 0f) ? 1f : perk.amount;
                 dashCooldownMultiplier *= Mathf.Clamp(mult, 0.05f, 10f);
                 break;
             case PerkType.Vampirism:
-                // Amount is a fraction (0.01 = 1%). Stacks additively.
+                // stacks additively
                 vampirismPercent += Mathf.Max(0f, perk.amount);
                 break;
             case PerkType.Regeneration:
-                // Amount is a fraction per second (0.01 = 1% max HP per second). Stacks additively.
+                // percent per sec
                 regenerationPercentPerSecond += Mathf.Max(0f, perk.amount);
                 break;
             case PerkType.ExtraAdaptive:
-                // Amount is additional perk options offered (1 = 3 -> 4). Typically one-time.
+                // bonus options for perks
                 extraPerkOptionsBonus += Mathf.Max(0, Mathf.RoundToInt(perk.amount));
                 break;
             case PerkType.ProximityDamageAura:
-                // Amount is a fraction per second of enemy max HP (0.02 = 2%). Stacks additively.
+                // aura damage percent
                 proximityDamagePercentPerSecond += Mathf.Max(0f, perk.amount);
                 UpdateProximityAuraVisual();
                 break;
             case PerkType.DashDamageOnHit:
-                // Amount is +% damage added to dash damage (0.10 = +10%). Stacks additively.
+                // bonus dash dmg
                 dashDamageBonusPercent += Mathf.Max(0f, perk.amount);
                 break;
             case PerkType.XpMultiplier:
-                // Amount is +multiplier added to XP gain (0.10 = +10% XP). Stacks additively.
+                // more xp
                 xpMultiplierBonus += Mathf.Max(0f, perk.amount);
                 break;
         }
@@ -129,10 +129,10 @@ public class PlayerStats : MonoBehaviour
     {
         if (playerHealth != null)
         {
-            // Calculate how much HP to add based on Base Max Health (assuming 100 or current max)
+            // calc how much hp to add
             int amountToAdd = Mathf.RoundToInt(playerHealth.maxHealth * percentage);
             playerHealth.maxHealth += amountToAdd;
-            playerHealth.Heal(amountToAdd); // Heal the amount we just gained
+            playerHealth.Heal(amountToAdd); // heal the gained amount
 
             GameObject healthBar = GameObject.Find("HealthBar");
             if (healthBar != null)
@@ -168,13 +168,13 @@ public class PlayerStats : MonoBehaviour
 
     public float GetModifiedCooldown(float baseCooldown)
     {
-        // Higher multiplier = Lower cooldown
+        // higher mult means lower cooldown
         return baseCooldown / fireRateMultiplier;
     }
 
     public float GetXpMultiplier()
     {
-        // Bonus stacks additively on top of baseline 1x.
+        // base 1x plus bonus
         return Mathf.Max(0f, 1f + xpMultiplierBonus);
     }
 
@@ -189,7 +189,7 @@ public class PlayerStats : MonoBehaviour
         if (vampirismPercent <= 0f) return;
         if (playerHealth == null) return;
 
-        // Accumulate fractional healing so 1% works at low damage.
+        // fractional healing accumulation
         vampirismHealRemainder += damageDealt * vampirismPercent;
 
         int healAmount = Mathf.FloorToInt(vampirismHealRemainder);
@@ -208,7 +208,7 @@ public class PlayerStats : MonoBehaviour
             if (regenerationPercentPerSecond <= 0f) continue;
             if (playerHealth == null) continue;
 
-            // Heal based on current max health; accumulate fractional healing.
+            // heal based on max hp
             regenerationHealRemainder += playerHealth.maxHealth * regenerationPercentPerSecond;
 
             int healAmount = Mathf.FloorToInt(regenerationHealRemainder);
@@ -237,7 +237,7 @@ public class PlayerStats : MonoBehaviour
             {
                 if (hit == null) continue;
 
-                // Ignore self
+                // ignore self
                 if (hit.transform != null && hit.transform.root == transform.root) continue;
 
                 if (!TryGetDamageableWithMaxHealth(hit, out IDamageable damageable, out Component damageableComponent, out int maxHealth))

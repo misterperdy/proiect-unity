@@ -3,10 +3,16 @@ using UnityEngine;
 public class GodMode : MonoBehaviour
 {
     private PlayerHealth playerHealth;
+    private PlayerStats playerStats;
+
+    // start with false so we are not god immediately
+    private bool isGodModeActive = false;
 
     void Start()
     {
+        // getting the health component
         playerHealth = GetComponent<PlayerHealth>();
+        playerStats = GetComponent<PlayerStats>();
         if (playerHealth == null)
         {
             Debug.LogError("GodMode script requires a PlayerHealth component on the same object.");
@@ -16,15 +22,25 @@ public class GodMode : MonoBehaviour
 
     void Update()
     {
-        if (playerHealth != null)
+        // check if user pressed V to toggle god mode
+        if (Input.GetKeyDown(KeyCode.V) && Input.GetKey(KeyCode.LeftControl))
         {
-            // Keep health at max every frame
+            isGodModeActive = !isGodModeActive;
+            Debug.Log("god mode is now: " + isGodModeActive);
+        }
+
+        if (playerHealth != null && isGodModeActive)
+        {
+            // forcing health to max every single frame
+            // so player cant die
             playerHealth.currentHealth = playerHealth.maxHealth;
-            
-            // Optional: Ensure not dead
-            // If PlayerHealth has an 'isDead' flag that's public, we could reset it, 
-            // but PlayerHealth.isDead is private. 
-            // Preventing damage by keeping health full is usually enough unless one-shot kill logic exists.
+
+            if (playerStats != null)
+            {
+                playerStats.damageMultiplier = 15;
+            }
+
+            // logic comment: usually this prevents death unless something deals more dmg than max hp in one hit
         }
     }
 }

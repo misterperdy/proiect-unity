@@ -15,7 +15,7 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
     [Header("AI Settings")]
     public float sightRange = 20f;
     public float patrolRadius = 10f;
-    public float triggerDistance = 2.5f; //distance to trigger explosion sqeunecene
+    public float triggerDistance = 2.5f; // if player gets this close we go boom
 
     [Header("Explosion")]
     public GameObject explosion;
@@ -30,7 +30,7 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
     [Header("Hit Effect")]
     public GameObject hitParticles;
     public GameObject kamikazeMat;
-    public float fadeTime = 0.01f; // Higher number means faster fading
+    public float fadeTime = 0.01f; // visual feedback speed
     public Color32 hitColor = new Color32(255, 0, 0, 255);
     public string rarity;
 
@@ -51,6 +51,7 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
 
     void Start()
     {
+        // color setup
         if (rarity != null)
         {
             if (rarity == "Magic")
@@ -82,7 +83,7 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
             playerHealth = playerObj.GetComponent<PlayerHealth>();
         }
 
-        // navmesh setup same as enemyt
+        // navmesh safety check
         if (!agent.isOnNavMesh)
         {
             NavMeshHit closestHit;
@@ -96,7 +97,7 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
 
     void Update()
     {
-        // skip if exploding
+        // once started, cant stop explosion
         if (isExploding) return;
 
         switch (currentState)
@@ -110,7 +111,6 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
             case AIState.Searching:
                 Search();
                 break;
-                // explosion is managed by coroutine , not in update
         }
     }
 
@@ -126,7 +126,7 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
         foreach (var r in renderers) r.material.color = color;
     }
 
-    // CanSeePlayer same as enemy
+    // checking vision
     bool CanSeePlayer()
     {
         if (player == null) return false;
@@ -155,6 +155,7 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
             return;
         }
 
+        // reached dest
         if (!agent.pathPending && agent.remainingDistance < 0.5f)
             SetRandomPatrolDestination();
     }
@@ -170,7 +171,7 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
 
         agent.SetDestination(player.position);
 
-        // triggers explison when close
+        // checks if close enough to blow up
         if (Vector3.Distance(transform.position, player.position) <= triggerDistance)
         {
             StartCoroutine(ExplodeSequence());
@@ -192,41 +193,41 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
         }
     }
 
-    // explosion logic
+    // the big boom logic
     IEnumerator ExplodeSequence()
     {
         isExploding = true;
         currentState = AIState.Exploding;
 
-        // stop enemy movement
+        // freezing movement
         agent.isStopped = true;
         agent.velocity = Vector3.zero;
 
         if (rb != null)
         {
-            rb.isKinematic = true; // set rigidbody to kinematic so it doesn't take knockback
+            rb.isKinematic = true;
             rb.velocity = Vector3.zero;
         }
 
-        //explosion timer+animation
+        // expanding animation
         float timer = 0f;
 
         while (timer < explosionDelay)
         {
             timer += Time.deltaTime;
 
-            //gets bigger
+            // visual swelling
             transform.localScale += Vector3.one * Time.deltaTime * 0.5f;
             yield return null;
         }
 
-        // explode
+        // actually dealing damage
         Explode();
     }
 
     void Explode()
     {
-        //damage done in a sphere
+        // finding what we hit
         Collider[] hitObjects = Physics.OverlapSphere(transform.position, explosionRadius);
 
         foreach (Collider hit in hitObjects)
@@ -239,6 +240,7 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
                     ph.TakeDamage(explosionDamage);
                 }
 
+                // knockback effect
                 Rigidbody rb = hit.GetComponent<Rigidbody>();
                 if (rb != null)
                 {
@@ -247,13 +249,13 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
             }
         }
 
-        
 
+        // showing explosion gfx
         explosion.SetActive(true);
-        body.SetActive(false);  
+        body.SetActive(false);
 
-        //destroy as it's served its purpose
-        Destroy(gameObject,1f);
+        // cleaning up
+        Destroy(gameObject, 1f);
     }
 
     void SetRandomPatrolDestination()
@@ -265,13 +267,12 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
             agent.SetDestination(hit.position);
     }
 
-    //to be able to kill it
     public void TakeDamage(int amount)
     {
         StartCoroutine(SetHitEffect());
         StartCoroutine(SetHitParticles());
 
-        if (isExploding) return;
+        if (isExploding) return; // cant kill if already exploding
 
         currentHealth -= amount;
 
@@ -323,7 +324,7 @@ public class KamikazeEnemyAI : MonoBehaviour, IDamageable
         MinimapTracker tracker = GetComponent<MinimapTracker>();
         if (tracker != null)
         {
-            tracker.TriggerDeathAnimation(); 
+            tracker.TriggerDeathAnimation();
         }
 
         if (xpOrbPrefab != null)

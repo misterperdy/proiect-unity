@@ -9,7 +9,7 @@ public class PlayerLookAtCursor : MonoBehaviour
     private Rigidbody rb;
     private Camera cam;
 
-    //rotation for bow
+    // variables for bow rotation
     private Animator animator;
     public Transform spineBone;
     public float archeryRotationOffset = 90f;
@@ -46,8 +46,8 @@ public class PlayerLookAtCursor : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //apply physics here, rotate Rigidbody instead of transform
-        if(targetDirection!= Vector3.zero)
+        // rotate rigid body here physics
+        if (targetDirection != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
             Quaternion nextRotation = Quaternion.Lerp(rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
@@ -58,7 +58,7 @@ public class PlayerLookAtCursor : MonoBehaviour
 
     private void LateUpdate()
     {
-        //rotation of torso with the bow animation taht rotaset the torso to the right but we bring it back to be wher eyou are looking
+        // rotate torso when shooting bow to look realistic
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(1);
         AnimatorTransitionInfo transInfo = animator.GetAnimatorTransitionInfo(1);
 

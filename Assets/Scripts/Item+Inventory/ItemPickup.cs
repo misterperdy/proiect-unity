@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// to be added on an item's prefab
+// script needed on prefab to be picked up
 
 public class ItemPickup : MonoBehaviour
 {
-    public ItemSO item; // item's data
+    public ItemSO item; // data for the item
 
     private void OnTriggerEnter(Collider other)
     {
@@ -14,11 +14,12 @@ public class ItemPickup : MonoBehaviour
 
         if (other.CompareTag("Player"))
         {
-            // if the item on the ground collided with a player, try to add it in inventory
+            // trying to add to player inventory
             bool wasPickedUp = InventoryManager.Instance.AddItem(item);
 
             Debug.Log(item);
 
+            // if successful play sound and delete object
             if (wasPickedUp)
             {
                 if (MusicManager.Instance != null && item != null && item.itemType != ItemType.None)
@@ -26,10 +27,12 @@ public class ItemPickup : MonoBehaviour
                     MusicManager.Instance.PlaySfx(MusicManager.Instance.weaponPickupSfx);
                 }
 
-                Destroy(gameObject); // destroy item on ground
+                Destroy(gameObject); // poof
             }
         }
     }
+
+    // helper to freeze physics after dropping
     public void StopDropping()
     {
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -38,7 +41,7 @@ public class ItemPickup : MonoBehaviour
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
 
-            rb.isKinematic = true;
+            rb.isKinematic = true; // disable physics calc
         }
     }
 }

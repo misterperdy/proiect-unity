@@ -1,11 +1,10 @@
-
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
     public GameObject enemyPrefab;
     public int numberOfEnemies = 10;
-    public GameObject floor;
+    public GameObject floor; // reference to floor to get bounds
 
     private Camera mainCamera;
 
@@ -19,6 +18,7 @@ public class EnemySpawner : MonoBehaviour
 
     System.Collections.IEnumerator SpawnEnemiesSlowly()
     {
+        // spawning loop
         for (int i = 0; i < numberOfEnemies; i++)
         {
             SpawnEnemy();
@@ -45,6 +45,7 @@ public class EnemySpawner : MonoBehaviour
 
         Vector3 randomSpawnPoint;
         int attempts = 0;
+        // trying to find a valid spot
         do
         {
             float randomX = Random.Range(floorBounds.min.x, floorBounds.max.x);
@@ -57,7 +58,6 @@ public class EnemySpawner : MonoBehaviour
         if (attempts < 100)
         {
             Instantiate(enemyPrefab, randomSpawnPoint, Quaternion.identity);
-            //enemyPrefab.GetComponent<Animator>().SetBool("isChasing", true);
         }
         else
         {
@@ -65,6 +65,7 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    // check if point is on screen
     bool IsVisibleByCamera(Vector3 position)
     {
         Vector3 viewportPoint = mainCamera.WorldToViewportPoint(position);

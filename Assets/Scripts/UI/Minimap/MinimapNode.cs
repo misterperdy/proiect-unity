@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class MinimapNode : MonoBehaviour
 {
     public Image nodeImage;
-    public Button btn; // Add a Button component to your Node Prefab
+    public Button btn; // add a button component to your node prefab
 
     private Color nodeOriginalColor;
     public int tileType;
@@ -17,7 +17,7 @@ public class MinimapNode : MonoBehaviour
         nodeImage = GetComponent<Image>();
         btn = GetComponent<Button>();
 
-        // Default button state: Disabled
+        // default button state should be disabled so we dont click random things
         if (btn != null)
         {
             btn.onClick.RemoveAllListeners();
@@ -36,6 +36,7 @@ public class MinimapNode : MonoBehaviour
     public void Hide()
     {
         if (nodeImage == null) return;
+        // make it transparent to hide it
         Color c = nodeOriginalColor;
         c.a = 0f;
         nodeImage.color = c;
@@ -45,6 +46,7 @@ public class MinimapNode : MonoBehaviour
     {
         if (isVisited) return;
         if (nodeImage == null) return;
+        // show it a little bit ghosty if just discovered
         Color c = nodeOriginalColor;
         c.a = 0.2f;
         nodeImage.color = c;
@@ -54,18 +56,19 @@ public class MinimapNode : MonoBehaviour
     {
         isVisited = true;
         if (nodeImage == null) return;
+        // full color if we actually went there
         nodeImage.color = nodeOriginalColor;
     }
 
-    // Called by Controller when opening map for teleport
+    // called by controller when opening map for teleport
     public void EnableTeleportInteraction(bool enable)
     {
-        // Only allow teleporting to ROOMS (Type 1) that we have VISITED
+        // only allow teleporting to rooms type 1 that we have visited
         if (btn != null && tileType == 1 && isVisited)
         {
             btn.interactable = enable;
 
-            // Optional: Highlight clickable nodes
+            // highlight clickable nodes with green
             if (enable) nodeImage.color = Color.green;
             else nodeImage.color = nodeOriginalColor;
         }

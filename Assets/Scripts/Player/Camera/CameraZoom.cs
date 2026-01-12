@@ -9,23 +9,23 @@ public class CameraZoom : MonoBehaviour
     public float maxZoom = 14f;
 
     private CameraFollow cameraFollow;
-    
+
     void Start()
     {
-        // Find the CameraFollow script in the scene. 
-        // We assume there's one active camera with this script.
+        // locating the camera follow script to change its offset
         cameraFollow = FindObjectOfType<CameraFollow>();
 
         if (cameraFollow == null)
         {
             Debug.LogError("CameraZoom: No CameraFollow script found in scene!");
-            enabled = false; 
+            enabled = false;
             return;
         }
     }
 
     void Update()
     {
+        // disable zoom if map is fullscreen
         if (MinimapController.Instance != null && MinimapController.Instance.IsFullscreen)
         {
             return;
@@ -33,21 +33,22 @@ public class CameraZoom : MonoBehaviour
 
         if (cameraFollow == null) return;
 
+        // reading scroll wheel
         float scrollInput = Input.GetAxis("Mouse ScrollWheel");
 
         if (scrollInput != 0f)
         {
-            // Calculate new offset magnitude
+            // logic to change the offset length
             Vector3 currentOffset = cameraFollow.offset;
             float currentDist = currentOffset.magnitude;
-            
-            // Invert scroll input so scroll up zooms in (smaller distance)
-            float targetDist = currentDist - (scrollInput * zoomSpeed * Time.deltaTime * 10f); // Multiply by 10 for better feel
 
-            // Clamp distance
+            // calculating target distance
+            float targetDist = currentDist - (scrollInput * zoomSpeed * Time.deltaTime * 10f);
+
+            // limiting zoom
             targetDist = Mathf.Clamp(targetDist, minZoom, maxZoom);
 
-            // Apply new magnitude while preserving direction
+            // applying back to offset
             cameraFollow.offset = currentOffset.normalized * targetDist;
         }
     }

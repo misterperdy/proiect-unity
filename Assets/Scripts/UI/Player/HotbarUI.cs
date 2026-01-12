@@ -3,35 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-//script that manages the displaying of your inventory on the UI hotbar
+// script to show items in hotbar
 public class InventoryUI : MonoBehaviour
 {
     public InventoryManager inventoryManager;
 
-    public Image[] slotItemImages; // drag slots' children in inspector
-    public Image[] selectedHotbarImages; //border of each box that is displayed if its the slot selected
+    public Image[] slotItemImages; // drag drag children
+    public Image[] selectedHotbarImages; // borders for selected
 
     private void Start()
     {
         inventoryManager = InventoryManager.Instance;
-        inventoryManager.OnInventoryChanged += UpdateUI; // when inventory manager calls OnInventoryChanged, it triggers UpdateUI
-        inventoryManager.OnActiveSlotChanged += UpdateSelectedSlot; // update slot selected
+        inventoryManager.OnInventoryChanged += UpdateUI; // subscribe to event
+        inventoryManager.OnActiveSlotChanged += UpdateSelectedSlot; // subscribe to select event
 
         UpdateUI();
-        UpdateSelectedSlot(0);
+        UpdateSelectedSlot(0); // select first one default
     }
 
     private void OnDestroy()
     {
+        // unsubscribe to be safe
         inventoryManager.OnInventoryChanged -= UpdateUI;
     }
 
     void UpdateUI()
     {
-        //iterate through all slots
-        for(int i = 0; i < slotItemImages.Length; i++)
+        // check all slots
+        for (int i = 0; i < slotItemImages.Length; i++)
         {
-            //check if we have item on this slot
+            // if we have item in list
             if (i < inventoryManager.items.Count)
             {
                 slotItemImages[i].sprite = inventoryManager.items[i].itemIcon;
@@ -39,23 +40,23 @@ public class InventoryUI : MonoBehaviour
             }
             else
             {
-                slotItemImages[i].gameObject.SetActive(false); // disable if we dont have an icon
+                slotItemImages[i].gameObject.SetActive(false); // hide if empty
             }
         }
     }
 
-    //update which hotbar slot displays as selected
+    // show border for selected item
     void UpdateSelectedSlot(int activeIndex)
     {
-        //iterate through all hotbar slots
-        for(int i = 0; i < selectedHotbarImages.Length; i++)
+        // check all borders
+        for (int i = 0; i < selectedHotbarImages.Length; i++)
         {
-            //if this slot is selected
-            if(i == activeIndex)
+            // if index matches active index
+            if (i == activeIndex)
             {
-                selectedHotbarImages[i].gameObject.SetActive(true); //enable the border
+                selectedHotbarImages[i].gameObject.SetActive(true); // show
             }
-            else // else disable the border
+            else // hide others
             {
                 selectedHotbarImages[i].gameObject.SetActive(false);
             }

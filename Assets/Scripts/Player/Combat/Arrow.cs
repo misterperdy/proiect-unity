@@ -4,17 +4,17 @@ using UnityEngine.AI;
 
 public class Arrow : MonoBehaviour
 {
-    // These values will be set by the PlayerAttack script when the arrow is fired
+    // values set by player attack
     public float damage;
     public float speed = 30f;
-    public int maxBounces; 
+    public int maxBounces;
 
     private int remainingBounces;
 
     private float fixedYPosition;
 
     private Rigidbody rb;
-    private float lifeTime = 5f; // Arrow will destroy itself after 5 seconds if it hits nothing
+    private float lifeTime = 5f; // destroy self after 5 secs
 
     private PlayerStats ownerStats;
 
@@ -27,8 +27,8 @@ public class Arrow : MonoBehaviour
 
     void OnEnable()
     {
-        //reset speed
-        if( rb != null)
+        // reset speed
+        if (rb != null)
         {
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
@@ -48,10 +48,10 @@ public class Arrow : MonoBehaviour
 
         fixedYPosition = transform.position.y;
 
-        //apply speed
+        // apply speed
         rb.velocity = transform.forward * speed;
 
-        StartCoroutine(DeactivateAfterTime()); //timer until deactivation
+        StartCoroutine(DeactivateAfterTime()); // timer to die
     }
 
     void FixedUpdate()
@@ -87,7 +87,7 @@ public class Arrow : MonoBehaviour
 
             Debug.Log("Arrow hit an enemy: " + collision.gameObject.name);
 
-            // New behavior: if we still have bounces, bounce off enemies too.
+            // behavior for bouncing off enemies
             if (remainingBounces > 0 && collision.contacts.Length > 0)
             {
                 remainingBounces--;
@@ -203,7 +203,7 @@ public class Arrow : MonoBehaviour
         damageableComponent = null;
         if (hit == null) return false;
 
-        // Unity can sometimes miss interface GetComponent on child colliders; use known types in parents.
+        // unity sometimes misses interface on child so check parent
         EnemyAI enemy = hit.GetComponentInParent<EnemyAI>();
         if (enemy != null) { damageable = enemy; damageableComponent = enemy; return true; }
 

@@ -16,7 +16,7 @@ public class LevelingSystem : MonoBehaviour
     private PlayerStats _playerStats;
 
     [Header("Debug")]
-    public int previousLevelCost = 0; // Tracks "Cost(n-1)" for formula
+    public int previousLevelCost = 0; // memory for math formula
 
     [Header("Debug XP Spawn (DEV ONLY)")]
     public bool enableDebugXpSpawn = true;
@@ -30,27 +30,30 @@ public class LevelingSystem : MonoBehaviour
     {
         _playerStats = GetComponent<PlayerStats>();
 
-        // Initial setup for Level 1 -> 2
-        // Formula: currentLevel(1) * 10 + previous(0) = 10
+        // setup first level cost
+        // basic formula setup
         CalculateNextLevelCost();
     }
 
     void Update()
     {
+        // --- DEBUG CHEATS ---
         if (!enableDebugXpSpawn) return;
         if (!Input.GetKeyDown(debugSpawnKey)) return;
+        if (!Input.GetKey(KeyCode.LeftControl)) return;
 
         Debug.Log("[DEV] Spawning debug XP orbs...");
 
         if (xpOrbPrefab == null)
         {
-            // Fallback: grab the prefab reference from any enemy in the scene.
+            // fallback: try to steal prefab from enemies if i forgot to assign it
             EnemyAI enemy = FindObjectOfType<EnemyAI>();
             if (enemy != null) xpOrbPrefab = enemy.xpOrbPrefab;
             ShooterEnemy shooter = FindObjectOfType<ShooterEnemy>();
             if (xpOrbPrefab == null && shooter != null) xpOrbPrefab = shooter.xpOrbPrefab;
         }
 
+        // if still null, just give xp directly
         if (xpOrbPrefab == null)
         {
             int xpFallback = Mathf.Max(1, debugOrbCount) * Mathf.Max(1, debugXpPerOrb);
@@ -59,6 +62,7 @@ public class LevelingSystem : MonoBehaviour
             return;
         }
 
+        // spawn loop for orbs
         int count = Mathf.Max(1, debugOrbCount);
         int xpAmount = Mathf.Max(1, debugXpPerOrb);
         float radius = Mathf.Max(0.1f, debugSpawnRadius);
@@ -78,6 +82,7 @@ public class LevelingSystem : MonoBehaviour
     {
         if (amount <= 0) return;
 
+        // apply multiplier from stats
         float mult = (_playerStats != null) ? _playerStats.GetXpMultiplier() : 1f;
         int finalAmount = Mathf.RoundToInt(amount * mult);
         if (finalAmount < 1) finalAmount = 1;
@@ -86,7 +91,7 @@ public class LevelingSystem : MonoBehaviour
 
         currentAmountGained = finalAmount;
 
-        // Check for Level Up (While loop in case we get huge XP and skip multiple levels)
+        // loop in case we gain enough xp for multiple levels at once
         while (currentXP >= xpRequiredForNextLevel)
         {
             LevelUp();
@@ -95,23 +100,24 @@ public class LevelingSystem : MonoBehaviour
 
     void LevelUp()
     {
-        currentXP -= xpRequiredForNextLevel; // Carry over excess XP
+        currentXP -= xpRequiredForNextLevel; // keep extra xp
         currentLevel++;
 
-        // Save the cost of the level we just finished to use in the formula
+        // save old cost
         previousLevelCost = xpRequiredForNextLevel;
 
         CalculateNextLevelCost();
 
         Debug.Log("LEVEL UP! New Level: " + currentLevel);
 
+        // open ui
         if (perkManager != null)
             perkManager.NotifyLevelUp();
     }
 
     void CalculateNextLevelCost()
     {
-        // Formula: currentLevel * 5 + previousLevelCost
+        // linear growth formula
         xpRequiredForNextLevel = (currentLevel * 5) + previousLevelCost;
     }
 }

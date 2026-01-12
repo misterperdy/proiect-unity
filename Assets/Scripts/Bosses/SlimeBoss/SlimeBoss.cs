@@ -61,6 +61,7 @@ public class SlimeBoss : MonoBehaviour, IDamageable
         rb = GetComponent<Rigidbody>();
         if (rb == null)
         {
+            // adding rigidbody if missing
             rb = gameObject.AddComponent<Rigidbody>();
             rb.isKinematic = true;
         }
@@ -95,13 +96,13 @@ public class SlimeBoss : MonoBehaviour, IDamageable
     void Update()
     {
         // --- ROTATION LOGIC ---
-        // Always look at the player, regardless of state or if attacking
+        // constantly face the player
         if (player != null)
         {
             SmoothLookAt(player.position);
         }
 
-        // Stop state machine logic if we are in the middle of an attack coroutine
+        // blocking update if attacking
         if (isAttacking) return;
 
         switch (currentState)
@@ -132,8 +133,7 @@ public class SlimeBoss : MonoBehaviour, IDamageable
     {
         if (player == null) return;
 
-        // Note: SmoothLookAt is handled in Update now
-
+        // rng to decide which jump to use
         float rng = Random.Range(0f, 1f);
         if (rng > 0.7f)
         {
@@ -152,16 +152,16 @@ public class SlimeBoss : MonoBehaviour, IDamageable
 
         float realGroundY = transform.position.y;
         RaycastHit hit;
-        // Cautam pamantul sub noi
+        // finding the ground level
         if (Physics.Raycast(transform.position + Vector3.up, Vector3.down, out hit, 5f, floorLayer))
         {
             realGroundY = hit.point.y;
         }
 
-        // Aplicam pozitia corecta inainte de animatie
+        // snap to ground
         transform.position = new Vector3(transform.position.x, realGroundY, transform.position.z);
 
-        // 1. Prepare
+        // 1. Prepare visual
         SwapModel(true);
 
         if (modelJump != null)
@@ -169,19 +169,19 @@ public class SlimeBoss : MonoBehaviour, IDamageable
             modelJump.transform.localPosition = new Vector3(0, jumpModelYOffset, 0);
         }
 
-        // Ensure physics doesn't mess with our manual movement
+        // disable physics interfere
         if (rb != null) rb.isKinematic = true;
 
         yield return new WaitForSeconds(0.5f * speedMultiplier);
 
         currentState = BossState.Jumping;
 
-        // 2. Calculate Targets
+        // 2. Calculate jump path
         Vector3 startPos = transform.position;
         Vector3 direction = (player.position - transform.position).normalized;
         Vector3 targetPos = transform.position + direction * smallJumpDistance;
 
-        // Lock the Y height to the starting height so we don't drift underground
+        // keeping y level same
         float groundLevel = startPos.y;
         targetPos.y = groundLevel;
 
@@ -193,10 +193,10 @@ public class SlimeBoss : MonoBehaviour, IDamageable
             timer += Time.deltaTime;
             float t = timer / currentDuration;
 
-            // Move X/Z linearly
+            // linear lerp for x/z
             Vector3 currentPos = Vector3.Lerp(startPos, targetPos, t);
 
-            // Parabola: 4 * height * t * (1-t)
+            // parabola math for the jump arc
             float heightOffset = 4 * smallJumpHeight * t * (1 - t);
             currentPos.y = groundLevel + heightOffset;
 
@@ -205,15 +205,12 @@ public class SlimeBoss : MonoBehaviour, IDamageable
         }
 
         // 3. Land
-        // Force exact position to fix any floating point errors
+        // forcing exact position
         targetPos.y = groundLevel;
         transform.position = targetPos;
 
         SwapModel(false);
-        CheckAreaDamage(2f);
-
-        // Optional: Turn physics back on if you want gravity to work while chasing
-        // if(rb != null) rb.isKinematic = false; 
+        CheckAreaDamage(2f); // dmg check on landing
 
         currentState = BossState.Recovering;
         yield return new WaitForSeconds(timeBetweenJumps * speedMultiplier);
@@ -227,7 +224,7 @@ public class SlimeBoss : MonoBehaviour, IDamageable
         currentState = BossState.BigJumping;
         isAttacking = true;
 
-        // 1. PREGATIREA: Gasim solul real
+        // 1. Setup ground
         float realGroundY = transform.position.y;
         RaycastHit hit;
         if (Physics.Raycast(transform.position + Vector3.up, Vector3.down, out hit, 10f, floorLayer))
@@ -235,15 +232,15 @@ public class SlimeBoss : MonoBehaviour, IDamageable
             realGroundY = hit.point.y;
         }
 
-        // Schimbam modelul si aplicam offsetul vizual (ca la small jump)
+        // changing model
         SwapModel(true);
         if (modelJump != null) modelJump.transform.localPosition = new Vector3(0, jumpModelYOffset, 0);
 
         if (rb != null) rb.isKinematic = true;
 
-        // 2. URCAREA (ASCENT): Nu il teleportam instant, il ridicam rapid
-        float ascentDuration = 0.5f; // Cat timp ii ia sa ajunga sus
-        float airHeight = 15f; // Cat de sus zboara (sa iasa din ecran)
+        // 2. Flying up
+        float ascentDuration = 0.5f;
+        float airHeight = 15f; // fly high out of screen
         float timer = 0f;
         Vector3 startPos = transform.position;
         Vector3 highPos = new Vector3(startPos.x, realGroundY + airHeight, startPos.z);
@@ -252,20 +249,20 @@ public class SlimeBoss : MonoBehaviour, IDamageable
         {
             timer += Time.deltaTime;
             float t = timer / ascentDuration;
-            // Interpolare lina in sus
-            transform.position = Vector3.Lerp(startPos, highPos, t * t); // t*t pentru accelerare
+            // smooth fly up
+            transform.position = Vector3.Lerp(startPos, highPos, t * t);
             yield return null;
         }
 
-        // 3. SPAWN UMBRA (Acum ca boss-ul e sus)
+        // 3. Spawning the shadow
         if (shadowPrefab != null)
         {
-            // Spawnam umbra exact pe pamant, sub boss
+            // spawn shadow on floor
             Vector3 shadowPos = new Vector3(transform.position.x, realGroundY + 0.05f, transform.position.z);
             activeShadow = Instantiate(shadowPrefab, shadowPos, Quaternion.Euler(90, 0, 0));
         }
 
-        // 4. URMARIREA (HOVER): Boss-ul sta sus, Umbra jos
+        // 4. Hovering and chasing
         float chaseDuration = bigJumpDuration * speedMultiplier;
         timer = 0f;
 
@@ -275,30 +272,30 @@ public class SlimeBoss : MonoBehaviour, IDamageable
 
             if (activeShadow != null && player != null)
             {
-                // A. Misca UMBRA spre player (pe sol)
+                // Move shadow towards player
                 Vector3 dirToPlayer = (player.position - activeShadow.transform.position).normalized;
-                dirToPlayer.y = 0; // Ignoram inaltimea
+                dirToPlayer.y = 0;
 
-                // Calculam noua pozitie a umbrei
+                // moving shadow
                 Vector3 newShadowPos = activeShadow.transform.position + dirToPlayer * shadowFollowSpeed * Time.deltaTime;
 
-                // Fortam umbra sa ramana la Y-ul solului (ca sa nu dispara in pamant sau aer)
+                // stick shadow to ground
                 newShadowPos.y = realGroundY + 0.05f;
 
                 activeShadow.transform.position = newShadowPos;
 
-                // B. Misca BOSS-UL sa urmareasca umbra (dar ramane SUS in aer)
+                // keep boss directly above shadow
                 transform.position = new Vector3(newShadowPos.x, realGroundY + airHeight, newShadowPos.z);
             }
 
             yield return null;
         }
 
-        // 5. COBORAREA (SLAM): Cade rapid spre umbra
+        // 5. Drop Down (Slam)
         Vector3 targetLandPos = transform.position;
-        targetLandPos.y = realGroundY; // Tinta e jos
+        targetLandPos.y = realGroundY;
 
-        float dropDuration = 0.2f; // Foarte rapid
+        float dropDuration = 0.2f; // fast fall
         timer = 0f;
         Vector3 currentHighPos = transform.position;
 
@@ -310,17 +307,17 @@ public class SlimeBoss : MonoBehaviour, IDamageable
             yield return null;
         }
 
-        // Asiguram pozitia finala
+        // snap to ground
         transform.position = targetLandPos;
 
-        // Damage si efecte
+        // dmg and spawn puddle
         CheckAreaDamage(slamRadius);
         if (slimePuddlePrefab != null) Instantiate(slimePuddlePrefab, transform.position, slimePuddlePrefab.transform.rotation);
 
-        // 6. CURATARE
+        // 6. Cleanup
         if (activeShadow != null) Destroy(activeShadow);
 
-        // Resetam modelul vizual
+        // reset model
         if (modelJump != null) modelJump.transform.localPosition = Vector3.zero;
         SwapModel(false);
 
@@ -354,7 +351,7 @@ public class SlimeBoss : MonoBehaviour, IDamageable
     void SmoothLookAt(Vector3 target)
     {
         Vector3 direction = (target - transform.position).normalized;
-        direction.y = 0; // Keep looking flat, don't look up/down
+        direction.y = 0; // look flat
         if (direction != Vector3.zero)
         {
             Quaternion lookRotation = Quaternion.LookRotation(direction);
@@ -397,11 +394,12 @@ public class SlimeBoss : MonoBehaviour, IDamageable
 
         float healthPercent = (float)currentHealth / maxHealth;
 
-        if (healthPercent <= 0.25f) speedMultiplier = 0.5f; 
-        else if (healthPercent <= 0.50f) speedMultiplier = 0.65f; 
-        else if (healthPercent <= 0.75f) speedMultiplier = 0.8f; 
-        
-        
+        // speed up as health gets lower
+        if (healthPercent <= 0.25f) speedMultiplier = 0.5f;
+        else if (healthPercent <= 0.50f) speedMultiplier = 0.65f;
+        else if (healthPercent <= 0.75f) speedMultiplier = 0.8f;
+
+
         if (currentHealth <= 0) Die();
     }
 
@@ -427,7 +425,7 @@ public class SlimeBoss : MonoBehaviour, IDamageable
         if (activeShadow != null) Destroy(activeShadow);
         if (bossHealthBar != null) bossHealthBar.ToggleBar(false);
         Destroy(gameObject);
-       
+
     }
 
     private void OnCollisionStay(Collision collision)

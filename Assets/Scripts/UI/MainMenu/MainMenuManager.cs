@@ -65,48 +65,48 @@ public class MainMenuManager : MonoBehaviour
 
     private void Start()
     {
-        // Ensure we start with the main panel visible and help hidden
+        // ensure start with main panel visible
         ShowMain();
     }
 
     private void InitializeMusic()
     {
-        // Try to find existing MusicManager
+        // try finding existing music manager
         if (MusicManager.Instance == null)
         {
             GameObject musicManagerObj = new GameObject("MusicManager");
             musicManagerObj.AddComponent<MusicManager>();
         }
 
-        // Wait for next frame? No, simpler to just set clips.
-        // If we just added component, Awake runs immediately. Instance should be set.
-        
+        // wait for next frame no need simple set clips
+        // awake runs immediately so instance should be set
+
         if (MusicManager.Instance != null)
         {
-             MusicManager.Instance.SetClips(mainMenuMusic, gameplayMusic, bossMusic);
-               MusicManager.Instance.SetUISfxClips(uiHoverSfx, uiClickSfx);
-               MusicManager.Instance.SetGameplaySfxClips(playerWalkingSfx, playerRunningSfx, playerMeleeSwingSfx);
-               MusicManager.Instance.SetTeleporterSfxClips(normalTeleporterSfx, bossTeleporterSfx);
+            MusicManager.Instance.SetClips(mainMenuMusic, gameplayMusic, bossMusic);
+            MusicManager.Instance.SetUISfxClips(uiHoverSfx, uiClickSfx);
+            MusicManager.Instance.SetGameplaySfxClips(playerWalkingSfx, playerRunningSfx, playerMeleeSwingSfx);
+            MusicManager.Instance.SetTeleporterSfxClips(normalTeleporterSfx, bossTeleporterSfx);
 
-               MusicManager.Instance.SetPlayerCombatSfxClips(playerBowShootSfx, playerStaffUseSfx, playerTookDamageSfx);
-               MusicManager.Instance.SetEnemyCombatSfxClips(enemyBowShootSfx, enemySwordSwingSfx);
-               MusicManager.Instance.SetEnemyDamageSfxClips(skeletonTookDamageSfx, slimeEnemyTookDamageSfx);
-               MusicManager.Instance.SetBossDamageSfxClips(slimeBossTookDamageSfx, leechBossTookDamageSfx, golemBossTookDamageSfx);
-               MusicManager.Instance.SetPerkSfxClips(perkSelectedSfx);
+            MusicManager.Instance.SetPlayerCombatSfxClips(playerBowShootSfx, playerStaffUseSfx, playerTookDamageSfx);
+            MusicManager.Instance.SetEnemyCombatSfxClips(enemyBowShootSfx, enemySwordSwingSfx);
+            MusicManager.Instance.SetEnemyDamageSfxClips(skeletonTookDamageSfx, slimeEnemyTookDamageSfx);
+            MusicManager.Instance.SetBossDamageSfxClips(slimeBossTookDamageSfx, leechBossTookDamageSfx, golemBossTookDamageSfx);
+            MusicManager.Instance.SetPerkSfxClips(perkSelectedSfx);
 
-               MusicManager.Instance.SetAdditionalSfxClips(
-                   playerDashSfx,
-                   enemyDiesSfx,
-                   bossDiesSfx,
-                   playerDiesGameOverSfx,
-                   gamePausedSfx,
-                   gameUnpausedSfx,
-                   xpPickupSfx,
-                   weaponPickupSfx,
-                   playerMedkitHealingSfx,
-                   turretShootSfx);
+            MusicManager.Instance.SetAdditionalSfxClips(
+                playerDashSfx,
+                enemyDiesSfx,
+                bossDiesSfx,
+                playerDiesGameOverSfx,
+                gamePausedSfx,
+                gameUnpausedSfx,
+                xpPickupSfx,
+                weaponPickupSfx,
+                playerMedkitHealingSfx,
+                turretShootSfx);
 
-             MusicManager.Instance.PlayMainMenuMusic();
+            MusicManager.Instance.PlayMainMenuMusic();
         }
         else
         {
@@ -116,33 +116,31 @@ public class MainMenuManager : MonoBehaviour
 
     public void PlayGame()
     {
-        // Switch to gameplay music right before loading, or let the game scene logic handle it?
-        // User asked for "bgm_default_playing_game.mp3 for normal gameplay"
-        // It's safer to play it when the game starts. 
-        // We can do it here if "PlayGame" is the only entry point.
+        // switch music to gameplay right before loading
+        // user asked for default music for normal gameplay
         MusicManager.Instance.PlayGameplayMusic();
 
-        // Load the game scene
+        // load scene
         SceneManager.LoadScene(gameSceneName);
     }
 
     public void QuitGame()
     {
         Application.Quit();
-        Debug.Log("Quit Game"); 
+        Debug.Log("Quit Game");
     }
 
     public void ShowHelp()
     {
-        if(mainPanel != null) mainPanel.SetActive(false);
-        if(volumePanel != null) volumePanel.SetActive(false);
-        if(helpPanel != null) helpPanel.SetActive(true);
+        if (mainPanel != null) mainPanel.SetActive(false);
+        if (volumePanel != null) volumePanel.SetActive(false);
+        if (helpPanel != null) helpPanel.SetActive(true);
     }
 
     public void ShowMain()
     {
-        if(mainPanel != null) mainPanel.SetActive(true);
-        if(helpPanel != null) helpPanel.SetActive(false);
+        if (mainPanel != null) mainPanel.SetActive(true);
+        if (helpPanel != null) helpPanel.SetActive(false);
         if (volumePanel != null) volumePanel.SetActive(true);
     }
 }

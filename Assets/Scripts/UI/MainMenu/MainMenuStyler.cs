@@ -20,7 +20,7 @@ public class MainMenuStyler : MonoBehaviour
             return;
         }
 
-        // 1. Style Main Panel
+        // style main panel
         if (manager.mainPanel != null)
         {
             StylePanel(manager.mainPanel, true);
@@ -31,7 +31,7 @@ public class MainMenuStyler : MonoBehaviour
             Debug.LogWarning("Main Panel reference is missing in MainMenuManager!");
         }
 
-        // 2. Style Help Panel
+        // style help panel
         if (manager.helpPanel != null)
         {
             StylePanel(manager.helpPanel, false);
@@ -47,22 +47,22 @@ public class MainMenuStyler : MonoBehaviour
 
     private void StylePanel(GameObject panel, bool isMain)
     {
-        // Add Image if missing for background color
+        // add image for background if missing
         Image img = panel.GetComponent<Image>();
         if (img == null) img = panel.AddComponent<Image>();
-        
+
         if (isMain)
         {
-            // Transparent or very subtle for main menu buttons container
-            img.color = new Color(0, 0, 0, 0); 
+            // transparent for main menu
+            img.color = new Color(0, 0, 0, 0);
         }
         else
         {
-            // Dark overlay for help
+            // dark overlay for help
             img.color = new Color(0, 0, 0, 0.95f); // Slightly darker
         }
 
-        // Add Vertical Layout Group
+        // add layout group for spacing
         VerticalLayoutGroup layout = panel.GetComponent<VerticalLayoutGroup>();
         if (layout == null) layout = panel.AddComponent<VerticalLayoutGroup>();
 
@@ -71,7 +71,7 @@ public class MainMenuStyler : MonoBehaviour
         layout.childControlWidth = false;
         layout.childForceExpandHeight = false;
         layout.childForceExpandWidth = false;
-        layout.spacing = 40; // Increased spacing to prevent overlap
+        layout.spacing = 40; // spacing so buttons dont overlap
         layout.padding = new RectOffset(40, 40, 40, 40);
     }
 
@@ -81,15 +81,15 @@ public class MainMenuStyler : MonoBehaviour
         for (int i = 0; i < buttons.Length; i++)
         {
             Button btn = buttons[i];
-            
-            // Style the Button Image
+
+            // set button color
             Image btnImg = btn.GetComponent<Image>();
             if (btnImg != null)
             {
                 btnImg.color = primaryColor;
             }
 
-            // Add Outline/Shadow for depth
+            // add outline effect
             if (btn.GetComponent<Outline>() == null)
             {
                 Outline outline = btn.gameObject.AddComponent<Outline>();
@@ -97,15 +97,15 @@ public class MainMenuStyler : MonoBehaviour
                 outline.effectDistance = new Vector2(2, -2);
             }
 
-            // Determine Text Content
+            // determine text content
             string textToSet = "BUTTON";
             string btnName = btn.name.ToLower();
-            
-            // 1. Try to guess by name
+
+            // guess by name
             if (btnName.Contains("play") || btnName.Contains("start")) textToSet = "PLAY GAME";
             else if (btnName.Contains("help") || btnName.Contains("control")) textToSet = "CONTROLS";
             else if (btnName.Contains("exit") || btnName.Contains("quit")) textToSet = "EXIT";
-            // 2. Fallback to order if name is generic (e.g. "Button")
+            // fallback to order if name is weird
             else
             {
                 if (i == 0) textToSet = "PLAY GAME";
@@ -113,10 +113,10 @@ public class MainMenuStyler : MonoBehaviour
                 else if (i == 2) textToSet = "EXIT";
             }
 
-            // Set the text (Handles both Legacy Text and TextMeshPro)
+            // set the text works for both legacy and textmeshpro
             SetButtonText(btn.gameObject, textToSet);
 
-            // Set Size
+            // set fixed size
             LayoutElement le = btn.GetComponent<LayoutElement>();
             if (le == null) le = btn.gameObject.AddComponent<LayoutElement>();
             le.minWidth = 200;
@@ -124,7 +124,7 @@ public class MainMenuStyler : MonoBehaviour
             le.preferredWidth = 300;
             le.preferredHeight = 60;
 
-            // Add Animation Script
+            // add animation script
             if (btn.GetComponent<UIButtonAnimation>() == null)
             {
                 btn.gameObject.AddComponent<UIButtonAnimation>();
@@ -141,14 +141,14 @@ public class MainMenuStyler : MonoBehaviour
                             "1, 2 - Inventory\n" +
                             "F - Teleporter";
 
-        // Try to find existing text component (Legacy or TMP)
+        // try to find existing text component
         bool textSet = SetTextOnObject(panel, helpString, 28);
         GameObject textObj = null;
 
-        // If no text component found on panel itself, look for child or create one
+        // if no text found look for child
         if (!textSet)
         {
-            // Check if we already created one
+            // check if we already created one
             Transform existingHelp = panel.transform.Find("HelpText");
             if (existingHelp != null)
             {
@@ -160,7 +160,7 @@ public class MainMenuStyler : MonoBehaviour
                 textObj = new GameObject("HelpText");
                 textObj.transform.SetParent(panel.transform);
                 textObj.transform.localScale = Vector3.one;
-                
+
                 Text helpText = textObj.AddComponent<Text>();
                 helpText.text = helpString;
                 helpText.color = textColor;
@@ -170,28 +170,27 @@ public class MainMenuStyler : MonoBehaviour
                 else helpText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
 
                 ContentSizeFitter csf = textObj.AddComponent<ContentSizeFitter>();
-                csf.verticalFit = ContentSizeFitter.FitMode.Unconstrained; // User wants fixed height
+                csf.verticalFit = ContentSizeFitter.FitMode.Unconstrained; // fixed height
                 csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
             }
         }
         else
         {
-            // If the panel itself has text, that's weird for a layout group parent, but okay.
-            // Usually we want a child object.
+            // usually we want a child object
         }
 
-        // Ensure Text is at the top and has correct height
+        // ensure text is top and correct height
         if (textObj != null)
         {
             textObj.transform.SetAsFirstSibling();
-            
+
             RectTransform rt = textObj.GetComponent<RectTransform>();
             if (rt != null)
             {
                 rt.sizeDelta = new Vector2(rt.sizeDelta.x, 250);
             }
-            
-            // Also update ContentSizeFitter if it exists on an existing object
+
+            // also update size fitter
             ContentSizeFitter csf = textObj.GetComponent<ContentSizeFitter>();
             if (csf != null)
             {
@@ -199,15 +198,15 @@ public class MainMenuStyler : MonoBehaviour
             }
         }
 
-        // Style the Back Button
+        // style the back button
         Button backBtn = panel.GetComponentInChildren<Button>();
         if (backBtn != null)
         {
             SetButtonText(backBtn.gameObject, "BACK");
-            
-            // Ensure Button is at the bottom
+
+            // ensure button is bottom
             backBtn.transform.SetAsLastSibling();
-            
+
             if (backBtn.GetComponent<UIButtonAnimation>() == null)
             {
                 backBtn.gameObject.AddComponent<UIButtonAnimation>();
@@ -215,10 +214,10 @@ public class MainMenuStyler : MonoBehaviour
         }
     }
 
-    // Helper to handle both Legacy Text and TextMeshPro via Reflection
+    // helper to handle both legacy and tmp via reflection
     private void SetButtonText(GameObject btnObj, string content)
     {
-        // 1. Try Legacy Text
+        // try legacy text first
         Text legacyText = btnObj.GetComponentInChildren<Text>();
         if (legacyText != null)
         {
@@ -230,7 +229,7 @@ public class MainMenuStyler : MonoBehaviour
             return;
         }
 
-        // 2. Try TextMeshPro (Reflection to avoid missing assembly error)
+        // try tmp via reflection to avoid errors
         Component[] components = btnObj.GetComponentsInChildren<Component>();
         foreach (Component c in components)
         {
@@ -242,13 +241,12 @@ public class MainMenuStyler : MonoBehaviour
                 {
                     var prop = type.GetProperty("text");
                     if (prop != null) prop.SetValue(c, content);
-                    
+
                     var colorProp = type.GetProperty("color");
                     if (colorProp != null) colorProp.SetValue(c, textColor);
 
                     var alignProp = type.GetProperty("alignment");
-                    // TMP alignment is an enum, hard to set via reflection without knowing the enum value. 
-                    // Skipping alignment for TMP to avoid errors, usually defaults to center or can be set in prefab.
+                    // skipping alignment for tmp
                 }
                 catch (System.Exception e)
                 {
@@ -261,7 +259,7 @@ public class MainMenuStyler : MonoBehaviour
 
     private bool SetTextOnObject(GameObject obj, string content, int fontSize)
     {
-        // Check children too
+        // check children
         Text legacyText = obj.GetComponentInChildren<Text>();
         if (legacyText != null)
         {
@@ -282,13 +280,13 @@ public class MainMenuStyler : MonoBehaviour
                 {
                     var prop = type.GetProperty("text");
                     if (prop != null) prop.SetValue(c, content);
-                    
+
                     var colorProp = type.GetProperty("color");
                     if (colorProp != null) colorProp.SetValue(c, textColor);
 
                     var fontSizeProp = type.GetProperty("fontSize");
                     if (fontSizeProp != null) fontSizeProp.SetValue(c, (float)fontSize);
-                    
+
                     return true;
                 }
                 catch { }

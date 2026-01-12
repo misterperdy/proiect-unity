@@ -2,20 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//scriptable object blueprint for items
-//to create an item : right click in assets and go to "Create" -> "New Item"
+// blueprint for creating items in unity editor
 
-public enum ItemType { None, Melee, Ranged, Magic, Turret }; // here we use an enum like a bool but with multiple choices
+public enum ItemType { None, Melee, Ranged, Magic, Turret }; // list of types
 
 [CreateAssetMenu(fileName = "Item", menuName = "New Item")]
 public class ItemSO : ScriptableObject
 {
-    //assign in inspector
+    // basic info
     public ItemType itemType;
-    public Sprite itemIcon; // for GUI
+    public Sprite itemIcon; // icon for ui
     [Header("Prefabs")]
-    public GameObject itemPrefab;      // what happens when you USE it (weapon visual / explosion prefab / turret deployed)
-    public GameObject pickupPrefab;    // what gets spawned when you DROP it (world pickup)
+    public GameObject itemPrefab;      // the object used when attacking or placing
+    public GameObject pickupPrefab;    // the object shown on ground when dropped
 
 
     public float damage = 10f;
@@ -25,7 +24,7 @@ public class ItemSO : ScriptableObject
     public float sizeMultiplier = 1f;
 
     [Header("Ranged")]
-    public float fireRateMultiplier = 1f; 
+    public float fireRateMultiplier = 1f;
     public int projectilesPerShot = 1;
     public float spreadAngle = 0f;
     public int maxBounces = 0;
@@ -42,7 +41,7 @@ public class ItemSO : ScriptableObject
     public int projectilesperTurret = 1;
 
     [Header("Equipped Visual (in-hand)")]
-    public GameObject equippedVisualPrefab; // optional: hammer/sword/etc shown on player
+    public GameObject equippedVisualPrefab; // optional visual for player hand
 
 
 }

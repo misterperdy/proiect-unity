@@ -3,8 +3,8 @@ using UnityEngine;
 public class DamagingArea : MonoBehaviour
 {
     public int damage = 10;
-    public float duration = 10f; // How long the puddle stays
-    public float damageInterval = 1f; // Take damage every 1 second
+    public float duration = 10f; // how long puddle stays alive
+    public float damageInterval = 1f; // cooldown for damage
 
     private float destroyTimer;
 
@@ -15,6 +15,7 @@ public class DamagingArea : MonoBehaviour
 
     void Update()
     {
+        // countdown to destroy
         destroyTimer -= Time.deltaTime;
         if (destroyTimer <= 0)
         {
@@ -26,7 +27,7 @@ public class DamagingArea : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            // Assuming you have the PlayerHealth script from before
+            // getting player health script
             PlayerHealth health = other.GetComponent<PlayerHealth>();
             if (health != null)
             {

@@ -8,7 +8,7 @@ public class BossProjectile : MonoBehaviour
 
     void Start()
     {
-        Destroy(gameObject, lifetime); // Auto destroy to prevent lag
+        Destroy(gameObject, lifetime); // cleaning up so we dont have infinite bullets lag
     }
 
     void Update()
@@ -25,11 +25,11 @@ public class BossProjectile : MonoBehaviour
             {
                 health.TakeDamage(damage);
             }
-            Destroy(gameObject);
+            Destroy(gameObject); // destroy bullet on hit
         }
         else if (other.gameObject.layer == LayerMask.NameToLayer("Environment"))
         {
-            Destroy(gameObject); // Destroy on walls
+            Destroy(gameObject); // destroy if hits wall
         }
     }
 }

@@ -18,7 +18,7 @@ public class AuraRingVisual : MonoBehaviour
     [Min(0.001f)] public float trailWidth = 0.05f;
 
     [Header("Orbit (Clockwise)")]
-    // Negative orbital Y makes it spin clockwise (from above) in Unity's left-handed Y-up.
+    // negaitve y makes it spin clockwise
     public float minOrbitSpeed = -0f;
     public float maxOrbitSpeed = -3f;
 
@@ -69,7 +69,7 @@ public class AuraRingVisual : MonoBehaviour
 
         psr = GetComponent<ParticleSystemRenderer>();
 
-        // Material
+        // setup material
         if (psr != null && psr.sharedMaterial == null)
         {
             Shader shader =
@@ -93,35 +93,34 @@ public class AuraRingVisual : MonoBehaviour
         main.playOnAwake = true;
         main.maxParticles = 200;
 
-        // Spawn on a ring.
+        // spawn on ring shape
         var shape = ps.shape;
         shape.enabled = true;
         shape.shapeType = ParticleSystemShapeType.Circle;
         shape.radius = radius;
         shape.radiusThickness = 0.15f;
         shape.arc = 360f;
-        // Circle shape is in XY by default; rotate so it lies on XZ (ground plane)
+        // rotate to lay on ground
         shape.rotation = new Vector3(90f, 0f, 0f);
         shape.position = new Vector3(0f, yOffset, 0f);
 
-        // Continuous emission.
+        // emission always on
         var emission = ps.emission;
         emission.enabled = true;
         emission.rateOverTime = emissionRate;
 
-        // Orbit around center with varied speeds.
+        // orbit speed
         var vol = ps.velocityOverLifetime;
         vol.enabled = true;
         vol.space = ParticleSystemSimulationSpace.Local;
-        // Unity requires orbital X/Y/Z curves to all use the same curve mode.
-        // Use TwoConstants for all 3 to avoid intermittent "curves must all be in the same mode" warnings.
+        // use twoconstants to fix unity warnings
         vol.orbitalX = new ParticleSystem.MinMaxCurve(0f, 0f);
         vol.orbitalY = new ParticleSystem.MinMaxCurve(minOrbitSpeed, maxOrbitSpeed);
         vol.orbitalZ = new ParticleSystem.MinMaxCurve(0f, 0f);
         vol.radial = 0f;
         vol.speedModifier = 1f;
 
-        // Small wobble so it's not perfectly uniform.
+        // some noise for randomness
         var noise = ps.noise;
         noise.enabled = true;
         noise.strength = 0.12f;
@@ -177,13 +176,13 @@ public class AuraRingVisual : MonoBehaviour
         var main = ps.main;
         main.startColor = c;
 
-        // Also tint the renderer so URP particle shaders respect it.
+        // tint renderer for URP
         if (psr != null)
         {
             psr.sharedMaterial.color = c;
         }
 
-        // Trail width and color tuning.
+        // tune trails
         var trails = ps.trails;
         if (trails.enabled)
         {
