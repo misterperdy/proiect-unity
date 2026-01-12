@@ -6,6 +6,7 @@ public class MainMenuManager : MonoBehaviour
     [Header("Panels")]
     public GameObject mainPanel;
     public GameObject helpPanel;
+    public GameObject volumePanel;
 
     [Header("Scene To Load")]
     public string gameSceneName = "Dungeon";
@@ -134,6 +135,7 @@ public class MainMenuManager : MonoBehaviour
     public void ShowHelp()
     {
         if(mainPanel != null) mainPanel.SetActive(false);
+        if(volumePanel != null) volumePanel.SetActive(false);
         if(helpPanel != null) helpPanel.SetActive(true);
     }
 
@@ -141,5 +143,6 @@ public class MainMenuManager : MonoBehaviour
     {
         if(mainPanel != null) mainPanel.SetActive(true);
         if(helpPanel != null) helpPanel.SetActive(false);
+        if (volumePanel != null) volumePanel.SetActive(true);
     }
 }
