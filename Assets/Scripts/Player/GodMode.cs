@@ -3,6 +3,7 @@ using UnityEngine;
 public class GodMode : MonoBehaviour
 {
     private PlayerHealth playerHealth;
+    private PlayerStats playerStats;
 
     // start with false so we are not god immediately
     private bool isGodModeActive = false;
@@ -11,6 +12,7 @@ public class GodMode : MonoBehaviour
     {
         // getting the health component
         playerHealth = GetComponent<PlayerHealth>();
+        playerStats = GetComponent<PlayerStats>();
         if (playerHealth == null)
         {
             Debug.LogError("GodMode script requires a PlayerHealth component on the same object.");
@@ -32,6 +34,11 @@ public class GodMode : MonoBehaviour
             // forcing health to max every single frame
             // so player cant die
             playerHealth.currentHealth = playerHealth.maxHealth;
+
+            if (playerStats != null)
+            {
+                playerStats.damageMultiplier = 15;
+            }
 
             // logic comment: usually this prevents death unless something deals more dmg than max hp in one hit
         }
