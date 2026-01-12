@@ -23,7 +23,7 @@ The core focus is on replayability, fast tactical decision-making, and adapting 
 
 ### 🎮 Controls
 - **W / A / S / D** — movement (up, left, down, right)
-- **G** — drop weapon/item (only on the `gameover+weapons` branch)
+- **G** — drop weapon/item 
 - **Mouse** — rotate player toward cursor
 - **Shift** — dash (short sprint for dodging or fast movement)
 - **Left Click** — attack (melee/ranged)
