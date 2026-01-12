@@ -1,10 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.SceneTemplate;
 using UnityEngine;
-using UnityEngine.U2D;
-using static UnityEditor.Progress;
-using static UnityEngine.GraphicsBuffer;
 
 // logic for player attack melee ranged and weapons
 public class PlayerAttack : MonoBehaviour
