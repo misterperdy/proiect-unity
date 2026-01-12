@@ -158,7 +158,7 @@ public class PlayerAttack : MonoBehaviour
                         animator.SetTrigger("t_melee");
                         break;
                     case ItemType.Ranged:
-                        PerformRangedAttack();
+                        
                         animator.SetTrigger("t_shoot");
                         break;
                     case ItemType.Turret:
@@ -210,6 +210,11 @@ public class PlayerAttack : MonoBehaviour
             default:
                 break;
         }
+    }
+
+    public void AM_Shoot()
+    {
+        PerformRangedAttack();
     }
 
 

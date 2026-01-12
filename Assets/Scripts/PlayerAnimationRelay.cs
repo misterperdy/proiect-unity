@@ -22,4 +22,16 @@ public class PlayerAnimationRelay : MonoBehaviour
             Debug.LogError("can't find playerAttack script in parent!");
         }
     }
+
+    public void AM_Shoot()
+    {
+        if (playerAttack != null)
+        {
+            playerAttack.AM_Shoot();
+        }
+        else
+        {
+            Debug.LogError("can't find playerAttack script in parent!");
+        }
+    }
 }
